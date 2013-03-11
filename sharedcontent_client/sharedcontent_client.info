@@ -1,0 +1,14 @@
+name = Shared Content Client
+description = Retrieve exposed index records from one or several Shared Content servers and allow local content to be linked to the content from the severs.
+core = 7.x
+package = Shared Content
+version = 7.x-0.19
+configure = admin/config/services/sharedcontent/client
+
+dependencies[] = colorbox
+dependencies[] = entityreference
+dependencies[] = services_client_connection
+dependencies[] = sharedcontent
+
+files[] = sharedcontent_client.module
+files[] = sharedcontent_client.test

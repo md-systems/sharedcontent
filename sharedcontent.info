@@ -1,0 +1,20 @@
+name = Shared Content Core
+description = Common functionality used by the Shared Content server and Shared Content client.
+core = 7.x
+package = Shared Content
+version = 7.x-0.19
+
+dependencies[] = entity
+dependencies[] = ctools
+dependencies[] = services
+
+files[] = sharedcontent.test
+files[] = sharedcontent_cs.test
+
+files[] = includes/sharedcontent.exception.inc
+files[] = includes/sharedcontent.controller.inc
+files[] = includes/sharedcontent.entity.inc
+files[] = includes/sharedcontent.info.inc
+files[] = includes/sharedcontent.views.inc
+files[] = includes/sharedcontent.richmedia.inc
+files[] = includes/sharedcontent.admin.inc

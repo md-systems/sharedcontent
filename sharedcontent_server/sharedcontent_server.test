@@ -1,0 +1,248 @@
+<?php
+
+/*
+ * @file
+ * Tests for Shared Content Server
+ */
+
+class SharedContentServerTestCase extends SharedcontentBaseTestCase {
+
+  /**
+   * Implements getInfo().
+   */
+  static function getInfo() {
+    return array(
+      'name' => 'Server tests',
+      'description' => 'Test for server features',
+      'group' => 'Shared Content',
+    );
+  }
+
+  /**
+   * Overrides DrupalWebTestCase::setUp()
+   */
+  function setUp() {
+    // Given a Drupal installation with installed sharedcontent server
+    $dependencies = array(
+      'sharedcontent_server_feature',
+      'sharedcontent_template_server_rules',
+      'taxonomy'
+    );
+    $permissions = array();
+    $permissions['editor'] = array(
+      'administer nodes',
+    );
+    $permissions['admin'] = array(
+      'administer views',
+      'administer services',
+      'administer site configuration',
+    );
+    $permissions['client'] = array(
+      'access endpoint restricted',
+    );
+    parent::setUp($dependencies, $permissions);
+    variable_set('sharedcontent_indexed_entities', array(
+      'node' => array(
+        'article' => 1,
+        'page' => 1,
+      ),
+    ));
+  }
+
+  /**
+   * Test if the index is built correctly.
+   */
+  function testCreateIndexOnNodeCreation() {
+    // When I log in with administer node permission
+    $this->loginAsEditor();
+
+    // And I get the index record for node 1
+    $index = sharedcontent_index_load_by_entity_id(1, 'node');
+
+    // Then I do not have a index record.
+    $this->assertEqual(NULL, $index);
+
+    // When I create a new node
+    $node = $this->drupalCreateNode();
+
+    // Then I should have an index record in the sc index
+    $index = entity_load('sharedcontent_index', FALSE, array('entity_created' => $node->created));
+    $this->assertEqual(1, count($index));
+    $index = reset($index);
+    $this->assertEqual($index->title, $node->title);
+    $this->assertEqual($index->entity_id, $node->nid);
+    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_VISIBLE);
+    $this->assertEqual($index->entity_created, $node->created);
+    $this->assertEqual($index->entity_changed, $node->changed);
+    $this->assertEqual($index->created, REQUEST_TIME);
+    $this->assertEqual($index->changed, REQUEST_TIME);
+
+    // When I get the index record for created node
+    $index = sharedcontent_index_load_by_entity_id($node->nid, 'node');
+
+    // Then I should have a existing record
+    $this->assertFalse($index->id == NULL);
+
+    // When I delete the node
+    node_delete($node->nid);
+
+    // Then the index record should have status disabled.
+    $index = sharedcontent_index_load_by_entity_id($node->nid, 'node');
+    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_UNREACHABLE);
+  }
+
+  /**
+   * Test if the keywords are built correctly.
+   */
+  function testKeywordBuilding() {
+
+    // Given a vocabulary and a few terms
+    $this->vocabulary = $this->createVocabulary();
+    $terms = array();
+    for ($i = 0; $i < 5; $i++) {
+      $terms[$i] = $this->createTerm($this->vocabulary);
+    }
+
+    // And a content type with a corresponding taxonomy reference field
+    $this->field_name = drupal_strtolower($this->randomName());
+    $this->field = array(
+      'field_name' => $this->field_name,
+      'type' => 'taxonomy_term_reference',
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      'settings' => array(
+        'allowed_values' => array(
+          array(
+            'vocabulary' => $this->vocabulary->machine_name,
+            'parent' => '0',
+          ),
+        ),
+      ),
+    );
+    field_create_field($this->field);
+    $this->instance = array(
+      'field_name' => $this->field_name,
+      'entity_type' => 'node',
+      'bundle' => 'page',
+      'widget' => array(
+        'type' => 'options_select',
+      ),
+      'display' => array(
+        'full' => array(
+          'type' => 'taxonomy_term_reference_link',
+        ),
+      ),
+    );
+    field_create_instance($this->instance);
+
+
+    // When I log in as administrator
+    $this->loginAsEditor();
+
+
+    // And I create a new node with a taxonomy term
+    $node = $this->drupalCreateNode(array(
+      $this->field_name => array(
+        LANGUAGE_NONE => array(
+          array(
+            'tid' => $terms[0]->tid,
+          )
+        ),
+      ),
+    ));
+
+    // Then the keywords should be empty
+    $index = entity_load('sharedcontent_index', FALSE, array('entity_id' => $node->nid));
+    $index = array_shift($index);
+    $this->assertEqual('', $index->keywords);
+
+    // Given a taxonomy term field enabled for keyword building
+    variable_set('sharedcontent_keyword_fields', array('node' => array($node->type => array($this->field_name => $this->field_name))));
+
+    // And I create a new node with a taxonomy term
+    $node = $this->drupalCreateNode(array(
+      $this->field_name => array(
+        LANGUAGE_NONE => array(
+          array(
+            'tid' => $terms[0]->tid,
+          )
+        ),
+      ),
+    ));
+
+    // Then the keywords should match the term
+    $index = entity_load('sharedcontent_index', FALSE, array('entity_id' => $node->nid));
+    $index = array_shift($index);
+    $this->assertEqual($terms[0]->name, $index->keywords);
+
+
+    // And I create a new node with multiple taxonomy terms
+    $node = $this->drupalCreateNode(array(
+      $this->field_name => array(
+        LANGUAGE_NONE => array(
+          array(
+            'tid' => $terms[0]->tid,
+          ),
+          array(
+            'tid' => $terms[1]->tid,
+          ),
+          array(
+            'tid' => $terms[2]->tid,
+          ),
+          array(
+            'tid' => $terms[3]->tid,
+          ),
+          array(
+            'tid' => $terms[4]->tid,
+          ),
+        ),
+      ),
+    ));
+
+    // Then I the keywords should match the title and the term
+    $index = entity_load('sharedcontent_index', FALSE, array('entity_id' => $node->nid));
+    $index = array_shift($index);
+    $expectation = array(
+      $terms[0]->name,
+      $terms[1]->name,
+      $terms[2]->name,
+      $terms[3]->name,
+      $terms[4]->name,
+    );
+    $this->assertEqual(implode(' ', $expectation), $index->keywords);
+  }
+
+  /**
+   * Test if the index is exposed correctly.
+   */
+  function testIndexService() {
+    // Given a sharedcontent_intex with some content
+    $nodes = array();
+    $nodes[] = $this->drupalCreateNode();
+    $nodes[] = $this->drupalCreateNode();
+    $nodes[] = $this->drupalCreateNode();
+    $nodes[] = $this->drupalCreateNode();
+    $nodes[] = $this->drupalCreateNode();
+
+    // When I login as a client
+    $this->loginAsClient();
+
+    // And access the index resource
+    $result = json_decode($this->drupalGet('sharedcontent/index.json'));
+
+    // Then I should have five index records
+    $this->assertEqual(5, count($result));
+    $record = array_shift($result);
+    $this->assertFalse(empty($record->uuid));
+    $this->assertFalse(empty($record->entity_id));
+    $this->assertFalse(empty($record->entity_type));
+    $this->assertFalse(empty($record->entity_bundle));
+    $this->assertFalse(empty($record->title));
+    $this->assertTrue(isset($record->keywords));
+    $this->assertFalse(empty($record->status));
+    $this->assertFalse(empty($record->url));
+    $this->assertFalse(empty($record->entity_created));
+    $this->assertFalse(empty($record->entity_changed));
+    $this->assertTrue(empty($record->created));
+    $this->assertTrue(empty($record->changed));
+  }
+}
