@@ -36,7 +36,8 @@ projects[panels] = "3.3"
 
 projects[sharedcontent][type] = "module"
 projects[sharedcontent][download][type] = "git"
-projects[sharedcontent][download][url] = "git@git.office.md-systems.ch:po-gassmann/sharedcontent.git"
+// @todo: Change to dev snapshot
+projects[sharedcontent][download][url] = "http://git.drupal.org/project/sharedcontent.git"
 projects[sharedcontent][download][branch] = "7.x-1.x"
 
 projects[search_api][version] = 1.4
@@ -66,7 +67,4 @@ libraries[yos-social-php][download][url] = "https://github.com/yahoo/yos-social-
 
 projects[devel] = 1.3
 
-projects[past][type] = "module"
-projects[past][download][type] = "git"
-projects[past][download][url] = "git@git.office.md-systems.ch:md-p-past/past.git"
-projects[past][download][branch] = "7.x-1.x"
+projects[past] = "1.x-dev"
