@@ -104,14 +104,16 @@ class SharedcontentClientTestCase extends SharedcontentBaseTestCase {
     $this->assertTrue(isset($index->id), 'Index is saved.');
 
     // Assign index to local.
-    $assign_result = sharedcontent_client_assign_index_to_local_content($index->id, $local_content, 'node', $field_name);
+    $assign_result = sharedcontent_client_assign_index_to_local_content($index->id, $local_content->nid, 'node', $field_name);
     $this->assertTrue($assign_result, 'Index assignment has gone well.');
+    $local_content = node_load($local_content->nid);
     $this->assertEqual(count($local_content->{$field_name}[LANGUAGE_NONE]), 1, 'There is one indexed content.');
 
     // Remove index.
-    $remove_result = sharedcontent_client_remove_index_from_local_content($index->id, $local_content, 'node', $field_name);
+    $remove_result = sharedcontent_client_remove_index_from_local_content($index->id, $local_content->nid, 'node', $field_name);
     $this->assertTrue($remove_result, 'Index removal has finished well.');
-    $this->assertEqual(count($local_content->{$field_name}[LANGUAGE_NONE]), 0, 'There is no indexed content.');
+    $local_content = node_load($local_content->nid);
+    $this->assertEqual(count($local_content->{$field_name}), 0, 'There is no indexed content.');
   }
 
   /**
