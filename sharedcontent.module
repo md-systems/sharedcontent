@@ -79,6 +79,13 @@ define('SHAREDCONTENT_INDEX_BUNDLE_SHADOW', 'shadow');
 define('SHAREDCONTENT_LOCAL_CONNECTION_NAME', 'local');
 
 /**
+ * A chapter record may be created without parent. The string defined
+ * by this constant is used instead of the parent uuid so we are able
+ * to track those orphaned records.
+ */
+define('SHAREDCONENT_CHAPTER_ORPHAN', 'orphaned chapter');
+
+/**
  * Implements hook_permission().
  */
 function sharedcontent_permission() {

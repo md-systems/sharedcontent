@@ -8,13 +8,6 @@
  */
 
 /**
- * A chapter record may be created without parent. The string defined
- * by this constant is used instead of the parent uuid so we are able
- * to track those orphaned records.
- */
-define('SHAREDCONENT_CHAPTER_ORPHAN', 'orphaned chapter');
-
-/**
  * Implements hook_form_field_ui_field_overview_form_alter().
  *
  * Add additional input fields to the field collection field overview
