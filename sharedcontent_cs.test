@@ -11,10 +11,7 @@ class SharedContentCSTestsBase extends DrupalWebTestCase {
    * @todo doc
    */
   function setUp() {
-
-    $this->baseDomain = variable_get('sc_testing_base_domain', 'sc.dev');
-
-    //parent::setUp(array('tmgmt_ds', 'tmgmt_ds_srv', 'tmgmt_ds_ui'));
+    $this->baseDomain = variable_get('sc_testing_base_domain');
     $this->setup = TRUE;
   }
 
@@ -361,6 +358,10 @@ class SharedContentC1Tests extends SharedContentCSTestsBase {
    * @todo doc
    */
   function testSitesAvailability() {
+    if (empty($this->baseDomain)) {
+      $this->pass('Base domain needs to be set to run distributed tests.');
+      return;
+    }
 
     $this->remotePost('s1', 'user', array(
       'name' => 'admin',
@@ -397,6 +398,10 @@ class SharedContentC2Tests extends SharedContentCSTestsBase {
    * @todo doc
    */
   function testSitesAvailability() {
+    if (empty($this->baseDomain)) {
+      $this->pass('Base domain needs to be set to run distributed tests.');
+      return;
+    }
 
     $this->remotePost('s1', 'user', array(
       'name' => 'admin',
@@ -433,6 +438,10 @@ class SharedContentC3Tests extends SharedContentCSTestsBase {
    * @todo doc
    */
   function testSitesAvailability() {
+    if (empty($this->baseDomain)) {
+      $this->pass('Base domain needs to be set to run distributed tests.');
+      return;
+    }
 
     $this->remotePost('sc1', 'user', array(
       'name' => 'admin',
