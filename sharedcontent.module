@@ -933,19 +933,19 @@ function sharedcontent_preprocess_sharedcontent(&$variables) {
 
   $function = 'template_' . $hook;
   if (function_exists($function)) {
-    $function($variables);
+    $function($variables, $type);
   }
 
   foreach (module_implements($hook) as $module) {
     $function = $module . '_' . $hook;
     if (function_exists($function)) {
-      $function($variables);
+      $function($variables, $type);
     }
   }
 
   $function = $theme_key . '_' . $hook;
   if (function_exists($function)) {
-    $function($variables);
+    $function($variables, $type);
   }
 
   // Add classes similar to the drupal default.
