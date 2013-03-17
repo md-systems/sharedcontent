@@ -544,3 +544,12 @@ function sharedcontent_update_7012() {
     'description' => 'UUID of a possible parent record.',
   ));
 }
+
+/**
+ * Implements hook_uninstall().
+ */
+function sharedcontent_uninstall() {
+  db_delete('variable')
+    ->condition('name', 'sharedcontent_%', 'LIKE')
+    ->execute();
+}
