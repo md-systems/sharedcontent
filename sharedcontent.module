@@ -917,12 +917,10 @@ function sharedcontent_preprocess_sharedcontent(&$variables) {
   $type = $variables['elements']['#entity_type'];
   $info = entity_get_info($type);
 
-  $entity = $variables['elements']['#' . $type];
-  $title_attribute = $info['entity keys']['label'];
-  $bundle_attribute = $info['entity keys']['bundle'];
+  $entity = isset($variables['elements']['#' . $type]) ? $variables['elements']['#' . $type] : $variables['elements']['#entity'];
 
   // Add additional information used in the template.
-  $variables['title'] = $entity->$title_attribute;
+  $variables['title'] = entity_label($type, $entity);
   $variables['uuid'] = $variables['elements']['#uuid'];
   $uri = entity_uri($type, $entity);
   $uri_options = $uri['options'];
@@ -949,7 +947,10 @@ function sharedcontent_preprocess_sharedcontent(&$variables) {
   }
 
   // Add classes similar to the drupal default.
-  $variables['classes_array'][] = drupal_html_class($type . '-' . $entity->$bundle_attribute);
+  if (isset($info['entity keys']['bundle'])) {
+    $bundle_attribute = $info['entity keys']['bundle'];
+    $variables['classes_array'][] = drupal_html_class($type . '-' . $entity->$bundle_attribute);
+  }
 
   if (isset($variables['attributes_array']['about'])) {
     $variables['attributes_array']['about'] = $variables['entity_url'];
