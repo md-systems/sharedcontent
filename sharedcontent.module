@@ -927,24 +927,33 @@ function sharedcontent_preprocess_sharedcontent(&$variables) {
   $uri_options['absolute'] = TRUE;
   $variables['entity_url'] = url($uri['path'], $uri_options);
 
-  $hook = 'preprocess_' . $type;
+  // Call preprocess functions of the original theme name.
+  $theme = isset($variables['elements']['#original_theme']) ? $variables['elements']['#original_theme'] : $type;
+  $hook = 'preprocess_' . $theme;
 
   $function = 'template_' . $hook;
   if (function_exists($function)) {
-    $function($variables, $type);
+    $function($variables, $theme);
   }
 
   foreach (module_implements($hook) as $module) {
     $function = $module . '_' . $hook;
     if (function_exists($function)) {
-      $function($variables, $type);
+      $function($variables, $theme);
     }
   }
 
   $function = $theme_key . '_' . $hook;
   if (function_exists($function)) {
-    $function($variables, $type);
+    $function($variables, $theme);
   }
+
+  if ($type != $theme) {
+    // Add a theme hook suggestion for the original template name if it
+    // is not the same as the entity type (usually 'entity').
+    $variables['theme_hook_suggestions'][] = 'sharedcontent__' . $theme;
+  }
+  $variables['theme_hook_suggestions'][] = 'sharedcontent__' . $type;
 
   // Add classes similar to the drupal default.
   if (isset($info['entity keys']['bundle'])) {
@@ -985,6 +994,7 @@ function sharedcontent_render_content($uuid, $view_mode = 'sharedcontent_teaser'
     foreach (element_children($entries) as $id) {
       // We do not want to leak the contextual links to other pages.
       unset($entity[$entity_type][$id]['#contextual_links']);
+      $entity[$entity_type][$id]['#original_theme'] = $entity[$entity_type][$id]['#theme'];
       $entity[$entity_type][$id]['#theme'] = 'sharedcontent';
       $entity[$entity_type][$id]['#uuid'] = $uuid;
     }
