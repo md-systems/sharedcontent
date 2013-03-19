@@ -948,6 +948,9 @@ function sharedcontent_preprocess_sharedcontent(&$variables) {
     $function($variables, $theme);
   }
 
+  // Remove theme hook suggestions provided by these preprocess fuctions.
+  $variables['theme_hook_suggestions'] = array();
+
   if ($type != $theme) {
     // Add a theme hook suggestion for the original template name if it
     // is not the same as the entity type (usually 'entity').
