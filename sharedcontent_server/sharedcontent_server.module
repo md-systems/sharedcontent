@@ -293,6 +293,10 @@ function sharedcontent_server_render_content($uuid, $view_mode = 'sharedcontent_
   ctools_include('plugins');
   foreach (ctools_get_plugins('sharedcontent', 'richmedia') as $richmedia) {
     $class = ctools_plugin_get_class($richmedia, 'handler');
+    if (!class_exists($class)) {
+      sharedcontent_event_save('sharedcontent_server', __FUNCTION__, 'Missing Richmedia plugin class', array('richmedia' => $richmedia));
+      continue;
+    }
     if (!isset($instances[$class])) {
       $instances[$class] = new $class();
 

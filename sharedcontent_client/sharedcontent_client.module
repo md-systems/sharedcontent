@@ -537,6 +537,7 @@ function sharedcontent_client_field_formatter_view($obj_type, $object, $field, $
   $elements = array();
   foreach ($items as $delta => $item) {
     $elements[$delta]['#theme'] = 'sharedcontent_view_linked_content';
+    $elements[$delta]['#content'] = '';
     $subelem = sharedcontent_client_fetch_remote_content($item['index'], $settings['mode']);
     if (isset($subelem['#markup'])) {
       // pick markup and attached JS/CSS
