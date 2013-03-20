@@ -1119,11 +1119,11 @@ function sharedcontent_client_fetch_remote_content($index, $view_mode = 'sharedc
 
   try {
 
-    // Check if caching is enabled, attempt to load from cache if yes.
-    $cache_lifetime = variable_get('sharedcontent_client_render_cache', 0);
+    // Cache the rendered content for 5 minutes by default.
+    $cache_lifetime = variable_get('sharedcontent_client_render_cache', 600);
     $cid = NULL;
     if ($cache_lifetime) {
-      $cid = 'sharedcontent:' . $index->uuid . ':' . $arguments['language'] . ':' . $view_mode;
+      $cid = 'sharedcontent:' . $index->uuid . ':' . $arguments['language'] . ':' . $view_mode . ':' . $index->changed;
       if ($cache = cache_get($cid, 'cache_field')) {
         if (REQUEST_TIME < $cache->expire) {
           return $cache->data;
