@@ -41,10 +41,11 @@ class SharedContentRichMediaJPlayer extends SharedContentRichMediaBase {
         $result['jPlayer'] = $data['jPlayer'];
       }
       elseif (isset($data['jplayerInstances'])) {
-        $index = sharedcontent_index_load_by_uuid($uuid);
-        foreach ($data['jplayerInstances'] as $key => $value) {
-          if (strpos($key, $index->entity_type . '-' . $index->entity_id)) {
-            $result['jplayerInstances'][$key] = $value;
+        foreach ($this->getIndexes($uuid) as $index) {
+          foreach ($data['jplayerInstances'] as $key => $value) {
+            if (strpos($key, $index->entity_type . '-' . $index->entity_id)) {
+              $result['jplayerInstances'][$key] = $value;
+            }
           }
         }
       }

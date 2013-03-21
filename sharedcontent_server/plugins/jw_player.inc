@@ -63,7 +63,8 @@ class SharedContentRichMediaJwPlayer extends SharedContentRichMediaBase {
   }
 
   /**
-   * Test if a Carousel Gallery will be rendered
+   * Tests if a JW Player will be rendered.
+   *
    * @param $uuid
    *   The uuid of the index record.
    * @param $view_mode
@@ -73,12 +74,13 @@ class SharedContentRichMediaJwPlayer extends SharedContentRichMediaBase {
    */
   function showJWPlayer($uuid, $view_mode) {
     if (module_exists('sharedcontent_server')) {
-      $index = sharedcontent_index_load_by_uuid($uuid);
-      $fields = field_info_instances($index->entity_type, $index->entity_bundle);
-      foreach ($fields as $key => $field) {
-        if (isset($field['display'][$view_mode]['module'])
-          && $field['display'][$view_mode]['module'] == 'jw_player') {
-          return TRUE;
+      foreach ($this->getIndexes($uuid) as $index) {
+        $fields = field_info_instances($index->entity_type, $index->entity_bundle);
+        foreach ($fields as $key => $field) {
+          if (isset($field['display'][$view_mode]['module'])
+            && $field['display'][$view_mode]['module'] == 'jw_player') {
+            return TRUE;
+          }
         }
       }
     }
