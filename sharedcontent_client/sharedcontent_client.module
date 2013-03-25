@@ -557,6 +557,10 @@ function sharedcontent_client_field_formatter_view($obj_type, $object, $field, $
     );
     if ($settings['link'] == 'overlay') {
       $elements[$delta]['#attached']['js'][] = drupal_get_path('module', 'sharedcontent_client') . '/js/overlay.js';
+      $elements[$delta]['#attached']['js'][] = array(
+        'data' => array('sharedcontent' => array('overlay_media_query' => variable_get('sharedcontent_overlay_media_query', '(min-width: 1024px)'))),
+        'type' => 'setting',
+      );
       $elements[$delta]['#article_classes'][] = 'sharedcontent-overlay';
     }
   }

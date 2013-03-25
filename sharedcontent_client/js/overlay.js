@@ -5,6 +5,18 @@
         if (!$.isFunction($.colorbox)) {
           return;
         }
+        // Only enable the overlay if the window width is big enough.
+        if (typeof window.matchMedia == 'function'
+          && typeof settings.sharedcontent != "undefined"
+          && typeof settings.sharedcontent.overlay_media_query != "undefined") {
+
+          var mq = window.matchMedia(settings.sharedcontent.overlay_media_query);
+          if (!mq.matches) {
+            // window width is too small, abort.
+            return;
+          }
+        }
+
         $('.sharedcontent-overlay a.sharedcontent-origin', context)
           .once('init-colorbox-load', function () {
             var parts = $(this)[0].href.match(/([^\?#]+)(\?.+)?(#.+)?/);
