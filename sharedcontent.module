@@ -962,6 +962,7 @@ function sharedcontent_preprocess_sharedcontent(&$variables) {
   if (isset($info['entity keys']['bundle'])) {
     $bundle_attribute = $info['entity keys']['bundle'];
     $variables['classes_array'][] = drupal_html_class($type . '-' . $entity->$bundle_attribute);
+    $variables['theme_hook_suggestions'][] = 'sharedcontent__' . $type . '__' . $entity->$bundle_attribute;
   }
 
   if (isset($variables['attributes_array']['about'])) {
