@@ -8,6 +8,8 @@ dependencies[] = entity
 dependencies[] = ctools
 dependencies[] = services
 
+test_dependencies[] = phpseclib
+
 files[] = sharedcontent.test
 files[] = sharedcontent_cs.test
 
