@@ -14,8 +14,8 @@ class SharedContentRichMediaAudioField extends SharedContentRichMediaBase {
   /**
    * Override getCssFiles().
    */
-  function getCssFiles($uuid, $view_mode, $langcode) {
-    if (!$this->showJPlayer($uuid, $view_mode)) {
+  function getCssFiles($index, $view_mode, $langcode) {
+    if (!$this->showJPlayer($index, $view_mode)) {
       return array();
     }
     return array(
@@ -26,8 +26,8 @@ class SharedContentRichMediaAudioField extends SharedContentRichMediaBase {
   /**
    * Override getJsFiles().
    */
-  function getJsFiles($uuid, $view_mode, $langcode) {
-    if (!$this->showJPlayer($uuid, $view_mode)) {
+  function getJsFiles($index, $view_mode, $langcode) {
+    if (!$this->showJPlayer($index, $view_mode)) {
       return array();
     }
     return array(
@@ -38,17 +38,17 @@ class SharedContentRichMediaAudioField extends SharedContentRichMediaBase {
   /**
    * Test if a JW Player will be rendered
    *
-   * @param $uuid
-   *   The uuid of the index record.
+   * @param $index
+   *   The index record.
    * @param $view_mode
    *   The view mode.
    * @return bool
    *   TRUE if a Carousel Gallery will be rendered, FALSE otherwise.
    */
-  function showJPlayer($uuid, $view_mode) {
+  function showJPlayer($index, $view_mode) {
     if (module_exists('sharedcontent_server')) {
-      foreach ($this->getIndexes($uuid) as $index) {
-        $fields = field_info_instances($index->entity_type, $index->entity_bundle);
+      foreach ($this->getIndexes($index) as $index_all) {
+        $fields = field_info_instances($index_all->entity_type, $index_all->entity_bundle);
         foreach ($fields as $key => $field) {
           if (isset($field['display'][$view_mode]['module'])
             && $field['display'][$view_mode]['module'] == 'audiofield') {

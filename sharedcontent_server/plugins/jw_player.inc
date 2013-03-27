@@ -12,9 +12,9 @@ class SharedContentRichMediaJwPlayer extends SharedContentRichMediaBase {
   /**
    * Overrides getJsFiles().
    */
-  function getJsFiles($uuid, $view_mode, $langcode) {
+  function getJsFiles($index, $view_mode, $langcode) {
     $js_files = array();
-    if ($this->showJWPlayer($uuid, $view_mode)) {
+    if ($this->showJWPlayer($index, $view_mode)) {
       $js_files[] = libraries_get_path('jwplayer') . '/jwplayer.js';
       if (!variable_get('jw_player_inline_js', FALSE)) {
         $js_files[] = drupal_get_path('module', 'jw_player') . '/jw_player.js';
@@ -31,9 +31,9 @@ class SharedContentRichMediaJwPlayer extends SharedContentRichMediaBase {
   /**
    * Overrides getJsSettings().
    */
-  function getJsSettings($uuid, $view_mode, $langcode) {
+  function getJsSettings($index, $view_mode, $langcode) {
     $settings = array();
-    if ($this->showJWPlayer($uuid, $view_mode)) {
+    if ($this->showJWPlayer($index, $view_mode)) {
       $js = drupal_add_js();
       foreach ($js['settings']['data'] as $data) {
         if (isset($data['jw_player'])) {
@@ -52,9 +52,9 @@ class SharedContentRichMediaJwPlayer extends SharedContentRichMediaBase {
    * Note: We're delivering the player paid key here to other domains.
    * This might be a licensing issue. Check with longtail to either have separate licences for all domains or get confirmation this is allowed.
    */
-  function getInlineJs($uuid, $view_mode, $langcode) {
+  function getInlineJs($index, $view_mode, $langcode) {
     $js = array();
-    $show = $this->showJWPlayer($uuid, $view_mode);
+    $show = $this->showJWPlayer($index, $view_mode);
     // Add key if available.
     if ($show && $key = variable_get('jw_player_key', NULL)) {
       $js[] = 'jwplayer.key="' . $key . '"';
@@ -65,17 +65,17 @@ class SharedContentRichMediaJwPlayer extends SharedContentRichMediaBase {
   /**
    * Tests if a JW Player will be rendered.
    *
-   * @param $uuid
-   *   The uuid of the index record.
+   * @param $index
+   *   The index record.
    * @param $view_mode
    *   The view mode.
    * @return bool
    *   TRUE if a Carousel Gallery will be rendered, FALSE otherwise.
    */
-  function showJWPlayer($uuid, $view_mode) {
+  function showJWPlayer($index, $view_mode) {
     if (module_exists('sharedcontent_server')) {
-      foreach ($this->getIndexes($uuid) as $index) {
-        $fields = field_info_instances($index->entity_type, $index->entity_bundle);
+      foreach ($this->getIndexes($index) as $index_all) {
+        $fields = field_info_instances($index_all->entity_type, $index_all->entity_bundle);
         foreach ($fields as $key => $field) {
           if (isset($field['display'][$view_mode]['module'])
             && $field['display'][$view_mode]['module'] == 'jw_player') {

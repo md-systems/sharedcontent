@@ -1111,7 +1111,7 @@ function sharedcontent_client_fetch_remote_content($index, $view_mode = 'sharedc
   if ($index->connection_name == SHAREDCONTENT_LOCAL_CONNECTION_NAME) {
     // @todo also add css / js in content rendering via attach
     // in the local case it just returns markup
-    $entity = sharedcontent_render_content($index->uuid, $view_mode, $language);
+    $entity = sharedcontent_render_content($index, $view_mode, $language);
     $arguments['entity'] = $entity;
     // is it as simple as ..??
     // $content = $entity;

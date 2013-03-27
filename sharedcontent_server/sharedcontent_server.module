@@ -276,7 +276,8 @@ function sharedcontent_server_services_resources() {
  * Render content and deliver for remote inclusion.
  */
 function sharedcontent_server_render_content($uuid, $view_mode = 'sharedcontent_teaser', $langcode = NULL) {
-  $entity = sharedcontent_render_content($uuid, $view_mode, $langcode);
+  $index = sharedcontent_index_load_by_uuid($uuid);
+  $entity = sharedcontent_render_content($index, $view_mode, $langcode);
 
   // now handle forwarding of js / css
   global $base_url;
@@ -308,10 +309,10 @@ function sharedcontent_server_render_content($uuid, $view_mode = 'sharedcontent_
       }
     }
 
-    $output['js'] = array_merge($output['js'], $instances[$class]->getJsFiles($uuid, $view_mode, $langcode));
-    $output['inline_js'] = array_merge($output['inline_js'], $instances[$class]->getInlineJs($uuid, $view_mode, $langcode));
-    $output['settings'] = array_merge($output['settings'], $instances[$class]->getJsSettings($uuid, $view_mode, $langcode));
-    $output['css'] = array_merge($output['css'], $instances[$class]->getCssFiles($uuid, $view_mode, $langcode));
+    $output['js'] = array_merge($output['js'], $instances[$class]->getJsFiles($index, $view_mode, $langcode));
+    $output['inline_js'] = array_merge($output['inline_js'], $instances[$class]->getInlineJs($index, $view_mode, $langcode));
+    $output['settings'] = array_merge($output['settings'], $instances[$class]->getJsSettings($index, $view_mode, $langcode));
+    $output['css'] = array_merge($output['css'], $instances[$class]->getCssFiles($index, $view_mode, $langcode));
   }
   sharedcontent_event_save('sharedcontent_server', __FUNCTION__, 'Deliver content.', array('output' => $output), array('severity' => WATCHDOG_DEBUG));
 

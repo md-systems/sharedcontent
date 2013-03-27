@@ -976,8 +976,8 @@ function sharedcontent_preprocess_sharedcontent(&$variables) {
  * Used when exposing a content through a service or for displaying a shared
  * content with local origin.
  *
- * @param $uuid
- *   The uuid of the Shared Content index record.
+ * @param $index
+ *   The Shared Content index record.
  * @param $view_mode
  *   The view mode to be used for rendering. Defaults to 'sharedcontent_teaser'.
  * @param $langcode
@@ -990,8 +990,7 @@ function sharedcontent_preprocess_sharedcontent(&$variables) {
  * @see sharedcontent_index_load_by_uuid()
  * @see sharedcontent_preprocess_sharedcontent()
  */
-function sharedcontent_render_content($uuid, $view_mode = 'sharedcontent_teaser', $langcode = NULL) {
-  $index = sharedcontent_index_load_by_uuid($uuid);
+function sharedcontent_render_content($index, $view_mode = 'sharedcontent_teaser', $langcode = NULL) {
   $entity = entity_load($index->entity_type, array($index->entity_id));
   $entity = entity_view($index->entity_type, $entity, $view_mode, $langcode);
   foreach ($entity as $entity_type => $entries) {
@@ -1000,7 +999,7 @@ function sharedcontent_render_content($uuid, $view_mode = 'sharedcontent_teaser'
       unset($entity[$entity_type][$id]['#contextual_links']);
       $entity[$entity_type][$id]['#original_theme'] = $entity[$entity_type][$id]['#theme'];
       $entity[$entity_type][$id]['#theme'] = 'sharedcontent';
-      $entity[$entity_type][$id]['#uuid'] = $uuid;
+      $entity[$entity_type][$id]['#uuid'] = $index->uuid;
     }
   }
 
