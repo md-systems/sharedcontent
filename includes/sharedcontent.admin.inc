@@ -130,7 +130,7 @@ function sharedcontent_configure_indexed($form, &$form_state) {
     }
 
     if (isset($indexed[$entity_type]) ) {
-      $defaults = array_values(array_filter($indexed[$entity_type]));
+      $defaults = array_keys(array_filter($indexed[$entity_type]));
     }
 
     $form[$fieldset][$entity_type] = array(
@@ -154,7 +154,13 @@ function sharedcontent_configure_indexed($form, &$form_state) {
  * @see sharedcontent_configure_indexed()
  */
 function sharedcontent_configure_indexed_submit($form, &$form_state) {
-  $indexed_entities = variable_get('sharedcontent_indexed_entities', array());
   form_state_values_clean($form_state);
-  variable_set('sharedcontent_indexed_entities', $form_state['values']);
+  $values = array();
+  foreach (entity_get_info() as $entity_type => $entity_values) {
+    $value = isset($form_state['values'][$entity_type]) ? array_filter($form_state['values'][$entity_type]) : array();
+    if (!empty($value)) {
+      $values[$entity_type] = $value;
+    }
+  }
+  variable_set('sharedcontent_indexed_entities', $values);
 }

@@ -1317,13 +1317,12 @@ function sharedcontent_form_node_type_form_alter(&$form, &$form_state, $form_id)
   $indexed_entities = variable_get('sharedcontent_indexed_entities', array());
   $type = 'node';
   $bundle = $form['#node_type']->type;
-  $indexed = (isset($indexed_entities[$type][$bundle]) && $indexed_entities[$type][$bundle] == 1) ? TRUE : FALSE;
 
   $form['sharedcontent']['sharedcontent_is_indexed'] = array(
     '#type' => 'checkbox',
     '#title' => t('Index this entity'),
     '#description' => t('By checking this option, this content type will be indexed within the Shared Content index. Doing so allows you to expose this content type to other sites.'),
-    '#default_value' => $indexed,
+    '#default_value' => !empty($indexed_entities[$type][$bundle]),
   );
 
   $form['#submit'][] = 'sharedcontent_form_node_type_form_submit';
@@ -1339,6 +1338,7 @@ function sharedcontent_form_node_type_form_submit($form, &$form_state) {
   $type = 'node';
   $bundle = $form['#node_type']->type;
   $indexed_entities[$type][$bundle] = $form_state['values']['sharedcontent_is_indexed'];
+  $indexed_entities[$type] = array_filter($indexed_entities[$type]);
   variable_set('sharedcontent_indexed_entities', $indexed_entities);
 }
 
