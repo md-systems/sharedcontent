@@ -119,6 +119,6 @@ class SharedContentRichMediaBase implements SharedContentRichMedia {
         $indexes[$index->uuid][] = sharedcontent_index_load_by_uuid($indexes[$index->uuid][count($indexes) - 1]->parent_uuid);
       }
     }
-    return $indexes[$uuid];
+    return $indexes[$index->uuid];
   }
 }
