@@ -106,9 +106,10 @@ class SharedContentSynchronizeException extends Exception {
  */
 class SharedContentIndexingException extends Exception {
 
-  public $data;
+  public $data = array();
 
   public function __construct($code, array $data = NULL, Exception $previous = null) {
+    $this->data = $data;
     switch ($code) {
       case SHAREDCONTENT_ERROR_NO_PARENT_INDEX:
         $message = 'Parent index record does not exists for chapter.';
