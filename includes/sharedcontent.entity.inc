@@ -142,10 +142,9 @@ class SharedContentIndex extends Entity {
     'translationset_id',
     'status',
     'url',
+    'parent_uuid',
     'entity_created',
     'entity_changed',
-    'created',
-    'changed',
   );
 
 
