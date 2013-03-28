@@ -439,11 +439,13 @@ function sharedcontent_server_resource_index($uuid, array $values = NULL) {
   $arguments = array(
     'uuid' => $uuid,
   );
-  if ($index && is_array($values)) {
-    // We do have an existing record.
-    $updated = $index->merge($values);
-    $arguments['index'] = $index;
-    sharedcontent_event_save('sharedcontent_server', __FUNCTION__, 'Existing record.', $arguments, array('severity' => WATCHDOG_DEBUG));
+  if ($index) {
+    if (is_array($values)) {
+      // We do have an existing record.
+      $updated = $index->merge($values);
+      $arguments['index'] = $index;
+      sharedcontent_event_save('sharedcontent_server', __FUNCTION__, 'Existing record.', $arguments, array('severity' => WATCHDOG_DEBUG));
+    }
   }
   // We need to create a new record. We can not assume that the node
   // updating this record is available as a server. So we make this

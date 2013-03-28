@@ -282,6 +282,9 @@ function sharedcontent_client_rule_content_link_field_options() {
  *    An array of field names to be used for linking.
  *
  * @see sharedcontent_client_assign_index_to_local_content()
+ *
+ * @todo Iterate parents until a linkable content is found.
+ * @todo Needs tests.
  */
 function sharedcontent_client_rule_content_link($local_content, $remote_content, $reference_fields) {
   $arguments = array(
@@ -289,10 +292,19 @@ function sharedcontent_client_rule_content_link($local_content, $remote_content,
     'remote_content' => $remote_content,
     'reference_fields' => $reference_fields,
   );
+
+  // We might deal with a chapter record that is not linkable.
+  // If this is the case we load the parent record that is expected to be linkable.
+  $linkable_local_content = $local_content;
+  if (!empty($local_content->parent_uuid)) {
+    $linkable_local_content = sharedcontent_index_load_by_uuid($local_content->parent_uuid);
+    $arguments['linkable_local_content'] = $linkable_local_content;
+  }
+
   $options = array('severity' => WATCHDOG_DEBUG);
   $message = 'Linked local and remote content';
   foreach ($reference_fields as $field) {
-    $success = sharedcontent_client_assign_index_to_local_content($remote_content->id, $local_content->entity_id, $local_content->entity_type, $field);
+    $success = sharedcontent_client_assign_index_to_local_content($remote_content->id, $linkable_local_content->entity_id, $linkable_local_content->entity_type, $field);
     if (!$success) {
       $options['severity'] = WATCHDOG_ERROR;
       $message = 'Could not link local and remote content';
