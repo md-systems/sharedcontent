@@ -1586,7 +1586,7 @@ function sharedcontent_index_queued_entities($data) {
           DrupalQueue::get('sharedcontent_indexing')->createItem($data);
       }
       else {
-        sharedcontent_event_save('sahredcontent', __FUNCTION__, $e->getMessage(), $e->data, array('severity' => WATCHDOG_ERROR));
+        sharedcontent_event_save('sharedcontent', __FUNCTION__, $e->getMessage(), $e->data, array('severity' => WATCHDOG_ERROR));
       }
     }
   }
