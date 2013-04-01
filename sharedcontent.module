@@ -351,13 +351,16 @@ function sharedcontent_preprocess_entity(&$variables) {
     $content['chapter'] = array(
       '#type' => 'link',
       '#title' => $parent_index->title,
-      '#href' => 'admin/content/sharedcontent/dashboard/' . $parent_index->id,
+      '#href' => $parent_index->url,
       '#options' => array(
         'attributes' => array(
           'title' => t('Chapter of: @title', array(
             '@title' => $parent_index->title
           )),
-          'class' => array('sharedcontent-chapter-icon'),
+          'class' => array(
+            'sharedcontent-chapter-icon',
+            'sharedcontent-origin'
+          ),
         ),
       ),
       '#prefix' => '<div class="sharedcontent-chapter">',
