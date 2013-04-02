@@ -1701,20 +1701,11 @@ function _sharedcontent_entity_is_linkable($type) {
   $is_linkable = & drupal_static(__FUNCTION__ . $type);
   if (!isset($is_linkable)) {
     $is_linkable = FALSE;
-    $info = entity_get_info($type);
-    if (is_array($info['bundles'])) {
-      foreach ($info['bundles'] as $bundle => $data) {
-        foreach (sharedcontent_client_get_all_shared_content_field_names() as $field_name) {
-          if (field_info_instance($type, $field_name, $bundle)) {
-            $is_linkable = TRUE;
-            return $is_linkable;
-          }
-        }
-      }
-    }
-    else {
-      foreach (sharedcontent_client_get_all_shared_content_field_names() as $field_name) {
-        if (field_info_instance($type, $field_name, $type)) {
+    $field_names = sharedcontent_client_get_all_shared_content_field_names();
+    $instances = field_info_instances($type);
+    foreach ($instances as $instance) {
+      foreach ($field_names as $field_name) {
+        if (array_key_exists($field_name, $instance)) {
           $is_linkable = TRUE;
           return $is_linkable;
         }

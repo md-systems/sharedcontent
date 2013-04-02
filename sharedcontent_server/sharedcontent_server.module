@@ -525,12 +525,12 @@ function sharedcontent_server_resource_assignment($uuid, $values = NULL) {
   if ($updated) {
     $source = sharedcontent_index_load_by_uuid($assignment->source);
     $target = sharedcontent_index_load_by_uuid($assignment->target);
-    if ($assignment->status == 0) {
+    if ($assignment->status == SHAREDCONTENT_ASSIGNMENT_ACTIVE) {
       rules_invoke_event('sharedcontent_assignment_client_link', $assignment, $source, $target);
       sharedcontent_event_save('sharedcontent_server', __FUNCTION__, 'Assignment link.', $arguments, array('severity' => WATCHDOG_DEBUG));
     }
     else {
-      if ($assignment->status == 1) {
+      if ($assignment->status == SHAREDCONTENT_ASSIGNMENT_DELETED) {
         rules_invoke_event('sharedcontent_assignment_client_unlink', $assignment, $source, $target);
         sharedcontent_event_save('sharedcontent_server', __FUNCTION__, 'Assignment unlink.', $arguments, array('severity' => WATCHDOG_DEBUG));
       }
