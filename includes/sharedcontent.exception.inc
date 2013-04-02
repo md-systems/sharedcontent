@@ -108,7 +108,7 @@ class SharedContentIndexingException extends Exception {
 
   public $data = array();
 
-  public function __construct($code, array $data = NULL, Exception $previous = null) {
+  public function __construct($code, array $data = NULL, Exception $previous = NULL) {
     $this->data = $data;
     switch ($code) {
       case SHAREDCONTENT_ERROR_NO_PARENT_INDEX:
