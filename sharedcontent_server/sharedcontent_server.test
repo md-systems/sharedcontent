@@ -7,6 +7,8 @@
 
 class SharedContentServerTestCase extends SharedcontentBaseTestCase {
 
+  protected $profile = 'testing';
+
   /**
    * Implements getInfo().
    */
@@ -216,16 +218,24 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
    * Test if the index is exposed correctly.
    */
   function testIndexService() {
-    // @todo: Remove this as soon as the dependency is updated or replaced. 
-    $this->pass('Skipped due to outdated dependency on services_views');
-    return;
-    // Given a sharedcontent_intex with some content
+    // Given a sharedcontent_index with five records.
     $nodes = array();
     $nodes[] = $this->drupalCreateNode();
     $nodes[] = $this->drupalCreateNode();
     $nodes[] = $this->drupalCreateNode();
     $nodes[] = $this->drupalCreateNode();
     $nodes[] = $this->drupalCreateNode();
+
+    // And three records have an older changed and created value.
+    db_update('sharedcontent_index')
+      ->fields(array(
+        'created' => REQUEST_TIME - 3600,
+        'entity_created' => REQUEST_TIME - 3600,
+        'changed' => REQUEST_TIME - 1800,
+        'entity_changed' => REQUEST_TIME - 1800,
+      ))
+      ->condition('entity_id', 3, '>=')
+      ->execute();
 
     // When I login as a client
     $this->loginAsClient();
@@ -234,19 +244,92 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     $result = json_decode($this->drupalGet('sharedcontent/index.json'));
 
     // Then I should have five index records
-    $this->assertEqual(5, count($result));
-    $record = array_shift($result);
-    $this->assertFalse(empty($record->uuid));
-    $this->assertFalse(empty($record->entity_id));
-    $this->assertFalse(empty($record->entity_type));
-    $this->assertFalse(empty($record->entity_bundle));
-    $this->assertFalse(empty($record->title));
+    $this->assertEqual(count($nodes), count($result));
+
+    $record = $result[0];
+    $node = $nodes[0];
+    $controller = entity_get_controller('sharedcontent_index');
+    $this->assertTrue($controller->uuidIsValid($record->uuid));
+    $this->assertEqual($record->entity_id, $node->nid);
+    $this->assertEqual($record->entity_type, 'node');
+    $this->assertEqual($record->entity_bundle, $node->type);
+    $this->assertEqual($record->title, $node->title);
     $this->assertTrue(isset($record->keywords));
-    $this->assertFalse(empty($record->status));
+    $this->assertTrue(isset($record->tags));
+    $this->assertEqual($record->status, SHAREDCONTENT_INDEX_STATUS_VISIBLE);
     $this->assertFalse(empty($record->url));
-    $this->assertFalse(empty($record->entity_created));
-    $this->assertFalse(empty($record->entity_changed));
+    $this->assertEqual($record->entity_created, $node->created);
+    $this->assertEqual($record->entity_changed, $node->changed);
     $this->assertTrue(empty($record->created));
     $this->assertTrue(empty($record->changed));
+    $this->assertTrue(isset($record->parent_uuid) || is_null($record->parent_uuid));
+
+
+    // When I access the index resource with an offset query
+    $result = json_decode($this->drupalGet('sharedcontent/index.json', array(
+      'query' => array('offset' => 2),
+    )));
+
+    // Then I should have 3 index records
+    $this->assertEqual(3, count($result));
+
+    // And the index records belongs to the last tree nodes created
+    $this->assertEqual($nodes[2]->nid, $result[0]->entity_id);
+    $this->assertEqual($nodes[3]->nid, $result[1]->entity_id);
+    $this->assertEqual($nodes[4]->nid, $result[2]->entity_id);
+
+    // When I access the index resource with a limit query
+    $result = json_decode($this->drupalGet('sharedcontent/index.json', array(
+      'query' => array('limit' => 2),
+    )));
+
+    // Then I should have 2 index records
+    $this->assertEqual(2, count($result));
+
+    // And the index records belongs to the first two created nodes
+    $this->assertEqual($nodes[0]->nid, $result[0]->entity_id);
+    $this->assertEqual($nodes[1]->nid, $result[1]->entity_id);
+
+    // When I access the index resource with a changed query
+    $result = json_decode($this->drupalGet('sharedcontent/index.json', array(
+      'query' => array('changed' => format_date(REQUEST_TIME - 1799, 'custom', 'c')),
+    )));
+
+    // Then I should have 2 index records
+    $this->assertEqual(2, count($result));
+
+    // And the index records belongs to the nodes with the none altered dates
+    $this->assertEqual($nodes[0]->nid, $result[0]->entity_id);
+    $this->assertEqual($nodes[1]->nid, $result[1]->entity_id);
+
+    // Given an index record with a reason other than 'default'
+    $term = $this->createTerm(taxonomy_vocabulary_machine_name_load('sharedcontent_reason'));
+    $index = sharedcontent_index_load(1);
+    $index->field_sharedcontent_reason = array (
+      LANGUAGE_NONE => array (
+        0 => array ('tid' => $term->tid),
+      ),
+    );
+    $index->save();
+
+    // And the user I am currently logged in has the same reason assigned
+    $this->user_client->field_sharedcontent_reason = array (
+      LANGUAGE_NONE => array (
+        0 => array ('tid' => $term->tid),
+      ),
+    );
+    entity_save('user', $this->user_client);
+
+    // And reason checking is enabled
+    variable_set('sharedcontent_check_reason', TRUE);
+
+    // When I access the index resource
+    $result = json_decode($this->drupalGet('sharedcontent/index.json'));
+
+    // Then I should have one index record
+    $this->assertEqual(1, count($result));
+
+    // And the index records matches the one with the non default reason
+    $this->assertEqual($index->entity_id, $result[0]->entity_id);
   }
 }

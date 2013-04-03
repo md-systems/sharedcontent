@@ -149,11 +149,39 @@ function sharedcontent_server_entity_info_alter(&$entity_info) {
  * @see sharedcontent_server_render_content()
  */
 function sharedcontent_server_services_resources() {
-  // @todo HIGH rename to sharedcontent_content
-  $resource['sharedcontent'] = array(
+  // Arguments used in all list resources and list count actions.
+  $list_resource_args = array(
+    'changed' => array(
+      'name' => 'changed',
+      'optional' => TRUE,
+      'source' => array('param' => 'changed'),
+      'type' => 'string',
+      'description' => 'The time of the oldest record to return.',
+      'default value' => NULL,
+    ),
+    array(
+      'name' => 'offset',
+      'optional' => TRUE,
+      'source' => array('param' => 'offset'),
+      'description' => 'Offset value of the first record to return',
+      'type' => 'int',
+      'default value' => 0,
+    ),
+    array(
+      'name' => 'limit',
+      'optional' => TRUE,
+      'source' => array('param' => 'limit'),
+      'description' => 'Count of records to return.',
+      'type' => 'int',
+      'default value' => 100,
+    ),
+  );
+
+  $resource['sharedcontent_content'] = array(
     'retrieve' => array(
       'callback' => 'sharedcontent_server_render_content',
       'access callback' => 'sharedcontent_access',
+      'access arguments' => array('view'),
       'args' => array(
         'uuid' => array(
           'name' => 'uuid',
@@ -180,11 +208,12 @@ function sharedcontent_server_services_resources() {
       ),
     ),
   );
-  // @todo HIGH rename to sharedcontent_assignments
-  $resource['assignments'] = array(
+
+  $resource['sharedcontent_assignments'] = array(
     'retrieve' => array(
       'callback' => 'sharedcontent_server_resource_assignment',
       'access callback' => 'sharedcontent_access',
+      'access arguments' => array('view'),
       'args' => array(
         'uuid' => array(
           'name' => 'uuid',
@@ -216,8 +245,22 @@ function sharedcontent_server_services_resources() {
       ),
     ),
   );
-  // @todo HIGH rename to sharedcontent_index
-  $resource['index'] = array(
+
+  $resource['sharedcontent_index'] = array(
+    'index' => array (
+      'callback' => 'sharedcontent_server_resource_list',
+      'access callback' => 'sharedcontent_access',
+      'access arguments' => array('view'),
+      'args' => $list_resource_args,
+      'actions' => array(
+        'count' => array(
+          'callback' => 'sharedcontent_server_resource_list_count',
+          'access callback' => 'sharedcontent_access',
+          'access arguments' => array('view'),
+          'args' => $list_resource_args,
+        ),
+      ),
+    ),
     'retrieve' => array(
       'callback' => 'sharedcontent_server_resource_index',
       'access callback' => 'sharedcontent_access',
@@ -252,11 +295,12 @@ function sharedcontent_server_services_resources() {
       ),
     ),
   );
-  // @todo HIGH rename to sharedcontent_entity_labels
-  $resource['entity_labels'] = array(
+
+  $resource['sharedcontent_entity_labels'] = array(
     'retrieve' => array(
       'callback' => 'sharedcontent_server_get_local_entity_bundle_labels',
       'access callback' => 'sharedcontent_access',
+      'access arguments' => array('view'),
       'args' => array(
         // @todo do we really expose this argument?
         'entity_type' => array(
@@ -320,91 +364,89 @@ function sharedcontent_server_render_content($uuid, $view_mode = 'sharedcontent_
 }
 
 /**
- * Implements hook_services_resources_alter().
+ * Counts index records
  *
- * Attach a count action to all views service displays.
+ * Callback function for the count action of the index list resource.
+ *
+ * @param string $changed
+ *  Changed date of the oldest record to deliver.
+ * @param int $offset
+ *  Range offset: number of the first record to deliver.
+ * @param int $limit
+ *  Range limit: count of records to deliver.
+ *
+ * @return mixed
+ *  The count of the records found.
  */
-function sharedcontent_server_services_resources_alter(&$resources, $endpoint) {
-  foreach ($resources as &$resource) {
-    if (isset($resource['operations']['index']['view info'])) {
-      $index = $resource['operations']['index'];
-      $resource['actions']['count'] = array(
-        'help' => t('Returns the entry count of the view.'),
-        'callback' => 'sharedcontent_server_resource_action_count',
-        'access callback' => isset($index['access callback']) ? $index['access callback'] : TRUE,
-        'access arguments' => isset($index['access arguments']) ? $index['access arguments'] : NULL,
-        'args' => array(
-          'view_name' => array(
-            'name' => 'view_name',
-            'type' => 'string',
-            'description' => 'The name of the view to get.',
-            'source' => FALSE,
-            'optional' => TRUE,
-            'default value' => $index['view info']['view_name'],
-          ),
-          'display_id' => array(
-            'name' => 'display_id',
-            'type' => 'string',
-            'description' => 'The display ID of the view to get.',
-            'source' => array('param' => 'display_id'),
-            'optional' => TRUE,
-            'default value' => $index['view info']['display_id'],
-          ),
-          'args' => array(
-            'name' => 'args',
-            'type' => 'array',
-            'description' => 'A list of arguments to pass to the view.',
-            'source' => array('param' => 'args'),
-            'optional' => TRUE,
-            'default value' => array(),
-          ),
-          'filters' => array(
-            'name' => 'filters',
-            'type' => 'array',
-            'description' => 'A list of filters to pass to the view. These are defined by the exposed filters on your view. Example call: <code>/views/your_view?filters[nid]=12345</code>',
-            'source' => 'data',
-            'optional' => TRUE,
-            'default value' => array(),
-          ),
-        ),
-      );
-    }
-  }
+function sharedcontent_server_resource_list_count($changed = NULL, $offset = 0, $limit = 100) {
+  $query = _sharedcontent_server_resource_list_query($changed, $offset, $limit);
+  $query->count();
+  return $query->execute();
 }
 
 /**
- * Count the items a view contains.
+ * Lists indexes
  *
- * @param $view_name
- *   Name of the view.
- * @param $display_id
- *   Id ot the views display.
- * @param $args
- *   Array of context arguments.
- * @param  $filters
- *   Array of filter values.
- * @return type
- *   Count of records found by the view.
+ * Callback function to list indexes in services.
+ *
+ * @param string $changed
+ *  Changed date of the oldest record to deliver.
+ * @param int $offset
+ *  Range offset: number of the first record to deliver.
+ * @param int $limit
+ *  Range limit: count of records to deliver.
+ *
+ * @return array
+ *  Associative array with the data to be delivered by the service.
  */
-function sharedcontent_server_resource_action_count($view_name, $display_id, $args = array(), $filters = array()) {
-  $view = views_get_view($view_name);
-  // Put all arguments and filters and then execute.
-  $view->set_arguments($args, FALSE);
-  $view->set_exposed_input($filters);
-  $view->set_display($display_id);
-  $view->execute();
-  $count = $view->total_rows;
+function sharedcontent_server_resource_list($changed = NULL, $offset = 0, $limit = 100) {
 
-  $arguments = array(
-    'view' => $view_name,
-    'dispay' => $display_id,
-    'args' => $args,
-    'filters' => $filters,
-    'count' => $count,
-  );
-  sharedcontent_event_save('sharedcontent_server', __FUNCTION__, 'Index count.', $arguments, array('severity' => WATCHDOG_DEBUG));
+  $query = _sharedcontent_server_resource_list_query($changed, $offset, $limit);
+  $result = $query->execute();
 
-  return $count;
+  $data = array();
+
+  if (isset($result['sharedcontent_index'])) {
+    $entities = entity_load('sharedcontent_index', array_keys($result['sharedcontent_index']));
+    foreach ($entities as $entity) {
+      $data[] = $entity->getExposedAttributes();
+    }
+  }
+
+  return $data;
+}
+
+/**
+ * Index list query
+ *
+ * Build a query object for the index list resource.
+ *
+ * @param string $changed
+ *  Changed date of the oldest record to deliver.
+ * @param int $offset
+ *  Range offset: number of the first record to deliver.
+ * @param int $limit
+ *  Range limit: count of records to deliver.
+ *
+ * @return EntityFieldQuery
+ *  The query object.
+ */
+function _sharedcontent_server_resource_list_query($changed = NULL, $offset = 0, $limit = 100) {
+  $exposed_origins = variable_get('sharedcontent_exposed_origins', array(SHAREDCONTENT_INDEX_BUNDLE_LOCAL));
+
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'sharedcontent_index')
+    ->propertyCondition('origin', $exposed_origins, 'IN')
+    ->propertyOrderBy('changed', 'DESC')
+    ->range($offset, $limit)
+    ->addTag('sharedcontent_index_access');
+
+  $changed = strtotime($changed);
+  if ($changed) {
+    $query->propertyCondition('changed', $changed, '>=');
+  }
+
+  return $query;
 }
 
 /**
@@ -425,6 +467,7 @@ function sharedcontent_server_resource_action_count($view_name, $display_id, $ar
  * @param $values
  *   Array of values to update the index. If this is blank the index gets just
  *   displayed as is.
+ *
  * @return
  *   Index entity object if present, NULL otherwise.
  */

@@ -71,7 +71,7 @@ function sharedcontent_server_feature_default_services_endpoint() {
         ),
       ),
     ),
-    'index' => array(
+    'sharedcontent_index' => array(
       'alias' => 'index',
       'operations' => array(
         'index' => array(
@@ -90,7 +90,7 @@ function sharedcontent_server_feature_default_services_endpoint() {
         ),
       ),
     ),
-    'sharedcontent' => array(
+    'sharedcontent_content' => array(
       'alias' => 'view',
       'operations' => array(
         'retrieve' => array(
@@ -98,7 +98,7 @@ function sharedcontent_server_feature_default_services_endpoint() {
         ),
       ),
     ),
-    'assignments' => array(
+    'sharedcontent_assignments' => array(
       'alias' => 'assignments',
       'operations' => array(
         'retrieve' => array(
@@ -109,7 +109,7 @@ function sharedcontent_server_feature_default_services_endpoint() {
         ),
       ),
     ),
-    'entity_labels' => array(
+    'sharedcontent_entity_labels' => array(
       'alias' => 'labels',
       'operations' => array(
         'retrieve' => array(

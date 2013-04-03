@@ -1,16 +1,13 @@
-name = Server Feature
-
+name = Shared Content Server Feature
 core = 7.x
 package = Shared Content
 php = 5.2.4
 version = 7.x-0.19
-
 project = sharedcontent_server_feature
 dependencies[] = features
 dependencies[] = rest_server
 dependencies[] = rules
 dependencies[] = services
-dependencies[] = services_views (>1.0-beta2)
 dependencies[] = sharedcontent
 dependencies[] = sharedcontent_server
 dependencies[] = taxonomy
@@ -28,4 +25,3 @@ features[taxonomy][] = sharedcontent_reason
 features[views_view][] = assignments_inspection
 features[views_view][] = sharedcontent_index
 features[views_view][] = sharedcontent_rebuild
-features[views_view][] = sharedcontent_service
