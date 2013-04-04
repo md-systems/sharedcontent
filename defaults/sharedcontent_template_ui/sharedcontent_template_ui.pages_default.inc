@@ -242,7 +242,18 @@ function sharedcontent_template_ui_default_page_manager_pages() {
   $pane->type = 'views_panes';
   $pane->subtype = 'sharedcontent_remote_content-suggestions';
   $pane->shown = TRUE;
-  $pane->access = array();
+  $pane->access = array(
+    'plugins' => array(
+      0 => array(
+        'name' => 'search_api_server_support',
+        'settings' => array(
+          'index' => 'sharedcontent',
+          'feature' => 'search_api_mlt',
+        ),
+        'not' => FALSE,
+      ),
+    ),
+  );
   $pane->configuration = array();
   $pane->cache = array();
   $pane->style = array(

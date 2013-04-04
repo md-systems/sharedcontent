@@ -703,3 +703,12 @@ function sharedcontent_ui_form_views_exposed_form_alter(&$form, &$form_state) {
     $form['#action'] = '/' . $_GET['q'];
   }
 }
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function sharedcontent_ui_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && $plugin == 'access') {
+    return 'plugins/access';
+  }
+}
