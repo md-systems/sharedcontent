@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * @file
+ * Callback functions for the administrative ui of Shared Content.
+ */
 
 function sharedcontent_status_view() {
   module_load_include('inc', 'views', 'includes/admin');

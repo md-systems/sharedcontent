@@ -1621,7 +1621,7 @@ function sharedcontent_init() {
  *   TRUE if at leas on flag is set for the entity, FALSE otherwise.
  */
 function sharedcontent_flag_value_get($data, array $options, $name, $type, $info) {
-  list($id,,) = entity_extract_ids($type, $data);
+  list($id, , ) = entity_extract_ids($type, $data);
   $flag = flag_get_content_flags($type, $id, $name);
   return !empty($flag);
 }
@@ -1633,7 +1633,7 @@ function sharedcontent_flag_value_get($data, array $options, $name, $type, $info
  * by search api on flagging and unflagging.
  */
 function sharedcontent_flag($op, $flag, $content_id, $account, $fcid) {
-  if ($flag->content_type == 'sharedcontent_index'){
+  if ($flag->content_type == 'sharedcontent_index') {
     search_api_track_item_change($flag->content_type, array($content_id));
   }
 }

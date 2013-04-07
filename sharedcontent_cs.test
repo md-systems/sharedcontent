@@ -1,8 +1,9 @@
 <?php
-
 /**
- *
+ * @file
+ * Scenario tests for Shared Content.
  */
+
 class SharedContentCSTestsBase extends DrupalWebTestCase {
 
   public $baseDomain;

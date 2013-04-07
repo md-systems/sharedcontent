@@ -1,4 +1,11 @@
 <?php
+/**
+ * @file
+ * Ctool access plugin
+ *
+ * Checks if a search server configured in a given search index supports a given
+ * feature.
+ */
 
 $plugin = array(
   'title' => t('Search API Server Support'),

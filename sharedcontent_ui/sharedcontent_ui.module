@@ -285,7 +285,7 @@ function sharedcontent_ui_preprocess_sharedcontent_local_content(&$data) {
         $links['queue']['title'] = t('Queue');
       }
       // Unflag
-      else if ($flag->is_flagged($entity) && $flag->access($entity, 'unflag')) {
+      elseif ($flag->is_flagged($entity) && $flag->access($entity, 'unflag')) {
         $links['dequeue'] = flag_flag_link($flag, 'unflag', $entity);
         $links['dequeue']['title'] = t('Dequeue');
       }
@@ -380,7 +380,7 @@ function sharedcontent_ui_preprocess_sharedcontent_remote_content(&$data) {
           $links['queue']['title'] = t('Queue');
         }
         // Unflag
-        else if ($flag->is_flagged($entity) && $flag->access($entity, 'unflag')) {
+        elseif ($flag->is_flagged($entity) && $flag->access($entity, 'unflag')) {
           $links['dequeue'] = flag_flag_link($flag, 'unflag', $entity);
           $links['dequeue']['title'] = t('Dequeue');
         }

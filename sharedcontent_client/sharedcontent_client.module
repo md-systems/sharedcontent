@@ -143,7 +143,7 @@ function sharedcontent_client_link_content($source, $target, $action) {
       }
       break;
     default:
-      drupal_set_message('Invalid action given. Action should either be <em>link</em> or <em>unlink</em>', 'error');
+      drupal_set_message(t('Invalid action given. Action should either be <em>link</em> or <em>unlink</em>'), 'error');
       sharedcontent_event_save('sharedcontent_client', __FUNCTION__, 'Invalid action', $arguments, $error_options);
   }
 

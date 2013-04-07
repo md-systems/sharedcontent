@@ -24,7 +24,7 @@ function sharedcontent_chapters_form_field_ui_field_overview_form_alter(&$form, 
   // Only alter if the field collection is indexed.
   $indexed_entities = variable_get('sharedcontent_indexed_entities', array());
   if (!(isset($indexed_entities['field_collection_item'])
-    && $indexed_entities['field_collection_item'][$form['#bundle']])){
+    && $indexed_entities['field_collection_item'][$form['#bundle']])) {
     return;
   }
 
@@ -69,7 +69,7 @@ function sharedcontent_chapters_form_field_ui_field_overview_form_alter(&$form, 
     );
   }
 
-  $var_name = 'sharedcontent_chapter_' . $form['#bundle']  . '_field_url';
+  $var_name = 'sharedcontent_chapter_' . $form['#bundle'] . '_field_url';
 
   $form['chapters']['url_conf'] = array(
     '#type' => 'textfield',
@@ -117,7 +117,7 @@ function sharedcontent_chapters_form_field_ui_field_overview_form_submit($form, 
       variable_set($var_name, $values[$attribute]);
     }
 
-    $var_name = 'sharedcontent_chapter_' . $form['#bundle']  . '_field_url';
+    $var_name = 'sharedcontent_chapter_' . $form['#bundle'] . '_field_url';
     variable_set($var_name, $values['url_conf']);
   }
   else {
@@ -155,14 +155,14 @@ function sharedcontent_chapters_sharedcontent_index_presave($index) {
     $field_name =  variable_get($var_name, FALSE);
     if ($field_name && $field_data = field_get_items($index->entity_type, $item, $field_name, $index->language)) {
       $value = array();
-      foreach($field_data as $data) {
+      foreach ($field_data as $data) {
         if (isset($data['value'])) {
           $value[] = $data['value'];
         }
-        else if (isset($data['term'])) {
+        elseif (isset($data['term'])) {
           $value[] = $data['term']['name'];
         }
-        else if (isset($data['tid'])) {
+        elseif (isset($data['tid'])) {
           $term = taxonomy_term_load($data['tid']);
           if ($term) {
             $value[] = $term->name;

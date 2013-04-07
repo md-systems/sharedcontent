@@ -53,7 +53,7 @@ function sharedcontent_autotagging_libraries_info() {
 }
 
 /**
- * Implements hook_requirements();
+ * Implements hook_requirements().
  */
 function sharedcontent_autotagging_requirements($phase) {
   $requirements = array();
@@ -67,7 +67,7 @@ function sharedcontent_autotagging_requirements($phase) {
       $requirements['yos_social_php']['severity'] = REQUIREMENT_ERROR;
       $requirements['yos_social_php']['value'] = t('!error Download it from !url and place it inside of the libraries folder.', array(
         '!error' => $yos_social_php['error message'],
-        '!url' => l('GitHub', $yos_social_php['download url']),
+        '!url' => l(t('GitHub'), $yos_social_php['download url']),
       ));
     }
     else {
@@ -92,7 +92,7 @@ function sharedcontent_autotagging_use_oauth() {
  *
  * Copied from https://github.com/joechung/oauth_yahoo/blob/master/oauth_helper.php
  */
-function sharedcontent_autotagging_oauth_http_build_query($params, $excludeOauthParams = FALSE) {
+function sharedcontent_autotagging_oauth_http_build_query($params, $exclude_oauth_params = FALSE) {
   $query_string = '';
   if (!empty($params)) {
 
@@ -108,7 +108,7 @@ function sharedcontent_autotagging_oauth_http_build_query($params, $excludeOauth
     // Turn params array into an array of "key=value" strings
     $kvpairs = array();
     foreach ($params as $k => $v) {
-      if ($excludeOauthParams && substr($k, 0, 5) == 'oauth') {
+      if ($exclude_oauth_params && substr($k, 0, 5) == 'oauth') {
         continue;
       }
       if (is_array($v)) {

@@ -247,7 +247,7 @@ function sharedcontent_server_services_resources() {
   );
 
   $resource['sharedcontent_index'] = array(
-    'index' => array (
+    'index' => array(
       'callback' => 'sharedcontent_server_resource_list',
       'access callback' => 'sharedcontent_access',
       'access arguments' => array('view'),
@@ -674,7 +674,7 @@ function sharedcontent_server_field_access($op, $field, $entity_type, $entity, $
 function sharedcontent_server_views_pre_view($view, $display_id, $args) {
   if ($view->name == 'sharedcontent_service') {
     // @todo: The editing flag is set to prevent translation of the labels. Find
-    //   a better way.
+    // a better way.
     $view->editing = TRUE;
 
     // This somehow does not work.

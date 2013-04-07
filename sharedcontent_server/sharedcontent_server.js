@@ -1,12 +1,18 @@
+/**
+ * @file
+ * Attaches the behaviors for the Shared Content server.
+ *
+ * This js is targeted to be added in an overlay response.
+ */
+
 (function ($) {
 
   /**
    * Trigger an overlay request for all local sites.
    *
-   * This js is targeted to be added in an overlay response.
-   * It takes care that the user stays in overlay mode as long as a link
-   * local link is uses. As soon as a external link is triggered, it will
-   * be opened in the top window.
+   * Take care that the user stays in overlay mode as long as a link local link
+   * is uses. As soon as a external link is triggered, it will be opened in the
+   * top window.
    */
   Drupal.behaviors.SharedContentUrlAlter = {
     attach: function(context) {

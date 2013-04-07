@@ -1,5 +1,6 @@
 /**
  * @file
+ * Behaviours for the Shared Content UI.
  */
 
 (function ($) {

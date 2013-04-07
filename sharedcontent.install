@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Install, update and uninstall functions for the sharedcontent module
+ * Install, update and uninstall functions for the sharedcontent module.
  */
 
 /**
@@ -398,7 +398,7 @@ function sharedcontent_update_7005(&$sandbox) {
     $sandbox['max'] = db_query('SELECT COUNT(id) FROM {sharedcontent_index} WHERE queue_weight > 0')->fetchField();
   }
 
-  $result = db_query('SELECT id FROM {sharedcontent_index} WHERE queue_weight > 0 AND id > :last_id ORDER BY id LIMIT 10', array(':last_id' => $sandbox['last_id']));
+  $result = db_query_range('SELECT id FROM {sharedcontent_index} WHERE queue_weight > 0 ORDER BY id', $sandbox['last_id'] + 1, 10);
 
   // Flag this records with flag module.
   foreach ($result as $row) {
@@ -453,7 +453,7 @@ function sharedcontent_update_7007(&$sandbox) {
     $sandbox['max'] = db_query('SELECT COUNT(id) FROM {sharedcontent_assignment}')->fetchField();
   }
 
-  $result = db_query('SELECT id, source, target FROM {sharedcontent_assignment} WHERE id > :last_id ORDER BY id LIMIT 10', array(':last_id' => $sandbox['last_id']));
+  $result = db_query_range('SELECT id, source, target FROM {sharedcontent_assignment} ORDER BY id', $sandbox['last_id'] + 1, 10);
 
   // Flag this records with flag module.
   foreach ($result as $row) {

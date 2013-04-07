@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Views plugins used by Shared Content.
+ */
 
 /**
  * Shared Content node type filter extension class.

@@ -1,3 +1,8 @@
+/**
+ * @file
+ * Behaviors for the Shared Content overlay.
+ */
+
 (function ($) {
 
   Drupal.behaviors.SharedContentOverlay = {

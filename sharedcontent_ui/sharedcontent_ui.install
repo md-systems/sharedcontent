@@ -1,7 +1,11 @@
 <?php
+/**
+ * @file
+ * Install, update and uninstall functions for the sharedcontent_ui module.
+ */
 
 /**
- * Implements hook_requirements();
+ * Implements hook_requirements().
  */
 function sharedcontent_ui_requirements($phase) {
   $requirements = array();
@@ -38,7 +42,7 @@ function sharedcontent_ui_requirements($phase) {
 }
 
 /**
- * Implements hook_enable();
+ * Implements hook_enable().
  *
  * @todo Cover the case where the colorbox_visibility is equal to 1.
  */

@@ -42,17 +42,7 @@ function sharedcontent_drush_command() {
     'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
   );
 
-  $items['sharedcontent-foo'] = array(
-    'aliases' => array('sc-foo'),
-    'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
-  );
-
   return $items;
-}
-
-function drush_sharedcontent_foo() {
-  $entity = entity_load_single('node', 50);
-  print_r(sharedcontent_autotagging_get_tags($entity, 'node')) . PHP_EOL;
 }
 
 /**

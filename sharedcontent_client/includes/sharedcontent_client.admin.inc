@@ -40,7 +40,7 @@ function sharedcontent_client_configure_endpoints_connections($connection) {
 function sharedcontent_client_configure_linkables($form, &$form_state) {
   if (!empty($form_state['linkables'])) {
     $description = t('If you confirm, a Shared Content reference field will be added to the selected entities. If there is such a field on unselected entities it will be deleted. This can lead to unwanted data loss!');
-    $form = confirm_form($form, 'Do you really want to proceed?', 'admin/config/services/sharedcontent/client/linkables', $description);
+    $form = confirm_form($form, t('Do you really want to proceed?'), 'admin/config/services/sharedcontent/client/linkables', $description);
   }
   else {
     $field_name = sharedcontent_client_get_default_shared_content_field_name();

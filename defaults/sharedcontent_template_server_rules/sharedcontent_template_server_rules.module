@@ -3,5 +3,3 @@
  * @file
  * Code for the Shared Content Server Feature feature.
  */
-
-include_once 'sharedcontent_template_server_rules.features.inc';

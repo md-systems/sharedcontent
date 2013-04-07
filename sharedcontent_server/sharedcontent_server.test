@@ -74,9 +74,6 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     $this->assertEqual($index->title, $node->title);
     $this->assertEqual($index->entity_id, $node->nid);
     $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_VISIBLE);
-    // @todo: entity_created is currently never set?
-    //$this->assertEqual($index->entity_created, $node->created);
-    //$this->assertEqual($index->entity_changed, $node->changed);
     $this->assertEqual($index->created, REQUEST_TIME);
     $this->assertEqual($index->changed, REQUEST_TIME);
 
@@ -305,17 +302,17 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     // Given an index record with a reason other than 'default'
     $term = $this->createTerm(taxonomy_vocabulary_machine_name_load('sharedcontent_reason'));
     $index = sharedcontent_index_load(1);
-    $index->field_sharedcontent_reason = array (
-      LANGUAGE_NONE => array (
-        0 => array ('tid' => $term->tid),
+    $index->field_sharedcontent_reason = array(
+      LANGUAGE_NONE => array(
+        0 => array('tid' => $term->tid),
       ),
     );
     $index->save();
 
     // And the user I am currently logged in has the same reason assigned
-    $this->user_client->field_sharedcontent_reason = array (
-      LANGUAGE_NONE => array (
-        0 => array ('tid' => $term->tid),
+    $this->user_client->field_sharedcontent_reason = array(
+      LANGUAGE_NONE => array(
+        0 => array('tid' => $term->tid),
       ),
     );
     entity_save('user', $this->user_client);
