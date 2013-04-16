@@ -9,6 +9,8 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
 
   protected $profile = 'testing';
 
+  protected $entity_id = 1;
+
   /**
    * Implements getInfo().
    */
@@ -328,5 +330,87 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
 
     // And the index records matches the one with the non default reason
     $this->assertEqual($index->entity_id, $result[0]->entity_id);
+  }
+
+  /**
+   * Tests the index counting thought the service api.
+   */
+  public function testIndexCount() {
+    // Given there are 101 records with increasing changed dates.
+    $entity_id = 1;
+    $count = 101;
+
+    // Using a deterministic time for otherwise comparison will lead to
+    // unexpected  results.
+    $request_time = date('c', REQUEST_TIME);
+
+    $date = new DateTime($request_time);
+    $one_day = new DateInterval('P1D');
+    while ($count > 0) {
+      $date->sub($one_day);
+      $index = entity_create('sharedcontent_index', array(
+        'title' => $this->randomName(),
+        'entity_id' => $entity_id,
+        'entity_type' => 'node',
+        'url' => url('node/' . $entity_id, array('absolute' => TRUE)),
+        'created' => $date->getTimestamp(),
+      ));
+      $index->save();
+      $count--;
+    }
+    // The changed date is updated on each save so we need to set it directly
+    // in the database.
+    db_update('sharedcontent_index')
+      ->expression('changed', 'created')
+      ->execute();
+
+    // Given I am logged in as a client
+    $this->loginAsClient();
+
+    // When I do a count request to the index with changed date of current date.
+    // Then the result should be zero.
+    $date = new DateTime($request_time);
+    $this->assertEqual(0, $this->serviceCountRequest($date->format('c')));
+
+    // When I do a count request to the index with changed date minus one day.
+    // Then the result should be 1.
+    $date->sub($one_day);
+    $this->assertEqual(1, $this->serviceCountRequest($date->format('c')));
+
+    // When I do a count request to the index with changed date minus 100 days.
+    // Then the result should be 100.
+    $date->sub(new DateInterval('P99D'));
+    $this->assertEqual(100, $this->serviceCountRequest($date->format('c')));
+
+    // When I do a count request to the index with changed date minus 101 days.
+    // Then the result should be 101.
+    $date->sub($one_day);
+    $this->assertEqual(101, $this->serviceCountRequest($date->format('c')));
+
+    // When I do a count request to the index without a changed date.
+    // Then the result should be 101.
+    $this->assertEqual(101, $this->serviceCountRequest());
+  }
+
+  /**
+   * Counts the index records through service call.
+   *
+   * @param $changed
+   *   The changed dated used in the query.
+   *
+   * @return int
+   *  The index count.
+   */
+  private function serviceCountRequest($changed = '') {
+    $options = array('absolute' => TRUE);
+    if (!empty($changed)) {
+      $options['query'] = array( 'changed' => $changed);
+    }
+    $count = drupal_json_decode($this->curlExec(array(
+      CURLOPT_URL => url("sharedcontent/index/count.json", $options),
+      CURLOPT_POST => TRUE,
+      CURLOPT_HTTPHEADER => array(),
+    )));
+    return $count[0];
   }
 }

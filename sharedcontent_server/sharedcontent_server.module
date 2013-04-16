@@ -178,137 +178,147 @@ function sharedcontent_server_services_resources() {
   );
 
   $resource['sharedcontent_content'] = array(
-    'retrieve' => array(
-      'callback' => 'sharedcontent_server_render_content',
-      'access callback' => 'sharedcontent_access',
-      'access arguments' => array('view'),
-      'args' => array(
-        'uuid' => array(
-          'name' => 'uuid',
-          'optional' => FALSE,
-          'source' => array('path' => 0),
-          'type' => 'string',
-          'description' => 'The uuid of the shared content to get',
-        ),
-        'view_mode' => array(
-          'name' => 'view_mode',
-          'optional' => TRUE,
-          'source' => array('param' => 'mode'),
-          'default value' => 'sharedcontent_teaser',
-          'type' => 'string',
-          'description' => 'The view mode to be used for rendering',
-        ),
-        'langcode' => array(
-          'name' => 'langcode',
-          'optional' => TRUE,
-          'source' => array('param' => 'lang'),
-          'type' => 'string',
-          'description' => 'The language to be used for rendering',
+    'operations' => array(
+      'retrieve' => array(
+        'callback' => 'sharedcontent_server_render_content',
+        'access callback' => 'sharedcontent_access',
+        'access arguments' => array('view'),
+        'args' => array(
+          'uuid' => array(
+            'name' => 'uuid',
+            'optional' => FALSE,
+            'source' => array('path' => 0),
+            'type' => 'string',
+            'description' => 'The uuid of the shared content to get',
+          ),
+          'view_mode' => array(
+            'name' => 'view_mode',
+            'optional' => TRUE,
+            'source' => array('param' => 'mode'),
+            'default value' => 'sharedcontent_teaser',
+            'type' => 'string',
+            'description' => 'The view mode to be used for rendering',
+          ),
+          'langcode' => array(
+            'name' => 'langcode',
+            'optional' => TRUE,
+            'source' => array('param' => 'lang'),
+            'type' => 'string',
+            'description' => 'The language to be used for rendering',
+          ),
         ),
       ),
     ),
   );
 
   $resource['sharedcontent_assignments'] = array(
-    'retrieve' => array(
-      'callback' => 'sharedcontent_server_resource_assignment',
-      'access callback' => 'sharedcontent_access',
-      'access arguments' => array('view'),
-      'args' => array(
-        'uuid' => array(
-          'name' => 'uuid',
-          'optional' => FALSE,
-          'source' => array('path' => 0),
-          'type' => 'string',
-          'description' => 'The uuid of the assignment to get',
+    'operations' => array(
+      'retrieve' => array(
+        'callback' => 'sharedcontent_server_resource_assignment',
+        'access callback' => 'sharedcontent_access',
+        'access arguments' => array('view'),
+        'args' => array(
+          'uuid' => array(
+            'name' => 'uuid',
+            'optional' => FALSE,
+            'source' => array('path' => 0),
+            'type' => 'string',
+            'description' => 'The uuid of the assignment to get',
+          ),
         ),
       ),
-    ),
-    'update' => array(
-      'callback' => 'sharedcontent_server_resource_assignment',
-      'access callback' => 'sharedcontent_access',
-      'args' => array(
-        'uuid' => array(
-          'name' => 'uuid',
-          'optional' => FALSE,
-          'source' => array('path' => 0),
-          'type' => 'string',
-          'description' => 'The uuid of the assignment to get',
-        ),
-        array(
-          'name' => 'assignment',
-          'optional' => FALSE,
-          'source' => 'data',
-          'description' => 'The assignment data to update',
-          'type' => 'array',
+      'update' => array(
+        'callback' => 'sharedcontent_server_resource_assignment',
+        'access callback' => 'sharedcontent_access',
+        'args' => array(
+          'uuid' => array(
+            'name' => 'uuid',
+            'optional' => FALSE,
+            'source' => array('path' => 0),
+            'type' => 'string',
+            'description' => 'The uuid of the assignment to get',
+          ),
+          array(
+            'name' => 'assignment',
+            'optional' => FALSE,
+            'source' => 'data',
+            'description' => 'The assignment data to update',
+            'type' => 'array',
+          ),
         ),
       ),
     ),
   );
 
   $resource['sharedcontent_index'] = array(
-    'index' => array(
-      'callback' => 'sharedcontent_server_resource_list',
-      'access callback' => 'sharedcontent_access',
-      'access arguments' => array('view'),
-      'args' => $list_resource_args,
-      'actions' => array(
-        'count' => array(
-          'callback' => 'sharedcontent_server_resource_list_count',
-          'access callback' => 'sharedcontent_access',
-          'access arguments' => array('view'),
-          'args' => $list_resource_args,
+    'operations' => array(
+      'index' => array(
+        'callback' => 'sharedcontent_server_resource_list',
+        'access callback' => 'sharedcontent_access',
+        'access arguments' => array('view'),
+        'args' => $list_resource_args,
+      ),
+      'retrieve' => array(
+        'callback' => 'sharedcontent_server_resource_index',
+        'access callback' => 'sharedcontent_access',
+        'args' => array(
+          'uuid' => array(
+            'name' => 'uuid',
+            'optional' => FALSE,
+            'source' => array('path' => 0),
+            'type' => 'string',
+            'description' => 'The uuid of the index to get',
+          ),
+        ),
+      ),
+      'update' => array(
+        'callback' => 'sharedcontent_server_resource_index',
+        'access callback' => 'sharedcontent_access',
+        'args' => array(
+          'uuid' => array(
+            'name' => 'uuid',
+            'optional' => FALSE,
+            'source' => array('path' => 0),
+            'type' => 'string',
+            'description' => 'The uuid of the index to get',
+          ),
+          array(
+            'name' => 'assignment',
+            'optional' => FALSE,
+            'source' => 'data',
+            'description' => 'The index data to update',
+            'type' => 'array',
+          ),
         ),
       ),
     ),
-    'retrieve' => array(
-      'callback' => 'sharedcontent_server_resource_index',
-      'access callback' => 'sharedcontent_access',
-      'args' => array(
-        'uuid' => array(
-          'name' => 'uuid',
-          'optional' => FALSE,
-          'source' => array('path' => 0),
-          'type' => 'string',
-          'description' => 'The uuid of the index to get',
-        ),
-      ),
-    ),
-    'update' => array(
-      'callback' => 'sharedcontent_server_resource_index',
-      'access callback' => 'sharedcontent_access',
-      'args' => array(
-        'uuid' => array(
-          'name' => 'uuid',
-          'optional' => FALSE,
-          'source' => array('path' => 0),
-          'type' => 'string',
-          'description' => 'The uuid of the index to get',
-        ),
-        array(
-          'name' => 'assignment',
-          'optional' => FALSE,
-          'source' => 'data',
-          'description' => 'The index data to update',
-          'type' => 'array',
+    'actions' => array(
+      'count' => array(
+        'callback' => 'sharedcontent_server_resource_list_count',
+        'access callback' => 'sharedcontent_access',
+        'access arguments' => array('view'),
+        'args' => array(
+          'changed' => $list_resource_args['changed'],
         ),
       ),
     ),
   );
 
   $resource['sharedcontent_entity_labels'] = array(
-    'retrieve' => array(
-      'callback' => 'sharedcontent_server_get_local_entity_bundle_labels',
-      'access callback' => 'sharedcontent_access',
-      'access arguments' => array('view'),
-      'args' => array(
-        // @todo do we really expose this argument?
-        'entity_type' => array(
-          'name' => 'Entity',
-          'optional' => TRUE,
-          'source' => array('path' => 0),
-          'type' => 'string',
-          'description' => 'The type of the entity.',
+    'operations' => array(
+      'retrieve' => array(
+        'callback' => 'sharedcontent_server_get_local_entity_bundle_labels',
+        'access callback' => 'sharedcontent_access',
+        'access arguments' => array('view'),
+        'args' => array(
+          // @todo do we really expose this argument?
+          'entity_type' => array(
+            'name' => 'Entity',
+            'optional' => TRUE,
+            'source' => array('path' => 0),
+            'type' => 'string',
+            'description' => 'The type of the entity.',
+          ),
         ),
       ),
     ),
@@ -370,18 +380,14 @@ function sharedcontent_server_render_content($uuid, $view_mode = 'sharedcontent_
  *
  * @param string $changed
  *  Changed date of the oldest record to deliver.
- * @param int $offset
- *  Range offset: number of the first record to deliver.
- * @param int $limit
- *  Range limit: count of records to deliver.
  *
  * @return mixed
  *  The count of the records found.
  */
-function sharedcontent_server_resource_list_count($changed = NULL, $offset = 0, $limit = 100) {
-  $query = _sharedcontent_server_resource_list_query($changed, $offset, $limit);
-  $query->count();
-  return $query->execute();
+function sharedcontent_server_resource_list_count($changed = NULL) {
+  return _sharedcontent_server_resource_list_query($changed)
+    ->count()
+    ->execute();
 }
 
 /**
@@ -401,8 +407,9 @@ function sharedcontent_server_resource_list_count($changed = NULL, $offset = 0, 
  */
 function sharedcontent_server_resource_list($changed = NULL, $offset = 0, $limit = 100) {
 
-  $query = _sharedcontent_server_resource_list_query($changed, $offset, $limit);
-  $result = $query->execute();
+  $result = _sharedcontent_server_resource_list_query($changed)
+    ->range($offset, $limit)
+    ->execute();
 
   $data = array();
 
@@ -423,22 +430,17 @@ function sharedcontent_server_resource_list($changed = NULL, $offset = 0, $limit
  *
  * @param string $changed
  *  Changed date of the oldest record to deliver.
- * @param int $offset
- *  Range offset: number of the first record to deliver.
- * @param int $limit
- *  Range limit: count of records to deliver.
  *
  * @return EntityFieldQuery
  *  The query object.
  */
-function _sharedcontent_server_resource_list_query($changed = NULL, $offset = 0, $limit = 100) {
+function _sharedcontent_server_resource_list_query($changed = NULL) {
   $exposed_origins = variable_get('sharedcontent_exposed_origins', array(SHAREDCONTENT_INDEX_BUNDLE_LOCAL));
 
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'sharedcontent_index')
     ->propertyCondition('origin', $exposed_origins, 'IN')
     ->propertyOrderBy('changed', 'DESC')
-    ->range($offset, $limit)
     ->addTag('sharedcontent_index_access');
 
   $changed = strtotime($changed);
