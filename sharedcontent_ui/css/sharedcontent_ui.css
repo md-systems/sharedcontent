@@ -1,3 +1,58 @@
+.panel-col-top {
+  box-sizing: border-box;
+  margin-bottom: 12px;
+  padding: 12px;
+  position: relative;
+  z-index: 1;
+}
+.panel-col-top:before {
+  background-color: #ddeeff;
+  bottom: 0;
+  border: 3px solid #4488cc;
+  border-right: none;
+  box-sizing: border-box;
+  content: "";
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 50%;
+}
+.panel-col-top:after {
+  background-color: #eeffdd;
+  bottom: 0;
+  border: 3px solid #88cc44;
+  border-left: none;
+  box-sizing: border-box;
+  content: "";
+  clear: both;
+  display: block;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 50%;
+}
+.panel-col-top .inside {
+  position: relative;
+  z-index: 2;
+}
+.panel-col-top .inside:after {
+  clear: both;
+  content: "";
+  display: block;
+  font-size: 0;
+  height: 0;
+  line-height: 0;
+  visibility: hidden;
+}
+.panel-col-top .pane-sharedcontent-local-content-selected {
+  float: left;
+  width: 48%;
+}
+.panel-col-top .pane-sharedcontent-references-current {
+  float: right;
+  width: 48%;
+}
+
 .panel-col-first ul.tabs li {
   list-style: none;
   list-style-image: none;
@@ -22,20 +77,6 @@
   padding: 12px;
   background-color: #ddeeff;
   margin-bottom: 12px;
-}
-.panel-col-first .pane-views-panes {
-  border-bottom: none;
-  margin-bottom: 0;
-}
-.panel-col-first .pane-sharedcontent-local-content-selected {
-  border-top-style: dotted;
-}
-.panel-col-first .pane-sharedcontent-references-current {
-  border: 3px solid #88cc44;
-  padding: 12px;
-  background-color: #eeffdd;
-  margin-bottom: 12px;
-  border-top: none;
 }
 .panel-col-first .view-sharedcontent-local-content tr.active {
   background-color: #ffdd99;

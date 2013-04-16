@@ -2,7 +2,6 @@ name = Shared Content UI
 description = Admin interface and dashboard for Shared Content.
 core = 7.x
 package = Shared Content
-version = 7.x-0.19
 
 dependencies[] = sharedcontent
 dependencies[] = sharedcontent_client

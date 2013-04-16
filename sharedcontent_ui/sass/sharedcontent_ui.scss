@@ -29,22 +29,77 @@
   margin-bottom: 12px;
 }
 
+@mixin clearfix() {
+  &:after {
+    clear: both;
+    content: "";
+    display: block;
+    font-size: 0;
+    height: 0;
+    line-height: 0;
+    visibility: hidden;
+  }
+}
+
+// Selected local content.
+.panel-col-top {
+  box-sizing: border-box;
+  margin-bottom: 12px;
+  padding: 12px;
+  position: relative;
+  z-index: 1;
+
+  &:before {
+    background-color: #ddeeff;
+    bottom: 0;
+    border: 3px solid #4488cc;
+    border-right: none;
+    box-sizing: border-box;
+    content: "";
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 50%;
+  }
+
+  &:after {
+    background-color: #eeffdd;
+    bottom: 0;
+    border: 3px solid #88cc44;
+    border-left: none;
+    box-sizing: border-box;
+    content: "";
+    clear: both;
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 50%;
+  }
+
+  .inside {
+    position: relative;
+    z-index: 2;
+
+    @include clearfix;
+  }
+
+  .pane-sharedcontent-local-content-selected {
+    float: left;
+    width: 48%;
+  }
+
+  .pane-sharedcontent-references-current {
+    float: right;
+    width: 48%;
+  }
+}
+
 // Local content
 .panel-col-first {
   @include tabs(#2266aa, #4488cc);
   .panel-pane {
     @include panel(#ddeeff, #4488cc);
-  }
-  .pane-views-panes {
-    border-bottom: none;
-    margin-bottom: 0;
-  }
-  .pane-sharedcontent-local-content-selected {
-    border-top-style: dotted;
-  }
-  .pane-sharedcontent-references-current {
-    @include panel(#eeffdd, #88cc44);
-    border-top: none;
   }
   .view-sharedcontent-local-content {
     tr {
