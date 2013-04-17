@@ -1864,3 +1864,115 @@ function sharedcontent_client_sharedcontent_connection_operations($var) {
 
   return $links;
 }
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function sharedcontent_client_field_extra_fields() {
+  $field_info = field_info_fields();
+  $extra_fields = array();
+  foreach (field_info_instances() as $entity_type => $bundles) {
+    foreach ($bundles as $bundle => $fields) {
+      foreach ($fields as $field) {
+        if ($field_info[$field['field_name']]['type'] == 'entityreference'
+          && $field_info[$field['field_name']]['settings']['target_type'] == 'sharedcontent_index') {
+          $extra_fields[$entity_type][$bundle]['display'][$field['field_name'] . ':sharedcontent_jump_links'] = array(
+            'label' => t('@field_label: Jump Links', array('@field_label' => $field['label'])),
+            'description' => t('Jump links to the refernced '),
+            'weight' => $field['display']['default']['weight'],
+            // Added in advance for being prepared once #1256368 gets committed.
+            // @todo Remove comment once #1256368 got committed.
+            'visible' => FALSE,
+          );
+        }
+      }
+    }
+  }
+  return $extra_fields;
+}
+
+/**
+ * Implements hook_field_extra_fields_display_alter().
+ *
+ * This whole implementation is basically a hack because Drupal core does not
+ * allow you to specify default visibility for extra fields. We don't want any
+ * of the jump link extra fields to be visible by default in referencing
+ * entities, so we have to alter the display settings at this point until such a
+ * time as the settings have been updated for the given bundle.
+ *
+ * @todo Remove function once #1256368 got committed.
+ */
+function sharedcontent_client_field_extra_fields_display_alter(&$displays, $context) {
+  // Load the bundle settings for the current bundle.
+  $bundle_settings = field_bundle_settings($context['entity_type'], $context['bundle']);
+
+  // Loop over the extra fields defined by Shared Content
+  $extra_fields = sharedcontent_client_field_extra_fields();
+
+  // Prevent notices if there are no product types defined.
+  if (empty($extra_fields[$context['entity_type']][$context['bundle']])) {
+    return;
+  }
+
+  foreach ($extra_fields[$context['entity_type']][$context['bundle']] as $key => $value) {
+    foreach ($value as $extra_field_name => $extra_field) {
+      // If the current extra field is represented in the $displays array...
+      if (strpos($extra_field_name, ':sharedcontent_jump_links') !== FALSE) {
+        // And no data yet exists for the extra field in the bundle settings...
+        if (empty($bundle_settings['extra_fields']['display'][$extra_field_name]) ||
+          (empty($bundle_settings['view_modes'][$context['view_mode']]['custom_settings']) && empty($bundle_settings['extra_fields']['display'][$extra_field_name]['default'])) ||
+          (!empty($bundle_settings['view_modes'][$context['view_mode']]['custom_settings']) && empty($bundle_settings['extra_fields']['display'][$extra_field_name][$context['view_mode']]))) {
+          // Default the extra field to be invisible.
+          $displays[$extra_field_name]['visible'] = FALSE;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_attach_view_alter()
+ */
+function sharedcontent_client_field_attach_view_alter(&$output, $context) {
+  if ($context['view_mode'] == '_custom') {
+    // Do not attempt to attach something if view_mode is custom, that means
+    // we are only rendering a single field with custom settings.
+    return;
+  }
+
+  list(, , $bundle) = entity_extract_ids($context['entity_type'], $context['entity']);
+  $extra_fields = field_extra_fields_get_display($context['entity_type'], $bundle, $context['view_mode']);
+  foreach ($extra_fields as $name => $settings) {
+    if (strpos($name, ':sharedcontent_jump_links') !== FALSE && !empty($settings['visible'])) {
+      list( $field_name, ) = explode(':', $name);
+      $items = field_get_items($context['entity_type'], $context['entity'], $field_name);
+      if ($items) {
+        $list_items = array();
+
+        foreach ($items as $item) {
+          $index = FALSE;
+          if (!empty($item['entity'])) {
+            $index = $item['entity'];
+          }
+          elseif (!empty($item['target_id'])) {
+            $index = entity_load_single('sharedcontent_index', $item['target_id']);
+          }
+          if ($index) {
+            $uri = entity_uri($context['entity_type'], $context['entity']);
+            $uri['options']['fragment'] = 'sharedcontent-' . $index->uuid;
+            $uri['options']['attributes']['class'][] = 'sharedcontent-jumplink';
+            $uri['options']['attributes']['class'][] = 'sharedcontent-jumplink-' . $index->entity_type;
+            $uri['options']['attributes']['class'][] = 'sharedcontent-jumplink-' . $index->entity_type . '-' . $index->entity_bundle;
+            $list_items[] = l($index->title, $uri['path'], $uri['options']);
+          }
+        }
+
+        $output[$name] = array(
+          '#theme' => 'item_list__sharedcontent_jump_links',
+          '#items' => $list_items,
+          '#weight' => $settings['weight'],
+        );
+      }
+    }
+  }
+}
