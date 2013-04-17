@@ -127,35 +127,53 @@ function sharedcontent_ui_active_local_content_unset() {
  * @return object|FALSE
  */
 function sharedcontent_ui_get_dashboard_active_local_content() {
-  if ($id = sharedcontent_ui_get_dashboard_active_local_content_id()) {
-    $index_record = entity_load_single('sharedcontent_index', $id);
-    $entity = entity_load_single($index_record->entity_type, $index_record->entity_id);
-    return entity_metadata_wrapper($index_record->entity_type, $entity);
+  $index = sharedcontent_ui_selected_sharedcontent_index();
+  if ($index)  {
+    $entity = entity_load_single($index->entity_type, $index->entity_id);
+    return entity_metadata_wrapper($index->entity_type, $entity);
   }
 
   return FALSE;
 }
 
 /**
- * Helper function to get the active selected local content's id on the dashboard.
+ * Gets the current selected sharedcontent_index.
  *
- * @return integer|FALSE
+ * @return SharedContentIndex|FALSE
  */
-function sharedcontent_ui_get_dashboard_active_local_content_id() {
-  $id = FALSE;
+function sharedcontent_ui_selected_sharedcontent_index() {
+  $index = &drupal_static(__FUNCTION__);
+  if (!$index && $index !== FALSE) {
+    $id = FALSE;
 
-  if (arg(2) == 'sharedcontent' && arg(3) == 'dashboard' && (int) arg(4) > 0) {
-    $id = arg(4);
-  }
+    if (arg(2) == 'sharedcontent' && arg(3) == 'dashboard' && (int) arg(4) > 0) {
+      $id = arg(4);
+    }
+    else if (isset($_SESSION['sharedcontent_ui_active_index_record'])) {
+      $id = $_SESSION['sharedcontent_ui_active_index_record'];
+    }
 
-  if ($id) {
-    $_SESSION['sharedcontent_ui_active_index_record'] = $id;
-  }
-  elseif (isset($_SESSION['sharedcontent_ui_active_index_record']) > 0) {
-    $id = $_SESSION['sharedcontent_ui_active_index_record'];
-  }
+    $index = entity_load_single('sharedcontent_index', $id);
 
-  return $id;
+    if (!$index) {
+      unset($_SESSION['sharedcontent_ui_active_index_record']);
+    }
+  }
+  return $index;
+}
+
+/**
+ * Gets the id of the current selected sharedcontent_index.
+ *
+ * This function calls for sharedcontent_ui_selected_sharedcontent_index_id()
+ * and only returns the record id if any. This is necessary for this
+ * ensures that we return an id only if a valid record exists.
+ *
+ * @return int|FALSE
+ */
+function sharedcontent_ui_selected_sharedcontent_index_id() {
+  $index = sharedcontent_ui_selected_sharedcontent_index();
+  return $index ? $index->id : FALSE;
 }
 
 /**
@@ -182,9 +200,9 @@ function sharedcontent_ui_init() {
     drupal_add_css($path . '/css/sharedcontent_ui.css');
     drupal_add_js(drupal_get_path('module', 'sharedcontent_client') . '/js/overlay.js');
 
-    // Getting the local content id will ensure that it wil get stored
+    // Getting the selected index will ensure that it wil get stored
     // in the session.
-    sharedcontent_ui_get_dashboard_active_local_content_id();
+    sharedcontent_ui_selected_sharedcontent_index();
   }
 }
 
@@ -258,7 +276,7 @@ function sharedcontent_ui_block_view($delta = '') {
  * ensure the presence of the values we need in here.
  */
 function sharedcontent_ui_preprocess_sharedcontent_local_content(&$data) {
-  $active_local_content_id = sharedcontent_ui_get_dashboard_active_local_content_id();
+  $selected_index_id = sharedcontent_ui_selected_sharedcontent_index_id();
 
   $column_name = 'actions';
   $column_class = 'views-field views-field-' . $column_name;
@@ -273,7 +291,8 @@ function sharedcontent_ui_preprocess_sharedcontent_local_content(&$data) {
 
     // @todo Also check for entity type. But first we need to make
     // this information available.
-    $is_selected = $index['entity object']->id == $active_local_content_id;
+    if ($index['entity object']->id == $selected_index_id) {
+    $is_selected = $index['entity object']->id == $selected_index_id;
     if ($is_selected) {
       $data['row_classes'][$key][] = 'active';
     }
@@ -359,7 +378,7 @@ function sharedcontent_ui_preprocess_sharedcontent_remote_content(&$data) {
       $entity = $data['result'][$key]->entity;
       $links = array();
 
-      $source_id = sharedcontent_ui_get_dashboard_active_local_content_id();
+      $source_id = sharedcontent_ui_selected_sharedcontent_index_id();
       $local_content = sharedcontent_ui_get_dashboard_active_local_content();
       $referenceable = in_array($index['status'], array(
         SHAREDCONTENT_INDEX_STATUS_VISIBLE,
@@ -439,7 +458,7 @@ function sharedcontent_ui_preprocess_sharedcontent_current(&$data) {
     $index_record = $data['result'][$key];
     $links = array();
 
-    $source_id = sharedcontent_ui_get_dashboard_active_local_content_id();
+    $source_id = sharedcontent_ui_selected_sharedcontent_index_id();
     $local_content = sharedcontent_ui_get_dashboard_active_local_content();
     $sharedcontent_field_names = sharedcontent_client_get_all_shared_content_field_names();
 

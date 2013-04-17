@@ -119,23 +119,21 @@ class SharedContentIndexAssigned extends SearchApiViewsHandlerFilterBoolean {
   function query() {
     if ($this->value) {
       $no_assignments = TRUE;
-      if ($id = sharedcontent_ui_get_dashboard_active_local_content_id()) {
-        $index = entity_load_single('sharedcontent_index', $id);
-        $values = db_select('sharedcontent_assignment', 'a')
-          ->fields('a', array('source'))
-          ->condition('target', $index ? $index->uuid : FALSE)
-          ->condition('status', 0)
-          ->execute()->fetchCol();
-        if (!empty($values)) {
-          $filter = $this->query->createFilter('OR');
-          // $filter will be NULL if there were errors in the query.
-          if ($filter) {
-            foreach ($values as $value) {
-              $filter->condition($this->real_field, $value);
-            }
-            $this->query->filter($filter, $this->options['group']);
-            $no_assignments = FALSE;
+      $index = sharedcontent_ui_selected_sharedcontent_index();
+      $values = db_select('sharedcontent_assignment', 'a')
+        ->fields('a', array('source'))
+        ->condition('target', $index ? $index->uuid : FALSE)
+        ->condition('status', 0)
+        ->execute()->fetchCol();
+      if (!empty($values)) {
+        $filter = $this->query->createFilter('OR');
+        // $filter will be NULL if there were errors in the query.
+        if ($filter) {
+          foreach ($values as $value) {
+            $filter->condition($this->real_field, $value);
           }
+          $this->query->filter($filter, $this->options['group']);
+          $no_assignments = FALSE;
         }
       }
       if ($no_assignments) {
@@ -157,12 +155,10 @@ class SharedContentIndexSelf extends SearchApiViewsHandlerFilterBoolean {
    * Override query().
    */
   function query() {
-    if ($id = sharedcontent_ui_get_dashboard_active_local_content_id()) {
-      $index = entity_load_single('sharedcontent_index', $id);
-      if (isset($index)) {
-        $operator = $this->value ? '=' : '<>';
-        $this->query->condition($this->real_field, $index->uuid, $operator, $this->options['group']);
-      }
+    $index = sharedcontent_ui_selected_sharedcontent_index();
+    if ($index) {
+      $operator = $this->value ? '=' : '<>';
+      $this->query->condition($this->real_field, $index->uuid, $operator, $this->options['group']);
     }
     elseif ($this->value) {
       $this->query->condition($this->real_field, NULL, '=', $this->options['group']);
@@ -180,20 +176,14 @@ class SharedContentIndexTags extends views_plugin_argument_default {
    * @todo doc
    */
   function get_argument() {
-    $id = sharedcontent_ui_get_dashboard_active_local_content_id();
-
-    if ($id) {
-      // Try to get tags from local index, if selected node is indexed.
-      $index = entity_load_single('sharedcontent_index', $id);
-      if ($index) {
-        $keywords = $index->title;
-        $keywords .= ' ' . $index->keywords;
-        $keywords .= ' ' . $index->tags;
-        return $keywords;
-      }
+    $keywords = '';
+    $index = sharedcontent_ui_selected_sharedcontent_index();
+    if ($index) {
+      $keywords .= $index->title;
+      $keywords .= ' ' . $index->keywords;
+      $keywords .= ' ' . $index->tags;
     }
-
-    return '';
+    return $keywords;
   }
 
 }
@@ -207,10 +197,7 @@ class SharedContentIndexTags extends views_plugin_argument_default {
 class SharedContentIndexSelectedRecord extends views_plugin_argument_default {
 
   function get_argument() {
-    $id = sharedcontent_ui_get_dashboard_active_local_content_id();
-    if ($id) {
-        return $id;
-    }
-    return NULL;
+    $id = sharedcontent_ui_selected_sharedcontent_index_id();
+    return $id ? $id : NULL;
   }
 }
