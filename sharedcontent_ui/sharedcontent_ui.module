@@ -145,18 +145,21 @@ function sharedcontent_ui_selected_sharedcontent_index() {
   $index = &drupal_static(__FUNCTION__);
   if (!$index && $index !== FALSE) {
     $id = FALSE;
+    $index = FALSE;
 
     if (arg(2) == 'sharedcontent' && arg(3) == 'dashboard' && (int) arg(4) > 0) {
       $id = arg(4);
     }
-    else if (isset($_SESSION['sharedcontent_ui_active_index_record'])) {
+    elseif (isset($_SESSION['sharedcontent_ui_active_index_record'])) {
       $id = $_SESSION['sharedcontent_ui_active_index_record'];
     }
 
-    $index = entity_load_single('sharedcontent_index', $id);
+    if ($id) {
+      $index = entity_load_single('sharedcontent_index', $id);
 
-    if (!$index) {
-      unset($_SESSION['sharedcontent_ui_active_index_record']);
+      if (!$index) {
+        unset($_SESSION['sharedcontent_ui_active_index_record']);
+      }
     }
   }
   return $index;
