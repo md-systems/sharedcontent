@@ -292,55 +292,56 @@ function sharedcontent_ui_preprocess_sharedcontent_local_content(&$data) {
     // @todo Also check for entity type. But first we need to make
     // this information available.
     if ($index['entity object']->id == $selected_index_id) {
-    $is_selected = $index['entity object']->id == $selected_index_id;
-    if ($is_selected) {
-      $data['row_classes'][$key][] = 'active';
-    }
-
-    if (_sharedcontent_entity_is_linkable($index['entity object']->entity_type)) {
+      $is_selected = $index['entity object']->id == $selected_index_id;
       if ($is_selected) {
-        $links['unselect'] = array(
-          'title' => t('Unselect'),
-          'href' => 'admin/content/sharedcontent/dashboard/unselect',
-        );
+        $data['row_classes'][$key][] = 'active';
       }
-      else {
-        $links['select'] = array(
-          'title' => t('Select'),
-          'href' => 'admin/content/sharedcontent/dashboard/' . $index['entity object']->id,
-        );
+
+      if (_sharedcontent_entity_is_linkable($index['entity object']->entity_type)) {
+        if ($is_selected) {
+          $links['unselect'] = array(
+            'title' => t('Unselect'),
+            'href' => 'admin/content/sharedcontent/dashboard/unselect',
+          );
+        }
+        else {
+          $links['select'] = array(
+            'title' => t('Select'),
+            'href' => 'admin/content/sharedcontent/dashboard/' . $index['entity object']->id,
+          );
+        }
       }
+
+      $print_flag =
+        // We are on the all or queue display
+        in_array($data['view']->current_display, array('all', 'queue'))
+          // We do have a valid flag.
+          && ($flag = flag_get_flag('sharedcontent_local_queue'))
+          // User has permission to use this flag.
+          && $flag->access($entity);
+
+      if ($print_flag) {
+        // Flag
+        if (!$flag->is_flagged($entity) && $flag->access($entity, 'flag')) {
+          $links['queue'] = flag_flag_link($flag, 'flag', $entity);
+          $links['queue']['title'] = t('Queue');
+        }
+        // Unflag
+        elseif ($flag->is_flagged($entity) && $flag->access($entity, 'unflag')) {
+          $links['dequeue'] = flag_flag_link($flag, 'unflag', $entity);
+          $links['dequeue']['title'] = t('Dequeue');
+        }
+      }
+
+      $data['rows'][$key][$column_name] = theme('links__ctools_dropbutton', array('links' => $links));
+      $data['field_classes'][$column_name][$key] = $column_class;
+      $data['field_attributes'][$column_name][$key] = array();
     }
 
-    $print_flag =
-      // We are on the all or queue display
-      in_array($data['view']->current_display, array('all', 'queue'))
-        // We do have a valid flag.
-        && ($flag = flag_get_flag('sharedcontent_local_queue'))
-        // User has permission to use this flag.
-        && $flag->access($entity);
-
-    if ($print_flag) {
-      // Flag
-      if (!$flag->is_flagged($entity) && $flag->access($entity, 'flag')) {
-        $links['queue'] = flag_flag_link($flag, 'flag', $entity);
-        $links['queue']['title'] = t('Queue');
-      }
-      // Unflag
-      elseif ($flag->is_flagged($entity) && $flag->access($entity, 'unflag')) {
-        $links['dequeue'] = flag_flag_link($flag, 'unflag', $entity);
-        $links['dequeue']['title'] = t('Dequeue');
-      }
-    }
-
-    $data['rows'][$key][$column_name] = theme('links__ctools_dropbutton', array('links' => $links));
-    $data['field_classes'][$column_name][$key] = $column_class;
-    $data['field_attributes'][$column_name][$key] = array();
+    $data['fields'][$column_name] = $column_name;
+    $data['header_classes'][$column_name] = $column_class;
+    $data['header'][$column_name] = t('Actions');
   }
-
-  $data['fields'][$column_name] = $column_name;
-  $data['header_classes'][$column_name] = $column_class;
-  $data['header'][$column_name] = t('Actions');
 }
 
 /**
