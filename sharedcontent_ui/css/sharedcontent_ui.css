@@ -119,7 +119,7 @@
 .view-id-sharedcontent_local_content .views-field-actions,
 .view-id-sharedcontent_remote_content .views-field-actions,
 .view-id-sharedcontent_references .views-field-actions {
-  width: 8em;
+  width: 10em;
 }
 .view-id-sharedcontent_local_content .views-field-search-api-relevance,
 .view-id-sharedcontent_remote_content .views-field-search-api-relevance,
