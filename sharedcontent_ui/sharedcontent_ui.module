@@ -18,6 +18,12 @@ function sharedcontent_ui_menu() {
     'page arguments' => array('sharedcontent_ui_clear_queue', 5),
   );
 
+  $menu['admin/content/sharedcontent/dashboard/unselect'] = array(
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access sharedcontent ui'),
+    'page callback' => 'sharedcontent_ui_active_local_content_unset',
+  );
+
   return $menu;
 }
 
@@ -105,6 +111,14 @@ function sharedcontent_ui_views_query_alter(view &$view, &$query) {
       return;
     }
   }
+}
+
+/**
+ * Unsets the current selected local content and redirects to the ShareBoard.
+ */
+function sharedcontent_ui_active_local_content_unset() {
+  unset($_SESSION['sharedcontent_ui_active_index_record']);
+  drupal_goto('admin/content/sharedcontent/dashboard');
 }
 
 /**
@@ -259,15 +273,24 @@ function sharedcontent_ui_preprocess_sharedcontent_local_content(&$data) {
 
     // @todo Also check for entity type. But first we need to make
     // this information available.
-    if ($index['entity object']->id == $active_local_content_id) {
+    $is_selected = $index['entity object']->id == $active_local_content_id;
+    if ($is_selected) {
       $data['row_classes'][$key][] = 'active';
     }
 
     if (_sharedcontent_entity_is_linkable($index['entity object']->entity_type)) {
-      $links['select'] = array(
-        'title' => t('Select'),
-        'href' => 'admin/content/sharedcontent/dashboard/' . $index['entity object']->id,
-      );
+      if ($is_selected) {
+        $links['unselect'] = array(
+          'title' => t('Unselect'),
+          'href' => 'admin/content/sharedcontent/dashboard/unselect',
+        );
+      }
+      else {
+        $links['select'] = array(
+          'title' => t('Select'),
+          'href' => 'admin/content/sharedcontent/dashboard/' . $index['entity object']->id,
+        );
+      }
     }
 
     $print_flag =

@@ -279,7 +279,17 @@ function sharedcontent_template_ui_default_page_manager_pages() {
   $pane->type = 'views_panes';
   $pane->subtype = 'sharedcontent_local_content-selected';
   $pane->shown = TRUE;
-  $pane->access = array();
+  $pane->access = array(
+    'plugins' => array(
+      0 => array(
+        'name' => 'sharedcontent_active_selected_local_content',
+        'settings' => array(
+          'present' => 1,
+        ),
+        'not' => FALSE,
+      ),
+    ),
+  );
   $pane->configuration = array();
   $pane->cache = array();
   $pane->style = array(
@@ -297,7 +307,17 @@ function sharedcontent_template_ui_default_page_manager_pages() {
   $pane->type = 'views_panes';
   $pane->subtype = 'sharedcontent_references-current';
   $pane->shown = TRUE;
-  $pane->access = array();
+  $pane->access = array(
+    'plugins' => array(
+      0 => array(
+        'name' => 'sharedcontent_active_selected_local_content',
+        'settings' => array(
+          'present' => 1,
+        ),
+        'not' => FALSE,
+      ),
+    ),
+  );
   $pane->configuration = array();
   $pane->cache = array();
   $pane->style = array(
