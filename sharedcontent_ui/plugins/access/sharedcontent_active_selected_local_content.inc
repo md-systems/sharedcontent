@@ -23,7 +23,7 @@ function sharedcontent_ui_active_selected_local_content_access($conf, $context) 
   if (empty($conf) || !isset($conf['present'])) {
     return FALSE;
   }
-  $id = sharedcontent_ui_get_dashboard_active_local_content_id();
+  $id = sharedcontent_ui_selected_sharedcontent_index_id();
   return !($id xor $conf['present']);
 }
 
