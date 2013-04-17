@@ -421,6 +421,12 @@ function sharedcontent_template_ui_views_default_views() {
     0 => '0',
   );
   $handler->display->display_options['filters']['status']['group'] = 1;
+  /* Filter criterion: Shared Content: Shared Content capable node types */
+  $handler->display->display_options['filters']['sharedcontent_type']['id'] = 'sharedcontent_type';
+  $handler->display->display_options['filters']['sharedcontent_type']['table'] = 'search_api_index_sharedcontent';
+  $handler->display->display_options['filters']['sharedcontent_type']['field'] = 'sharedcontent_type';
+  $handler->display->display_options['filters']['sharedcontent_type']['value'] = '1';
+  $handler->display->display_options['filters']['sharedcontent_type']['group'] = 1;
   /* Filter criterion: Indexed Shared Content Index: Entity_bundle */
   $handler->display->display_options['filters']['entity_bundle']['id'] = 'entity_bundle';
   $handler->display->display_options['filters']['entity_bundle']['table'] = 'search_api_index_sharedcontent';
@@ -527,6 +533,12 @@ function sharedcontent_template_ui_views_default_views() {
   $handler->display->display_options['filters']['sharedcontent_local_queue']['field'] = 'sharedcontent_local_queue';
   $handler->display->display_options['filters']['sharedcontent_local_queue']['value'] = '1';
   $handler->display->display_options['filters']['sharedcontent_local_queue']['group'] = 1;
+  /* Filter criterion: Shared Content: Shared Content capable node types */
+  $handler->display->display_options['filters']['sharedcontent_type']['id'] = 'sharedcontent_type';
+  $handler->display->display_options['filters']['sharedcontent_type']['table'] = 'search_api_index_sharedcontent';
+  $handler->display->display_options['filters']['sharedcontent_type']['field'] = 'sharedcontent_type';
+  $handler->display->display_options['filters']['sharedcontent_type']['value'] = '1';
+  $handler->display->display_options['filters']['sharedcontent_type']['group'] = 1;
   /* Filter criterion: Indexed Shared Content Index: Entity_bundle */
   $handler->display->display_options['filters']['entity_bundle']['id'] = 'entity_bundle';
   $handler->display->display_options['filters']['entity_bundle']['table'] = 'search_api_index_sharedcontent';
