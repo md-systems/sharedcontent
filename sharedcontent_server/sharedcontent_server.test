@@ -30,7 +30,8 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     $dependencies = array(
       'sharedcontent_server_feature',
       'sharedcontent_template_server_rules',
-      'taxonomy'
+      'taxonomy',
+      'file',
     );
     $permissions = array();
     $permissions['editor'] = array(
@@ -40,6 +41,7 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
       'administer views',
       'administer services',
       'administer site configuration',
+      'administer sharedcontent',
     );
     $permissions['client'] = array(
       'access endpoint restricted',
@@ -47,35 +49,36 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     parent::setUp($dependencies, $permissions);
     variable_set('sharedcontent_indexed_entities', array(
       'node' => array(
-        'article' => 1,
-        'page' => 1,
+        'article' => TRUE,
+        'page' => TRUE,
+      ),
+      'taxonomy_vocabulary' => array(
+        'taxonomy_vocabulary' => TRUE,
+      ),
+      'file' => array(
+        'file' => 1,
+      ),
+      'user' => array(
+        'user' => 1,
       ),
     ));
   }
 
   /**
-   * Test if the index is built correctly.
+   * Test if the index is built correctly for core entities.
    */
-  function testCreateIndexOnNodeCreation() {
-    // When I log in with administer node permission
-    $this->loginAsEditor();
-
-    // And I get the index record for node 1
-    $index = sharedcontent_index_load_by_entity_id(1, 'node');
-
-    // Then I do not have a index record.
-    $this->assertEqual(NULL, $index);
-
+  function testIndexCreation() {
     // When I create a new node
     $node = $this->drupalCreateNode();
 
     // Then I should have an index record in the sc index
-    $index = entity_load('sharedcontent_index', FALSE, array('entity_id' => $node->nid));
-    $this->assertEqual(1, count($index));
-    $index = reset($index);
+    $index = sharedcontent_index_load_by_entity_id($node->nid, 'node');
     $this->assertEqual($index->title, $node->title);
     $this->assertEqual($index->entity_id, $node->nid);
+    $this->assertEqual($index->entity_type, 'node');
     $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_VISIBLE);
+    $this->assertEqual($index->entity_created, $node->created);
+    $this->assertEqual($index->entity_changed, $node->changed);
     $this->assertEqual($index->created, REQUEST_TIME);
     $this->assertEqual($index->changed, REQUEST_TIME);
 
@@ -90,6 +93,96 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
 
     // Then the index record should have status disabled.
     $index = sharedcontent_index_load_by_entity_id($node->nid, 'node');
+    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_UNREACHABLE);
+
+    // When I create a new vocabulary
+    $vocabulary = $this->createVocabulary();
+
+    // Then I should have an index record matching the vocabulary
+    $index = sharedcontent_index_load_by_entity_id($vocabulary->vid, 'taxonomy_vocabulary');
+    $this->assertEqual($index->title, $vocabulary->name);
+    $this->assertEqual($index->entity_id, $vocabulary->vid);
+    $this->assertEqual($index->entity_type, 'taxonomy_vocabulary');
+    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_UNREACHABLE);
+    $this->assertEqual($index->entity_created, REQUEST_TIME);
+    $this->assertEqual($index->entity_changed, REQUEST_TIME);
+    $this->assertEqual($index->created, REQUEST_TIME);
+    $this->assertEqual($index->changed, REQUEST_TIME);
+
+    // Given the terms for the created vocabulary are indexed
+    $indexed = variable_get('sharedcontent_indexed_entities', array());
+    $indexed['taxonomy_term'][$vocabulary->machine_name] = TRUE;
+    variable_set('sharedcontent_indexed_entities', $indexed);
+
+    // When I create a new term
+    $term = $this->createTerm($vocabulary);
+
+    // Then I should have an index record matching the term
+    $index = sharedcontent_index_load_by_entity_id( $term->tid, 'taxonomy_term');
+    $this->assertEqual($index->title, $term->name);
+    $this->assertEqual($index->entity_id, $term->tid);
+    $this->assertEqual($index->entity_type, 'taxonomy_term');
+    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_VISIBLE);
+    $this->assertEqual($index->entity_created, REQUEST_TIME);
+    $this->assertEqual($index->entity_changed, REQUEST_TIME);
+    $this->assertEqual($index->created, REQUEST_TIME);
+    $this->assertEqual($index->changed, REQUEST_TIME);
+
+    // When I delete the therm
+    taxonomy_term_delete($term->tid);
+
+    // Then the index record should have status disabled.
+    $index = sharedcontent_index_load_by_entity_id( $term->tid, 'taxonomy_term');
+    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_UNREACHABLE);
+
+    // When I delete the vocabulary
+    taxonomy_vocabulary_delete($vocabulary->vid);
+
+    // Then the index record should have status disabled.
+    $index = sharedcontent_index_load_by_entity_id($vocabulary->vid, 'taxonomy_vocabulary');
+    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_UNREACHABLE);
+
+    // When I create a user
+    $account = $this->drupalCreateUser();
+
+    // Then I should have an index record for the user
+    $index = sharedcontent_index_load_by_entity_id( $account->uid, 'user');
+    $this->assertEqual($index->title, $account->name);
+    $this->assertEqual($index->entity_id, $account->uid);
+    $this->assertEqual($index->entity_type, 'user');
+    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_VISIBLE);
+    $this->assertEqual($index->entity_created, $account->created);
+    $this->assertEqual($index->entity_changed, $index->entity_created);
+    $this->assertEqual($index->created, REQUEST_TIME);
+    $this->assertEqual($index->changed, REQUEST_TIME);
+
+    // When I delete the user
+    entity_delete('user', $account->uid);
+
+    // Then the index record should have status disabled.
+    $index = sharedcontent_index_load_by_entity_id($account->uid, 'user');
+    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_UNREACHABLE);
+
+    // When I create a file
+    $file = current($this->drupalGetTestFiles('text'));
+    entity_save('file', $file);
+
+    // Then I should have an index record for the file
+    $index = sharedcontent_index_load_by_entity_id( $file->fid, 'file');
+    $this->assertEqual($index->title, $file->filename);
+    $this->assertEqual($index->entity_id, $file->fid);
+    $this->assertEqual($index->entity_type, 'file');
+    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_VISIBLE);
+    $this->assertEqual($index->entity_created, $file->timestamp);
+    $this->assertEqual($index->entity_changed, $file->timestamp);
+    $this->assertEqual($index->created, REQUEST_TIME);
+    $this->assertEqual($index->changed, REQUEST_TIME);
+
+    // When I delete the file
+    entity_delete('file', $file->fid);
+
+    // Then the index record should have status disabled.
+    $index = sharedcontent_index_load_by_entity_id($file->fid, 'file');
     $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_UNREACHABLE);
   }
 
@@ -172,10 +265,8 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     ));
 
     // Then the keywords should match the term
-    $index = entity_load('sharedcontent_index', FALSE, array('entity_id' => $node->nid));
-    $index = array_shift($index);
+    $index = sharedcontent_index_load_by_entity_id($node->nid);
     $this->assertEqual($terms[0]->name, $index->keywords);
-
 
     // And I create a new node with multiple taxonomy terms
     $node = $this->drupalCreateNode(array(

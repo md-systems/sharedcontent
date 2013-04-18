@@ -47,8 +47,6 @@ function sharedcontent_template_server_rules_default_rules_configuration() {
       ],
       "IF" : [ { "entity_is_of_type" : { "entity" : [ "entity" ], "type" : "node" } } ],
       "DO" : [
-        { "data_set" : { "data" : [ "index:entity-created" ], "value" : [ "entity:created" ] } },
-        { "data_set" : { "data" : [ "index:entity-changed" ], "value" : [ "entity:changed" ] } },
         { "sharedcontent_rules_get_keywords" : {
             "USING" : { "local_content" : [ "entity" ], "local_content_type" : "node" },
             "PROVIDE" : { "keywords" : { "keywords" : "Content keywords" } }

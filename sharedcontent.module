@@ -1389,41 +1389,73 @@ function sharedcontent_index_exists($entity, $type) {
  */
 function sharedcontent_create_or_update_index_for_entity($entity, $type) {
   list($id, , $bundle) = entity_extract_ids($type, $entity);
-  $title = entity_label($type, $entity);
-  $uri = entity_uri($type, $entity);
-  $uri['absolute'] = TRUE;
-  $url = url($uri['path'], $uri);
   $language = sharedcontent_entity_language($entity, $type);
-  // check if anonymous users can access the entity
-  $anonymous = entity_load_single('user', 0);
-  $accessible = entity_access('view', $type, $entity, $anonymous) ? SHAREDCONTENT_INDEX_ACCESSIBILITY_PUBLIC : SHAREDCONTENT_INDEX_ACCESSIBILITY_RESTRICTED;
-
   $index = sharedcontent_index_load_by_entity_id($id, $type, $language);
+  $op = 'update';
   if (!$index) {
     // Create new record.
     $index = entity_create('sharedcontent_index', array(
       'entity_id' => $id,
       'entity_type' => $type,
       'entity_bundle' => $bundle,
-      'title' => $title,
-      'url' => $url,
-      'language' => $language,
-      'accessibility' => $accessible,
       'origin' => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
     ));
-    drupal_alter('sharedcontent_index', $index, $item, $parent);
-    rules_invoke_event('sharedcontent_index_is_being_created', $index, entity_metadata_wrapper($type, $entity));
-    // @todo log
+    $op = 'create';
+  }
+
+  // Get the entities absolute url.
+  $uri = entity_uri($type, $entity);
+  $uri['options']['absolute'] = TRUE;
+  $url = isset($uri['path']) ? url($uri['path'], $uri['options']) : '';
+  if ($type == 'file') {
+    $url = file_create_url($entity->uri);
+  }
+
+  // check if anonymous users can access the entity
+  $anonymous = drupal_anonymous_user();
+  $accessible = entity_access('view', $type, $entity, $anonymous) ? SHAREDCONTENT_INDEX_ACCESSIBILITY_PUBLIC : SHAREDCONTENT_INDEX_ACCESSIBILITY_RESTRICTED;
+
+  $index->status = empty($url) ? SHAREDCONTENT_INDEX_STATUS_UNREACHABLE : SHAREDCONTENT_INDEX_STATUS_VISIBLE;
+  $index->title = entity_label($type, $entity);
+  $index->url = $url;
+  $index->language = $language;
+  $index->accessibility = $accessible;
+
+  // Setting default created value.
+  if (empty($index->entity_created)) {
+    if (!empty($entity->created)) {
+      $index->entity_created = $entity->created;
+    }
+    elseif (!empty($entity->timestamp)) {
+      $index->entity_created = $entity->timestamp;
+    }
+    else {
+      $index->entity_created = REQUEST_TIME;
+    }
+  }
+
+  // Setting default changed value.
+  if (!empty($entity->changed)) {
+    $index->entity_changed = $entity->changed;
+  }
+  elseif (!empty($entity->timestamp)) {
+    $index->entity_changed = $entity->timestamp;
   }
   else {
-    $index->status = SHAREDCONTENT_INDEX_STATUS_VISIBLE;
-    $index->title = entity_label($type, $entity);
-    $index->url = $url;
-    $index->language = $language;
-    rules_invoke_event('sharedcontent_index_is_being_updated', $index, entity_metadata_wrapper($type, $entity));
-    // @todo log
+    $index->entity_changed = $index->entity_created;
   }
-  entity_save('sharedcontent_index', $index);
+
+  // Trigger alter hook and rules event allowing other parties to alter
+  // the index to their likings.
+  $wrapped_entity = entity_metadata_wrapper($type, $entity);
+  $event = 'sharedcontent_index_is_being_updated';
+  if ($op == 'created') {
+    $event = 'sharedcontent_index_is_being_created';
+  }
+  drupal_alter('sharedcontent_index', $index, $wrapped_entity, $op);
+  rules_invoke_event($event, $index, $wrapped_entity);
+
+  $index->save();
   return $index;
 }
 
