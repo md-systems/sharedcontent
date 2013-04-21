@@ -2,10 +2,10 @@ name = Shared Content Core
 description = Common functionality used by the Shared Content server and Shared Content client.
 core = 7.x
 package = Shared Content
-version = 7.x-0.19
 
-dependencies[] = entity
 dependencies[] = ctools
+dependencies[] = entity
+dependencies[] = rules
 dependencies[] = services
 
 test_dependencies[] = phpseclib
