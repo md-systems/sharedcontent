@@ -604,15 +604,6 @@ function sharedcontent_ui_views_api() {
  * @see SharedContentQueuedRemoteContent
  */
 function sharedcontent_ui_views_data() {
-  $data['search_api_index_sharedcontent']['sharedcontent_type'] = array(
-    'group' => t('Shared Content'),
-    'title' => t('Shared Content capable node types'),
-    'help' => t('Filters for node types having the Shared Content field'),
-    'real field' => 'entity_bundle',
-    'filter' => array(
-      'handler' => 'SharedContentCapableContentTypes',
-    ),
-  );
 
   $data['search_api_index_sharedcontent']['assignment_filter'] = array(
     'group' => t('Shared Content'),
@@ -631,21 +622,6 @@ function sharedcontent_ui_views_data() {
     'real field' => 'uuid',
     'filter' => array(
       'handler' => 'SharedContentIndexSelf',
-    ),
-  );
-
-  $options = array();
-  foreach (flag_get_flags('sharedcontent_index') as $key => $flag) {
-    $options[$key] = $flag->title;
-  }
-  $data['search_api_index_sharedcontent']['queue_filter'] = array(
-    'group' => t('Shared Content'),
-    'title' => t('Flagged content'),
-    'help' => t('Filters the Shared Content index for flagged entities.'),
-    'real field' => 'id',
-    'filter' => array(
-      'handler' => 'SharedContentQueuedRemoteContent',
-      'options' => $options,
     ),
   );
 

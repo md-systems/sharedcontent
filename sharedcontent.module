@@ -1774,3 +1774,28 @@ function sharedcontent_flag($op, $flag, $content_id, $account, $fcid) {
     search_api_track_item_change($flag->content_type, array($content_id));
   }
 }
+
+/**
+ * Checks if referenced entity is linkable.
+ *
+ * Callback for the calculated is_linkable attribute of sharedcontent_index.
+ *
+ * @param $index
+ *  The sharedcontent_index record to calculate the is linkable attribute.
+ *
+ * @return bool
+ *   TRUE if the referenced entity can link Shared Content, FALSE otherwise.
+ */
+function sharedcontent_is_linkable($index) {
+  if ($index->origin != SHAREDCONTENT_INDEX_BUNDLE_LOCAL) {
+    return FALSE;
+  }
+  $field_names = sharedcontent_client_get_all_shared_content_field_names();
+  $instances = field_info_instances($index->entity_type, $index->entity_bundle);
+  foreach ($field_names as $field_name) {
+    if (array_key_exists($field_name, $instances)) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}

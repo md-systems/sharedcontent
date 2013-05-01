@@ -85,6 +85,14 @@ class SharedContentIndexMetadataController extends EntityDefaultMetadataControll
     $properties['changed']['setter callback'] = 'entity_property_verbatim_set';
     $properties['changed']['type'] = 'date';
 
+    $properties['is_linkable'] = array(
+      'label' => t('Is linkable'),
+      'type' => 'boolean',
+      'getter callback' => 'sharedcontent_is_linkable',
+      'computed' => TRUE,
+       'entity views field' => TRUE,
+    );
+
     // Add a calculated property for each flag associated with this entity.
     if (module_exists('flag')) {
       foreach (flag_get_flags('sharedcontent_index') as $key => $flag) {

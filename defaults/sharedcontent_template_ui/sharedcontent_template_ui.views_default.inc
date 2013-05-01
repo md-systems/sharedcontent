@@ -392,26 +392,12 @@ function sharedcontent_template_ui_views_default_views() {
   $handler->display->display_options['sorts']['created']['order'] = 'DESC';
   $handler->display->display_options['sorts']['created']['exposed'] = TRUE;
   $handler->display->display_options['sorts']['created']['expose']['label'] = 'Created';
-  /* Filter criterion: Indexed Shared Content Index: Site */
-  $handler->display->display_options['filters']['connection_name']['id'] = 'connection_name';
-  $handler->display->display_options['filters']['connection_name']['table'] = 'search_api_index_sharedcontent';
-  $handler->display->display_options['filters']['connection_name']['field'] = 'connection_name';
-  $handler->display->display_options['filters']['connection_name']['value'] = array(
-    'local' => 'local',
-  );
-  $handler->display->display_options['filters']['connection_name']['group'] = 1;
-  $handler->display->display_options['filters']['connection_name']['expose']['operator_id'] = 'connection_name_op';
-  $handler->display->display_options['filters']['connection_name']['expose']['label'] = 'Origin';
-  $handler->display->display_options['filters']['connection_name']['expose']['operator'] = 'connection_name_op';
-  $handler->display->display_options['filters']['connection_name']['expose']['identifier'] = 'connection_name';
-  $handler->display->display_options['filters']['connection_name']['expose']['remember'] = TRUE;
-  $handler->display->display_options['filters']['connection_name']['expose']['multiple'] = TRUE;
-  $handler->display->display_options['filters']['connection_name']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    3 => 0,
-  );
-  $handler->display->display_options['filters']['connection_name']['expose']['reduce'] = 0;
+  /* Filter criterion: Indexed Shared Content Index: Is linkable */
+  $handler->display->display_options['filters']['is_linkable']['id'] = 'is_linkable';
+  $handler->display->display_options['filters']['is_linkable']['table'] = 'search_api_index_sharedcontent';
+  $handler->display->display_options['filters']['is_linkable']['field'] = 'is_linkable';
+  $handler->display->display_options['filters']['is_linkable']['value'] = '1';
+  $handler->display->display_options['filters']['is_linkable']['group'] = 1;
   /* Filter criterion: Indexed Shared Content Index: Status */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'search_api_index_sharedcontent';
@@ -421,12 +407,6 @@ function sharedcontent_template_ui_views_default_views() {
     0 => '0',
   );
   $handler->display->display_options['filters']['status']['group'] = 1;
-  /* Filter criterion: Shared Content: Shared Content capable node types */
-  $handler->display->display_options['filters']['sharedcontent_type']['id'] = 'sharedcontent_type';
-  $handler->display->display_options['filters']['sharedcontent_type']['table'] = 'search_api_index_sharedcontent';
-  $handler->display->display_options['filters']['sharedcontent_type']['field'] = 'sharedcontent_type';
-  $handler->display->display_options['filters']['sharedcontent_type']['value'] = '1';
-  $handler->display->display_options['filters']['sharedcontent_type']['group'] = 1;
   /* Filter criterion: Indexed Shared Content Index: Entity_bundle */
   $handler->display->display_options['filters']['entity_bundle']['id'] = 'entity_bundle';
   $handler->display->display_options['filters']['entity_bundle']['table'] = 'search_api_index_sharedcontent';
@@ -490,34 +470,12 @@ function sharedcontent_template_ui_views_default_views() {
   $handler->display->display_options['footer']['area']['format'] = 'filtered_html';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* Filter criterion: Indexed Shared Content Index: Site */
-  $handler->display->display_options['filters']['connection_name']['id'] = 'connection_name';
-  $handler->display->display_options['filters']['connection_name']['table'] = 'search_api_index_sharedcontent';
-  $handler->display->display_options['filters']['connection_name']['field'] = 'connection_name';
-  $handler->display->display_options['filters']['connection_name']['value'] = array(
-    'local' => 'local',
-  );
-  $handler->display->display_options['filters']['connection_name']['group'] = 1;
-  $handler->display->display_options['filters']['connection_name']['expose']['operator_id'] = 'connection_name_op';
-  $handler->display->display_options['filters']['connection_name']['expose']['label'] = 'Origin';
-  $handler->display->display_options['filters']['connection_name']['expose']['operator'] = 'connection_name_op';
-  $handler->display->display_options['filters']['connection_name']['expose']['identifier'] = 'connection_name';
-  $handler->display->display_options['filters']['connection_name']['expose']['remember'] = TRUE;
-  $handler->display->display_options['filters']['connection_name']['expose']['multiple'] = TRUE;
-  $handler->display->display_options['filters']['connection_name']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    3 => 0,
-  );
-  $handler->display->display_options['filters']['connection_name']['expose']['reduce'] = 0;
-  $handler->display->display_options['filters']['connection_name']['group_info']['label'] = 'Site';
-  $handler->display->display_options['filters']['connection_name']['group_info']['identifier'] = 'connection_name';
-  $handler->display->display_options['filters']['connection_name']['group_info']['remember'] = FALSE;
-  $handler->display->display_options['filters']['connection_name']['group_info']['group_items'] = array(
-    1 => array(),
-    2 => array(),
-    3 => array(),
-  );
+  /* Filter criterion: Indexed Shared Content Index: Is linkable */
+  $handler->display->display_options['filters']['is_linkable']['id'] = 'is_linkable';
+  $handler->display->display_options['filters']['is_linkable']['table'] = 'search_api_index_sharedcontent';
+  $handler->display->display_options['filters']['is_linkable']['field'] = 'is_linkable';
+  $handler->display->display_options['filters']['is_linkable']['value'] = '1';
+  $handler->display->display_options['filters']['is_linkable']['group'] = 1;
   /* Filter criterion: Indexed Shared Content Index: Status */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'search_api_index_sharedcontent';
@@ -533,12 +491,6 @@ function sharedcontent_template_ui_views_default_views() {
   $handler->display->display_options['filters']['sharedcontent_local_queue']['field'] = 'sharedcontent_local_queue';
   $handler->display->display_options['filters']['sharedcontent_local_queue']['value'] = '1';
   $handler->display->display_options['filters']['sharedcontent_local_queue']['group'] = 1;
-  /* Filter criterion: Shared Content: Shared Content capable node types */
-  $handler->display->display_options['filters']['sharedcontent_type']['id'] = 'sharedcontent_type';
-  $handler->display->display_options['filters']['sharedcontent_type']['table'] = 'search_api_index_sharedcontent';
-  $handler->display->display_options['filters']['sharedcontent_type']['field'] = 'sharedcontent_type';
-  $handler->display->display_options['filters']['sharedcontent_type']['value'] = '1';
-  $handler->display->display_options['filters']['sharedcontent_type']['group'] = 1;
   /* Filter criterion: Indexed Shared Content Index: Entity_bundle */
   $handler->display->display_options['filters']['entity_bundle']['id'] = 'entity_bundle';
   $handler->display->display_options['filters']['entity_bundle']['table'] = 'search_api_index_sharedcontent';

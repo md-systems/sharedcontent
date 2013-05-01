@@ -128,6 +128,7 @@ function sharedcontent_template_ui_default_search_api_index() {
         "status" : { "type" : "integer" },
         "created" : { "type" : "date" },
         "changed" : { "type" : "date" },
+        "is_linkable" : { "type" : "boolean" },
         "sharedcontent_remote_queue" : { "type" : "boolean" },
         "sharedcontent_local_queue" : { "type" : "boolean" },
         "search_api_language" : { "type" : "string" }
