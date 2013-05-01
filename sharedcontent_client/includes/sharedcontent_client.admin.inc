@@ -131,12 +131,17 @@ function sharedcontent_client_attach_shared_content_field($field_name, $entity_t
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'type' => 'entityreference_label',
+        'type' => 'sharedcontent',
         'settings' => array(
-          'link' => TRUE,
+          'mode' => 'sharedcontent_teaser',
+          'link' => 'origin',
         ),
       ),
       'teaser' => array(
+        'label' => 'hidden',
+        'type' => 'hidden',
+      ),
+      'sharedcontent_teaser' => array(
         'label' => 'hidden',
         'type' => 'hidden',
       ),
@@ -162,6 +167,18 @@ function sharedcontent_client_create_shared_content_field($field_name) {
     'translatable' => FALSE,
     'settings' => array(
       'target_type' => 'sharedcontent_index',
+      'handler' => 'sharedcontent',
+      'handler_settings' => array(
+        'target_bundles' => array(
+          SHAREDCONTENT_INDEX_BUNDLE_LOCAL => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
+          SHAREDCONTENT_INDEX_BUNDLE_REMOTE => SHAREDCONTENT_INDEX_BUNDLE_REMOTE,
+        ),
+        'sort' => array (
+          'type' => 'property',
+          'property' => 'changed',
+          'direction' => 'DESC',
+        ),
+      ),
     ),
   );
   return field_create_field($field);

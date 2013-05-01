@@ -1164,6 +1164,15 @@ function sharedcontent_ctools_plugin_type() {
 }
 
 /**
+ * Implements hook_ctools_plugin_directory().
+ */
+function sharedcontent_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'entityreference' && $plugin == 'selection') {
+    return 'plugins/selection';
+  }
+}
+
+/**
  * Check if a overlay representation is requested.
  *
  * Always use sharedcontent_is_overlay_request() to detect overlay

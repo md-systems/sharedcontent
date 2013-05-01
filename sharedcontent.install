@@ -546,6 +546,24 @@ function sharedcontent_update_7012() {
 }
 
 /**
+ * Switch to Shared Content selection handler.
+ */
+function sharedcontent_update_7013() {
+  $field = field_info_field('sharedcontent_reference');
+  $field['settings']['handler'] = 'sharedcontent';
+  $field['settings']['handler_settings']['target_bundles'] = array(
+    SHAREDCONTENT_INDEX_BUNDLE_LOCAL => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
+    SHAREDCONTENT_INDEX_BUNDLE_REMOTE => SHAREDCONTENT_INDEX_BUNDLE_REMOTE,
+  );
+  $field['settings']['handler_settings']['sort'] = array (
+    'type' => 'property',
+    'property' => 'changed',
+    'direction' => 'DESC',
+  );
+  field_update_field($field);
+}
+
+/**
  * Implements hook_uninstall().
  */
 function sharedcontent_uninstall() {
