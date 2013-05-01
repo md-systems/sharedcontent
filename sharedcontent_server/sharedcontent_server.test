@@ -504,4 +504,385 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     )));
     return $count[0];
   }
+
+  /**
+   * Asserts access to sharedcontent_index.
+   *
+   * @param $access
+   *  TRUE if access is expected to be granted, FALSE otherwise.
+   * @param $index
+   *  The indx entity access is to be granted for or NULL.
+   * @param $account
+   *  The user account access is asserted for.
+   * @param array $context
+   *  An array with context information for output.
+   */
+  private function assertIndexAccess($access, $index, $account, array $context) {
+    $options = array(
+      '%index' => '–',
+      '%perm' => $context['access'][$account->uid],
+    );
+
+    if ($index) {
+      $options['%index'] = $context['index'][$index->id];
+    }
+
+    foreach (array('view', 'create', 'update', 'delete') as $op) {
+      $options['%op'] = $op;
+      $entity_access = entity_access($op, 'sharedcontent_index', $index, $account);
+      if ($access) {
+        $msg = format_string('Access: op %op, perm %perm, index reason %index.', $options);
+        $this->assertTrue($entity_access, $msg);
+      }
+      else {
+        $msg = format_string('No access: op %op, perm %perm, index reason %index.', $options);
+        $this->assertFalse($entity_access, $msg);
+      }
+    }
+  }
+
+  /**
+   * Tests entity access for sharedcontent_index.
+   */
+  function testEntityAccess() {
+    $context = array();
+
+    // Given two reason terms.
+    $vocab = taxonomy_vocabulary_machine_name_load('sharedcontent_reason');
+    $term_a = new stdClass();
+    $term_a->name = $this->randomName();
+    $term_a->vid = $vocab->vid;
+    taxonomy_term_save($term_a);
+    $termfield_a[LANGUAGE_NONE][]['tid'] = $term_a->tid;
+
+    $term_b = new stdClass();
+    $term_b->name = $this->randomName();
+    $term_b->vid = $vocab->vid;
+    taxonomy_term_save($term_b);
+    $termfield_b[LANGUAGE_NONE][]['tid'] = $term_b->tid;
+
+    // And an account with no permissions.
+    $account_access_none = $this->drupalCreateUser();
+    $account_access_none->field_sharedcontent_reason = $termfield_a;
+    user_save($account_access_none);
+    $context['access'][$account_access_none->uid] = '–';
+
+    // And an account with full access.
+    $access_full = array('access endpoint full');
+    $account_access_full = $this->drupalCreateUser($access_full);
+    $account_access_full->field_sharedcontent_reason = $termfield_a;
+    user_save($account_access_full);
+    $context['access'][$account_access_full->uid] = $access_full[0];
+
+    // And an account with restricted access.
+    $access_restricted = array('access endpoint restricted');
+    $account_access_restricted = $this->drupalCreateUser($access_restricted);
+    $account_access_restricted->field_sharedcontent_reason = $termfield_a;
+    user_save($account_access_restricted);
+    $context['access'][$account_access_restricted->uid] = $access_restricted[0];
+
+    // And a sharedcontent_index with reason a
+    $index_a = entity_create('sharedcontent_index', array(
+      'title' => 'A',
+      'entity_id' => 1,
+      'entity_type' => 'node',
+      'url' => url('node/1', array('absolute' => TRUE)),
+      'field_sharedcontent_reason' => $termfield_a,
+    ));
+    $index_a->save();
+    $context['index'][$index_a->id] = $index_a->title;
+
+    // And a sharedcontent_index with reason b
+    $index_b = entity_create('sharedcontent_index', array(
+      'title' => 'B',
+      'entity_id' => 2,
+      'entity_type' => 'node',
+      'url' => url('node/2', array('absolute' => TRUE)),
+      'field_sharedcontent_reason' => $termfield_b,
+    ));
+    $index_b->save();
+    $context['index'][$index_b->id] = $index_b->title;
+
+    // When I check access to any index for user with no permissions.
+    // Then the user is not granted access.
+    $this->assertIndexAccess(FALSE, NULL, $account_access_none, $context);
+
+    // When I check access to any index for user with full access.
+    // Then the user is not granted access.
+    $this->assertIndexAccess(TRUE, NULL, $account_access_full, $context);
+
+    // When I check access to any index for user with restricted access.
+    // Then the user is not granted access.
+    $this->assertIndexAccess(TRUE, NULL, $account_access_restricted, $context);
+
+    // When I check access to index a for user with no permissions.
+    // Then the user is not granted access.
+    $this->assertIndexAccess(FALSE, $index_a, $account_access_none, $context);
+
+    // When I check access to index b for user with no permissions.
+    // Then the user is not granted access.
+    $this->assertIndexAccess(FALSE, $index_b, $account_access_none, $context);
+
+    // When I check access to index a for user with full access.
+    // Then the user is not granted access.
+    $this->assertIndexAccess(TRUE, $index_a, $account_access_full, $context);
+
+    // When I check access to index b for user with full access.
+    // Then the user is not granted access.
+    $this->assertIndexAccess(TRUE, $index_b, $account_access_full, $context);
+
+    // When I check access to index a for user with restricted access.
+    // Then the user is not granted access.
+    $this->assertIndexAccess(TRUE, $index_a, $account_access_restricted, $context);
+
+    // When I check access to index b for user with restricted access.
+    // Then the user is not granted access.
+    $this->assertIndexAccess(TRUE, $index_b, $account_access_restricted, $context);
+
+    // Given reason check is enabled.
+    variable_set('sharedcontent_check_reason', TRUE);
+
+    // When I check access to index a for user with no permissions.
+    // Then the user is not granted access.
+    $this->assertIndexAccess(FALSE, $index_a, $account_access_none, $context);
+
+    // When I check access to index b for user with no permissions.
+    // Then the user is not granted access.
+    $this->assertIndexAccess(FALSE, $index_b, $account_access_none, $context);
+
+    // When I check access to index a for user with full access.
+    // Then the user is not granted access.
+    $this->assertIndexAccess(TRUE, $index_a, $account_access_full, $context);
+
+    // When I check access to index b for user with full access.
+    // Then the user is not granted access.
+    $this->assertIndexAccess(TRUE, $index_b, $account_access_full, $context);
+
+    // When I check access to index a for user with restricted access.
+    // Then the user is not granted access.
+    $this->assertIndexAccess(TRUE, $index_a, $account_access_restricted, $context);
+
+    // When I check access to index b for user with restricted access.
+    // Then the user is not granted access.
+    $this->assertIndexAccess(FALSE, $index_b, $account_access_restricted, $context);
+  }
+
+  /**
+   * Tests access to the service resources.
+   */
+  public function testServiceAccess() {
+
+    // Given two reason terms.
+    $vocab = taxonomy_vocabulary_machine_name_load('sharedcontent_reason');
+    $term_a = new stdClass();
+    $term_a->name = $this->randomName();
+    $term_a->vid = $vocab->vid;
+    taxonomy_term_save($term_a);
+    $termfield_a[LANGUAGE_NONE][]['tid'] = $term_a->tid;
+
+    $term_b = new stdClass();
+    $term_b->name = $this->randomName();
+    $term_b->vid = $vocab->vid;
+    taxonomy_term_save($term_b);
+    $termfield_b[LANGUAGE_NONE][]['tid'] = $term_b->tid;
+
+    // And tree indizes with reason A
+    $node = $this->drupalCreateNode();
+    $count = 3;
+    while ($count > 0) {
+      $index = entity_create('sharedcontent_index', array(
+        'title' => $this->randomName(),
+        'entity_id' => $node->nid,
+        'entity_type' => 'node',
+        'origin' => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
+        'url' => url('node/' . $node->nid, array('absolute' => TRUE)),
+        'field_sharedcontent_reason' => $termfield_a,
+      ));
+      $index->save();
+      $count--;
+    }
+    $uuid_a = $index->uuid;
+
+
+    // And five indizes with reason B
+    $count = 5;
+    while ($count > 0) {
+      $index = entity_create('sharedcontent_index', array(
+        'title' => $this->randomName(),
+        'entity_id' => $node->nid,
+        'entity_type' => 'node',
+        'origin' => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
+        'url' => url('node/' . $node->nid, array('absolute' => TRUE)),
+        'field_sharedcontent_reason' => $termfield_b,
+      ));
+      $index->save();
+      $count--;
+    }
+    $uuid_b = $index->uuid;
+
+    $accounts = array();
+    // And an account with no permissions.
+    $account_access_none = $this->drupalCreateUser();
+    $account_access_none->field_sharedcontent_reason = $termfield_a;
+    user_save($account_access_none);
+    $accounts[$account_access_none->uid] = $account_access_none;
+
+    // And an account with full access.
+    $access_full = array('access endpoint full');
+    $account_access_full = $this->drupalCreateUser($access_full);
+    $account_access_full->field_sharedcontent_reason = $termfield_a;
+    user_save($account_access_full);
+    $accounts[$account_access_full->uid] = $account_access_full;
+
+    // And an account with restricted access.
+    $access_restricted = array('access endpoint restricted');
+    $account_access_restricted = $this->drupalCreateUser($access_restricted);
+    $account_access_restricted->field_sharedcontent_reason = $termfield_a;
+    user_save($account_access_restricted);
+    $accounts[$account_access_restricted->uid] = $account_access_restricted;
+
+    $assertions = array();
+
+    // When I log with no access.
+    $uid = $account_access_none->uid;
+    // And access the index list resource.
+    // Then I should be unautorized.
+    $assertions[$uid]['sharedcontent/index'] = 401;
+
+    // When I access the index resource for an index with reason A.
+    // Then I should be unautorized.
+    $assertions[$uid]['sharedcontent/index/' . $uuid_a] = 401;
+
+    // When I access the index resource for an index with reason b.
+    // Then I should be unautorized.
+    $assertions[$uid]['sharedcontent/index/' . $uuid_b] = 401;
+
+    // When I access the view resource for an index with reason A.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/view/' . $uuid_a] = 200;
+
+    // When I access the view resource for an index with reason b.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/view/' . $uuid_b] = 200;
+
+    // When I access the label resource.
+    // Then I should be unautorized.
+    $assertions[$uid]['sharedcontent/labels/node'] = 401;
+
+    // When I log with restricted access.
+    $uid = $account_access_restricted->uid;
+    // And access the index list resource.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/index'] = 200;
+
+    // When I access the index resource for an index with reason A.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/index/' . $uuid_a] = 200;
+
+    // When I access the index resource for an index with reason b.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/index/' . $uuid_b] = 200;
+
+    // When I access the view resource for an index with reason A.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/view/' . $uuid_a] = 200;
+
+    // When I access the view resource for an index with reason b.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/view/' . $uuid_b] = 200;
+
+    // When I access the label resource.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/labels/node'] = 200;
+
+    // When I log with full access.
+    $uid = $account_access_full->uid;
+    // And access the index list resource.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/index'] = 200;
+
+    // When I access the index resource for an index with reason A.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/index/' . $uuid_a] = 200;
+
+    // When I access the index resource for an index with reason b.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/index/' . $uuid_b] = 200;
+
+    // When I access the view resource for an index with reason A.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/view/' . $uuid_a] = 200;
+
+    // When I access the view resource for an index with reason b.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/view/' . $uuid_b] = 200;
+
+    // When I access the label resource.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/labels/node'] = 200;
+
+    foreach ($assertions as $uid => $requests) {
+      $this->drupalLogin($accounts[$uid]);
+      foreach ($requests as $path => $code) {
+        $this->drupalGet($path);
+        $this->assertEqual($code, curl_getinfo($this->curlHandle, CURLINFO_HTTP_CODE));
+      }
+    }
+
+    // Given reason check is enabled.
+    variable_set('sharedcontent_check_reason', TRUE);
+
+    $assertions = array();
+
+    // When I log with no access.
+    $uid = $account_access_none->uid;
+    // And access the index list resource.
+    // Then I should be unautorized.
+    $assertions[$uid]['sharedcontent/index'] = 401;
+
+    // When I access the index resource for an index with reason A.
+    // Then I should be unautorized.
+    $assertions[$uid]['sharedcontent/index/' . $uuid_a] = 401;
+
+    // When I access the index resource for an index with reason b.
+    // Then I should be unautorized.
+    $assertions[$uid]['sharedcontent/index/' . $uuid_b] = 401;
+
+    // When I log with restricted access.
+    $uid = $account_access_restricted->uid;
+    // And access the index list resource.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/index'] = 200;
+
+    // When I access the index resource for an index with reason A.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/index/' . $uuid_a] = 200;
+
+    // When I access the index resource for an index with reason b.
+    // Then I should be unautorized.
+    $assertions[$uid]['sharedcontent/index/' . $uuid_b] = 401;
+
+    // When I log with full access.
+    $uid = $account_access_full->uid;
+    // And access the index list resource.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/index'] = 200;
+
+    // When I access the index resource for an index with reason A.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/index/' . $uuid_a] = 200;
+
+    // When I access the index resource for an index with reason b.
+    // Then I should be autorized.
+    $assertions[$uid]['sharedcontent/index/' . $uuid_b] = 200;
+
+    foreach ($assertions as $uid => $requests) {
+      $this->drupalLogin($accounts[$uid]);
+      foreach ($requests as $path => $code) {
+        $this->drupalGet($path);
+        $this->assertEqual($code, curl_getinfo($this->curlHandle, CURLINFO_HTTP_CODE));
+      }
+    }
+
+  }
 }

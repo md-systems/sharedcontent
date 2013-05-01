@@ -174,7 +174,7 @@ function sharedcontent_entity_info() {
     'label' => t('Shared Content Index'),
     'entity class' => 'SharedContentIndex',
     'controller class' => 'SharedContentIndexController',
-    'access callback' => 'sharedcontent_access',
+    'access callback' => 'sharedcontent_index_access',
     'metadata controller class' => 'SharedContentIndexMetadataController',
     'views controller class' => 'SharedContentIndexViewsController',
     'base table' => 'sharedcontent_index',
@@ -217,7 +217,7 @@ function sharedcontent_entity_info() {
     'label' => t('Shared Content Assignment'),
     'entity class' => 'SharedContentAssignment',
     'controller class' => 'SharedContentAssignmentController',
-    'access callback' => 'sharedcontent_access',
+    'access callback' => 'sharedcontent_assignment_access',
     'metadata controller class' => 'SharedContentAssignmentMetadataController',
     'views controller class' => 'SharedContentAssignmentViewsController',
     'base table' => 'sharedcontent_assignment',
@@ -402,11 +402,107 @@ function sharedcontent_preprocess_entity(&$variables) {
 }
 
 /**
- * Access callback for sharedcontent.
+ * Checks access to sharedcontent_index.
+ *
+ * @param $op
+ *   The operation being performed. One of 'view', 'update', 'create' or
+ *   'delete'.
+ * @param $entity_type
+ *   The entity type of the entity to check for.
+ * @param $entity
+ *   Optionally an entity to check access for. If no entity is given, it will be
+ *   determined whether access is allowed for all entities of the given type.
+ * @param $account
+ *   The user to check for. Leave it to NULL to check for the global user.
+ *
+ * @return bool
+ *   Whether access is allowed or not.
+ *
+ * @see entity_access()
  */
-function sharedcontent_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
-  // @todo HIGH the index record should not just always be public. Consider user_access / hook_permission.
-  return TRUE;
+function sharedcontent_index_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
+  // Grant access if user has full access.
+  if (user_access('access endpoint full', $account)) {
+    return TRUE;
+  }
+
+  // Skip early if user does not have any access.
+  if (!user_access('access endpoint restricted', $account)) {
+    return FALSE;
+  }
+
+  // Grant access if reason checking is disabled.
+  if (!variable_get('sharedcontent_check_reason', FALSE)) {
+    return TRUE;
+  }
+  // Grant access if no specific entity is provided.
+  elseif (!$entity) {
+    return TRUE;
+  }
+  // Check reasons.
+  else {
+    $index_items = field_get_items('sharedcontent_index', $entity, 'field_sharedcontent_reason');
+    // Skip early if there are no reasons to match.
+    if (empty($index_items)) {
+      return FALSE;
+    }
+
+    // Use global user if no account was provided.
+    if (!$account) {
+      global $user;
+      $account = $user;
+    }
+
+    // Reload user to get a record including the attached fields.
+    $account = entity_load_single('user', $account->uid);
+
+    // No valid user detected.
+    if (!$account) {
+      return FALSE;
+    }
+
+    $user_items = field_get_items('user', $account, 'field_sharedcontent_reason');
+    // Skip early if there are no reasons to match.
+    if (empty($user_items)) {
+      return FALSE;
+    }
+
+    $user_reasons = array();
+    foreach ($user_items as $reason) {
+      $user_reasons[] = $reason['tid'];
+    }
+
+    foreach ($index_items as $reason) {
+      if (in_array($reason['tid'], $user_reasons)) {
+        return TRUE;
+      }
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Checks access to sharedcontent_assignment.
+ *
+ * @param $op
+ *   The operation being performed. One of 'view', 'update', 'create' or
+ *   'delete'.
+ * @param $entity_type
+ *   The entity type of the entity to check for.
+ * @param $entity
+ *   Optionally an entity to check access for. If no entity is given, it will be
+ *   determined whether access is allowed for all entities of the given type.
+ * @param $account
+ *   The user to check for. Leave it to NULL to check for the global user.
+ *
+ * @return bool
+ *   Whether access is allowed or not.
+ *
+ * @see entity_access()
+ */
+function sharedcontent_assignment_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
+  return user_access('access endpoint full', $account) || user_access('access endpoint restricted', $account);
 }
 
 /**

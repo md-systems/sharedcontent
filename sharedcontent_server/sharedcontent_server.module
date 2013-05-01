@@ -181,8 +181,9 @@ function sharedcontent_server_services_resources() {
     'operations' => array(
       'retrieve' => array(
         'callback' => 'sharedcontent_server_render_content',
-        'access callback' => 'sharedcontent_access',
-        'access arguments' => array('view'),
+        'access callback' => 'sharedcontent_server_service_access',
+        'access arguments' => array('view', 'sharedcontent_content'),
+        'access arguments append' => TRUE,
         'args' => array(
           'uuid' => array(
             'name' => 'uuid',
@@ -215,7 +216,9 @@ function sharedcontent_server_services_resources() {
     'operations' => array(
       'retrieve' => array(
         'callback' => 'sharedcontent_server_resource_assignment',
-        'access callback' => 'sharedcontent_access',
+        'access callback' => 'sharedcontent_server_service_access',
+        'access arguments' => array('view', 'sharedcontent_assignments'),
+        'access arguments append' => TRUE,
         'access arguments' => array('view'),
         'args' => array(
           'uuid' => array(
@@ -229,7 +232,9 @@ function sharedcontent_server_services_resources() {
       ),
       'update' => array(
         'callback' => 'sharedcontent_server_resource_assignment',
-        'access callback' => 'sharedcontent_access',
+        'access callback' => 'sharedcontent_server_service_access',
+        'access arguments' => array('update', 'sharedcontent_assignments'),
+        'access arguments append' => TRUE,
         'args' => array(
           'uuid' => array(
             'name' => 'uuid',
@@ -254,13 +259,16 @@ function sharedcontent_server_services_resources() {
     'operations' => array(
       'index' => array(
         'callback' => 'sharedcontent_server_resource_list',
-        'access callback' => 'sharedcontent_access',
-        'access arguments' => array('view'),
+        'access callback' => 'sharedcontent_server_service_access',
+        'access arguments' => array('view', 'sharedcontent_index'),
+        'access arguments append' => TRUE,
         'args' => $list_resource_args,
       ),
       'retrieve' => array(
         'callback' => 'sharedcontent_server_resource_index',
-        'access callback' => 'sharedcontent_access',
+        'access callback' => 'sharedcontent_server_service_access',
+        'access arguments' => array('view', 'sharedcontent_index'),
+        'access arguments append' => TRUE,
         'args' => array(
           'uuid' => array(
             'name' => 'uuid',
@@ -273,7 +281,9 @@ function sharedcontent_server_services_resources() {
       ),
       'update' => array(
         'callback' => 'sharedcontent_server_resource_index',
-        'access callback' => 'sharedcontent_access',
+        'access callback' => 'sharedcontent_server_service_access',
+        'access arguments' => array('update', 'sharedcontent_index'),
+        'access arguments append' => TRUE,
         'args' => array(
           'uuid' => array(
             'name' => 'uuid',
@@ -295,8 +305,9 @@ function sharedcontent_server_services_resources() {
     'actions' => array(
       'count' => array(
         'callback' => 'sharedcontent_server_resource_list_count',
-        'access callback' => 'sharedcontent_access',
-        'access arguments' => array('view'),
+        'access callback' => 'sharedcontent_server_service_access',
+        'access arguments' => array('view', 'sharedcontent_index'),
+        'access arguments append' => TRUE,
         'args' => array(
           'changed' => $list_resource_args['changed'],
         ),
@@ -308,8 +319,8 @@ function sharedcontent_server_services_resources() {
     'operations' => array(
       'retrieve' => array(
         'callback' => 'sharedcontent_server_get_local_entity_bundle_labels',
-        'access callback' => 'sharedcontent_access',
-        'access arguments' => array('view'),
+        'access callback' => 'sharedcontent_server_service_access',
+        'access arguments' => array('view', 'sharedcontent_entity_labels'),
         'args' => array(
           // @todo do we really expose this argument?
           'entity_type' => array(
@@ -324,6 +335,56 @@ function sharedcontent_server_services_resources() {
     ),
   );
   return $resource;
+}
+
+
+/**
+ * Checks access to a Shared Content service resource.
+ *
+ * @param $op
+ *   The operation being performed. One of 'view', 'update', 'create' or
+ *   'delete'.
+ * @param $endpoint
+ *   The name of the endpoint accessed.
+ * @param array $args
+ *   An array with the arguments passed to the service callback function.
+ *
+ * @return bool
+ *   Whether access is allowed or not.
+ */
+function sharedcontent_server_service_access($op, $endpoint, $args = array()) {
+  $access = FALSE;
+  switch ($endpoint) {
+    case 'sharedcontent_index':
+      $index = NULL;
+      if (!empty($args['uuid'])) {
+        $index = sharedcontent_index_load_by_uuid($args['uuid']);
+      }
+      $access = entity_access($op, 'sharedcontent_index', $index ? $index : NULL);
+      break;
+    case 'sharedcontent_content':
+      $index = sharedcontent_index_load_by_uuid($args['uuid']);
+      if ($index->origin == SHAREDCONTENT_INDEX_BUNDLE_LOCAL) {
+        $entity = entity_load_single($index->entity_type, $index->entity_id);
+        if ($entity) {
+          $access = entity_access($op, $index->entity_type, $entity);
+        }
+      }
+      break;
+    case 'sharedcontent_assignments':
+      if (isset($args['uuid']) && !empty($args['uuid'])) {
+        $assignment = sharedcontent_assignment_load_by_uuid($args['uuid']);
+        $access = entity_access($op, 'sharedcontent_assignment', $assignment);
+      }
+      break;
+    case 'sharedcontent_entity_labels':
+      $access = user_access('access endpoint restricted');
+      $access |= user_access('access endpoint full');
+      break;
+  }
+
+  // entity_access() might return NULL. Ensure we always return a boolean.
+  return $access ? TRUE : FALSE;
 }
 
 /**
