@@ -16,7 +16,7 @@ projects[entityreference] = 1.0
 
 projects[features] = 1.0
 
-projects[flag] = 2.0
+projects[flag] = 2.x-dev
 
 projects[libraries] = 2.1
 
