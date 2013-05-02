@@ -11,7 +11,7 @@ projects[drupal][version] = 7.22
 
 projects[sharedcontent][type] = module
 projects[sharedcontent][download][type] = git
-projects[sharedcontent][download][url] = /Users/christian/MD-Systems/drupal.org/sharedcontent
+projects[sharedcontent][download][url] = http://git.drupal.org/project/sharedcontent.git
 projects[sharedcontent][download][branch] = 7.x-1.x
 
 ; Dependency modules for the testing environment
