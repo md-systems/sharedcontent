@@ -90,7 +90,7 @@ class SharedContentIndexMetadataController extends EntityDefaultMetadataControll
       'type' => 'boolean',
       'getter callback' => 'sharedcontent_is_linkable',
       'computed' => TRUE,
-       'entity views field' => TRUE,
+      'entity views field' => TRUE,
     );
 
     // Add a calculated property for each flag associated with this entity.

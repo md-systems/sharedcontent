@@ -718,28 +718,28 @@ function sharedcontent_client_cron() {
     $severity = WATCHDOG_INFO;
 
     try {
-    $count = sharedcontent_client_index_count($config, $changed);
-    // @todo HIGH catch possible exception SharedContentException. This can lead to index inconsistencies
-    // @todo HIGH log here.
-    $offset = 0;
+      $count = sharedcontent_client_index_count($config, $changed);
+      // @todo HIGH catch possible exception SharedContentException. This can lead to index inconsistencies
+      // @todo HIGH log here.
+      $offset = 0;
 
-    // build queue in $batch_size chunks.
-    while ($count > 0) {
-      $queue->createItem(array(
-        $config,
-        $changed,
-        $offset,
-        $batch_size
-      ));
-      $offset += $batch_size;
-      $count -= $batch_size;
-    }
+      // build queue in $batch_size chunks.
+      while ($count > 0) {
+        $queue->createItem(array(
+          $config,
+          $changed,
+          $offset,
+          $batch_size
+        ));
+        $offset += $batch_size;
+        $count -= $batch_size;
+      }
 
-    // @todo HIGH pull assignments from server. Where is this done?
+      // @todo HIGH pull assignments from server. Where is this done?
 
-    // There might be additional records for the current second if it is not yet over.
-    // Duplicate syncs are no problem - we have uuids.
-    $current_time = date('Y-m-d H:i', REQUEST_TIME - 1);
+      // There might be additional records for the current second if it is not yet over.
+      // Duplicate syncs are no problem - we have uuids.
+      $current_time = date('Y-m-d H:i', REQUEST_TIME - 1);
 
       $arguments['count'] = $count;
       $arguments['end-time'] = $current_time;
@@ -974,7 +974,8 @@ function sharedcontent_client_index_count($config, $time_start = NULL) {
       'count' => $count,
     );
     sharedcontent_event_save('sharedcontent_client', __FUNCTION__, 'Index Count.', $arguments, array('severity' => WATCHDOG_DEBUG));
-  } catch (ServicesClientConnectionResponseException $e) {
+  }
+  catch (ServicesClientConnectionResponseException $e) {
     throw new SharedContentCountIndexException($config->name, $time_start, date('Y-m-d H:i', REQUEST_TIME - 1), $e);
   }
   return $count;
@@ -1090,9 +1091,10 @@ function sharedcontent_client_index_synchronize($config, $time_start = NULL, $of
         ), array('severity' => WATCHDOG_ERROR));
       }
     }
-    $log_arguments['count'] = $count; 
+    $log_arguments['count'] = $count;
     sharedcontent_event_save('sharedcontent_client', __FUNCTION__, 'Successfully synchronized index', $log_arguments, array('severity' => WATCHDOG_INFO));
-  } catch (Exception $e) {
+  }
+  catch (Exception $e) {
     throw new SharedContentSynchronizeException($config->name, $log_arguments, $e);
   }
 }
@@ -1210,7 +1212,8 @@ function sharedcontent_client_fetch_remote_content($index, $view_mode = 'sharedc
     }
 
     return $content;
-  } catch (Exception $e) {
+  }
+  catch (Exception $e) {
     $arguments['exception'] = $e;
     sharedcontent_event_save('sharedcontent_client', __FUNCTION__, 'Error on remote content rendering', $arguments, array('severity' => WATCHDOG_ERROR));
   }
@@ -1486,7 +1489,8 @@ function sharedcontent_client_push_assignments($connection_name, $assignments, $
         $data['created'] = $index->created;
 
         $connection->update('index', $index->uuid, $data);
-      } catch (Exception $e) {
+      }
+      catch (Exception $e) {
         // record including the associated assignments.
         throw new SharedContentPushIndexException($connection_name, $index, $e);
       }
@@ -1505,18 +1509,21 @@ function sharedcontent_client_push_assignments($connection_name, $assignments, $
         $data['changed'] = $assignment->changed;
 
         $connection->update('assignments', $assignment->uuid, $data);
-      } catch (Exception $e) {
+      }
+      catch (Exception $e) {
         $severity = WATCHDOG_ERROR;
         $arguments['exception'][] = $e;
         $arguments['failed assignments'][] = $assignment->uuid;
         $message = 'Failed to push some assignments.';
       }
     }
-  } catch (ServicesClientConnectionResponseException $e) {
+  }
+  catch (ServicesClientConnectionResponseException $e) {
     $message = 'Failed to push assignments and associated index';
     $arguments['exception'] = $e;
     $severity = WATCHDOG_ERROR;
-  } catch (Exception $e) {
+  }
+  catch (Exception $e) {
     $message = $e->getMessage();
     $arguments['exception'] = $e;
     $severity = WATCHDOG_ERROR;
@@ -1546,7 +1553,7 @@ function sharedcontent_client_get_remote_entity_bundle_labels($types) {
       foreach ($types as $type => $bundles) {
         $result = $connection->get('labels', $type);
         if (!empty($result)) {
-          foreach ($result  as $key => $label) {
+          foreach ($result as $key => $label) {
             if (in_array($key, $bundles)) {
               $labels += array($key => $label);
             }
@@ -1554,7 +1561,8 @@ function sharedcontent_client_get_remote_entity_bundle_labels($types) {
         }
       }
 
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
       // This connection failed. Report failure and continue.
       sharedcontent_event_save('sharedcontent_client', __FUNCTION__, $e->getMessage(), array('exception' => $e), array('severity' => WATCHDOG_ERROR));
     }
@@ -1875,10 +1883,11 @@ function sharedcontent_client_field_extra_fields() {
     foreach ($bundles as $bundle => $fields) {
       foreach ($fields as $field) {
         if ($field_info[$field['field_name']]['type'] == 'entityreference'
-          && $field_info[$field['field_name']]['settings']['target_type'] == 'sharedcontent_index') {
+          && $field_info[$field['field_name']]['settings']['target_type'] == 'sharedcontent_index'
+        ) {
           $extra_fields[$entity_type][$bundle]['display'][$field['field_name'] . ':sharedcontent_jump_links'] = array(
             'label' => t('@field_label: Jump Links', array('@field_label' => $field['label'])),
-            'description' => t('Jump links to the refernced '),
+            'description' => t('Jump links to the refernced'),
             'weight' => $field['display']['default']['weight'],
             // Added in advance for being prepared once #1256368 gets committed.
             // @todo Remove comment once #1256368 got committed.
@@ -1921,7 +1930,8 @@ function sharedcontent_client_field_extra_fields_display_alter(&$displays, $cont
         // And no data yet exists for the extra field in the bundle settings...
         if (empty($bundle_settings['extra_fields']['display'][$extra_field_name]) ||
           (empty($bundle_settings['view_modes'][$context['view_mode']]['custom_settings']) && empty($bundle_settings['extra_fields']['display'][$extra_field_name]['default'])) ||
-          (!empty($bundle_settings['view_modes'][$context['view_mode']]['custom_settings']) && empty($bundle_settings['extra_fields']['display'][$extra_field_name][$context['view_mode']]))) {
+          (!empty($bundle_settings['view_modes'][$context['view_mode']]['custom_settings']) && empty($bundle_settings['extra_fields']['display'][$extra_field_name][$context['view_mode']]))
+        ) {
           // Default the extra field to be invisible.
           $displays[$extra_field_name]['visible'] = FALSE;
         }
@@ -1944,7 +1954,7 @@ function sharedcontent_client_field_attach_view_alter(&$output, $context) {
   $extra_fields = field_extra_fields_get_display($context['entity_type'], $bundle, $context['view_mode']);
   foreach ($extra_fields as $name => $settings) {
     if (strpos($name, ':sharedcontent_jump_links') !== FALSE && !empty($settings['visible'])) {
-      list( $field_name, ) = explode(':', $name);
+      list($field_name, ) = explode(':', $name);
       $items = field_get_items($context['entity_type'], $context['entity'], $field_name);
       if ($items) {
         $list_items = array();

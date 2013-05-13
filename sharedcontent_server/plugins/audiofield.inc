@@ -51,7 +51,8 @@ class SharedContentRichMediaAudioField extends SharedContentRichMediaBase {
         $fields = field_info_instances($index_all->entity_type, $index_all->entity_bundle);
         foreach ($fields as $key => $field) {
           if (isset($field['display'][$view_mode]['module'])
-            && $field['display'][$view_mode]['module'] == 'audiofield') {
+            && $field['display'][$view_mode]['module'] == 'audiofield'
+          ) {
             return TRUE;
           }
         }

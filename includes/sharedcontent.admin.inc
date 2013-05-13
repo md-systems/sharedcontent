@@ -132,7 +132,7 @@ function sharedcontent_configure_indexed($form, &$form_state) {
       $types[$bundle] = $values['label'];
     }
 
-    if (isset($indexed[$entity_type]) ) {
+    if (isset($indexed[$entity_type])) {
       $defaults = array_keys(array_filter($indexed[$entity_type]));
     }
 

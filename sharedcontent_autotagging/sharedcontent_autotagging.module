@@ -182,10 +182,10 @@ function sharedcontent_autotagging_get_tags($entity, $entity_type) {
 
   if (!empty($result)) {
     // Create XML object
-    $xml =  new SimpleXMLElement($result);
+    $xml = new SimpleXMLElement($result);
     // Define default namespace in order to make xpath work.
     // @see http://www.php.net/manual/en/simplexml.examples-basic.php#102599
-    $xml->registerXPathNamespace("def", "urn:yahoo:cap" );
+    $xml->registerXPathNamespace("def", "urn:yahoo:cap");
     foreach ($xml->xpath('//def:yctCategories/def:yctCategory') as $category) {
       $tags[] = "$category";
     }

@@ -462,9 +462,9 @@ function sharedcontent_update_7007(&$sandbox) {
 
     db_update('sharedcontent_assignment')
       ->fields(array(
-      'source_id' => $from->id,
-      'target_id' => $to->id,
-    ))
+        'source_id' => $from->id,
+        'target_id' => $to->id,
+      ))
       ->condition('id', $row->id)
       ->execute();
 
@@ -555,7 +555,7 @@ function sharedcontent_update_7013() {
     SHAREDCONTENT_INDEX_BUNDLE_LOCAL => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
     SHAREDCONTENT_INDEX_BUNDLE_REMOTE => SHAREDCONTENT_INDEX_BUNDLE_REMOTE,
   );
-  $field['settings']['handler_settings']['sort'] = array (
+  $field['settings']['handler_settings']['sort'] = array(
     'type' => 'property',
     'property' => 'changed',
     'direction' => 'DESC',

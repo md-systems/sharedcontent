@@ -160,7 +160,8 @@ class SharedContentIndex extends Entity {
     $updated = FALSE;
     foreach ($data as $key => $value) {
       if (in_array($key, SharedContentIndex::$exposed_attributes)
-        && $this->$key != $value) {
+        && $this->$key != $value
+      ) {
         $this->$key = $value;
         $updated = TRUE;
       }

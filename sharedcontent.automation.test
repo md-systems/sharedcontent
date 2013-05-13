@@ -30,7 +30,7 @@ class SharedContentAutomationTestCase extends DrupalWebTestCase {
       'sharedcontent_server',
       'sharedcontent_client',
       'sharedcontent_template_client_rules',
-     ));
+    ));
 
   }
 
@@ -67,7 +67,10 @@ class SharedContentAutomationTestCase extends DrupalWebTestCase {
 
     // And the back link rules are enabled.
     $rules_configs = entity_load('rules_config', FALSE, array(
-      'name' => array('rules_sharedcontent_back_link_add', 'rules_sharedcontent_back_link_remove'),
+      'name' => array(
+        'rules_sharedcontent_back_link_add',
+        'rules_sharedcontent_back_link_remove'
+      ),
     ));
     foreach ($rules_configs as $rules_config) {
       $rules_config->active = TRUE;

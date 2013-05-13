@@ -115,7 +115,7 @@ class SharedContentRichMediaBase implements SharedContentRichMedia {
   protected function getIndexes($index, $parents = TRUE) {
     if (empty($indexes[$index->uuid])) {
       $indexes[$index->uuid][] = $index;
-      while ( $parents && !empty($indexes[$index->uuid][count($indexes[$index->uuid]) - 1]->parent_uuid)) {
+      while ($parents && !empty($indexes[$index->uuid][count($indexes[$index->uuid]) - 1]->parent_uuid)) {
         $indexes[$index->uuid][] = sharedcontent_index_load_by_uuid($indexes[$index->uuid][count($indexes) - 1]->parent_uuid);
       }
     }

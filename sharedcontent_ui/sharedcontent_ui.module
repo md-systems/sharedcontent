@@ -128,7 +128,7 @@ function sharedcontent_ui_active_local_content_unset() {
  */
 function sharedcontent_ui_get_dashboard_active_local_content() {
   $index = sharedcontent_ui_selected_sharedcontent_index();
-  if ($index)  {
+  if ($index) {
     $entity = entity_load_single($index->entity_type, $index->entity_id);
     return entity_metadata_wrapper($index->entity_type, $entity);
   }
@@ -142,7 +142,7 @@ function sharedcontent_ui_get_dashboard_active_local_content() {
  * @return SharedContentIndex|FALSE
  */
 function sharedcontent_ui_selected_sharedcontent_index() {
-  $index = &drupal_static(__FUNCTION__);
+  $index = & drupal_static(__FUNCTION__);
   if (!$index && $index !== FALSE) {
     $id = FALSE;
     $index = FALSE;

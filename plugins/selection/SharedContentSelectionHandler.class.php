@@ -26,8 +26,9 @@ class SharedContentSelectionHandler extends EntityReference_SelectionHandler_Gen
     $connection_labels = sharedcontent_get_connection_labels();
     $connection = t('None');
     if (!empty($entity->connection_name)) {
-      if (isset($connection_labels[$entity->connection_name]))
-      $connection = $connection_labels[$entity->connection_name];
+      if (isset($connection_labels[$entity->connection_name])) {
+        $connection = $connection_labels[$entity->connection_name];
+      }
     }
     else {
       $connection = $entity->connection_name;

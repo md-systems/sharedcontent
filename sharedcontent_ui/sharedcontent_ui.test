@@ -86,14 +86,14 @@ class SharedcontentUiTestCase extends DrupalWebTestCase {
 
     // And there are three linkable content.
     $all = array();
-    for($i = 0; $i < 3; $i++) {
+    for ($i = 0; $i < 3; $i++) {
       $node = $this->drupalCreateNode(array('type' => $type_a->type));
       $this->nodes_linkable[$node->nid] = $node;
     }
 
     // And five non linkable content.
     $this->nodes_all = $this->nodes_linkable;
-    for($i = 0; $i < 5; $i++) {
+    for ($i = 0; $i < 5; $i++) {
       $node = $this->drupalCreateNode(array('type' => $type_b->type));
       $this->nodes_all[$node->nid] = $node;
     }

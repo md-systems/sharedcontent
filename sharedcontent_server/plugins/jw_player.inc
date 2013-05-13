@@ -78,7 +78,8 @@ class SharedContentRichMediaJwPlayer extends SharedContentRichMediaBase {
         $fields = field_info_instances($index_all->entity_type, $index_all->entity_bundle);
         foreach ($fields as $key => $field) {
           if (isset($field['display'][$view_mode]['module'])
-            && $field['display'][$view_mode]['module'] == 'jw_player') {
+            && $field['display'][$view_mode]['module'] == 'jw_player'
+          ) {
             return TRUE;
           }
         }

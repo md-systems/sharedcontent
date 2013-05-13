@@ -24,7 +24,8 @@ function sharedcontent_chapters_form_field_ui_field_overview_form_alter(&$form, 
   // Only alter if the field collection is indexed.
   $indexed_entities = variable_get('sharedcontent_indexed_entities', array());
   if (!(isset($indexed_entities['field_collection_item'])
-    && $indexed_entities['field_collection_item'][$form['#bundle']])) {
+    && $indexed_entities['field_collection_item'][$form['#bundle']])
+  ) {
     return;
   }
 
@@ -152,7 +153,7 @@ function sharedcontent_chapters_sharedcontent_index_presave($index) {
   // Generically get title and keywords.
   foreach (array('title', 'keywords') as $attribute) {
     $var_name = 'sharedcontent_chapter_' . $item->field_name . '_field_' . $attribute;
-    $field_name =  variable_get($var_name, FALSE);
+    $field_name = variable_get($var_name, FALSE);
     if ($field_name && $field_data = field_get_items($index->entity_type, $item, $field_name, $index->language)) {
       $value = array();
       foreach ($field_data as $data) {

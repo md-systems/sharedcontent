@@ -173,7 +173,7 @@ function sharedcontent_client_create_shared_content_field($field_name) {
           SHAREDCONTENT_INDEX_BUNDLE_LOCAL => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
           SHAREDCONTENT_INDEX_BUNDLE_REMOTE => SHAREDCONTENT_INDEX_BUNDLE_REMOTE,
         ),
-        'sort' => array (
+        'sort' => array(
           'type' => 'property',
           'property' => 'changed',
           'direction' => 'DESC',

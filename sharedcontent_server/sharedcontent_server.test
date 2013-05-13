@@ -118,7 +118,7 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     $term = $this->createTerm($vocabulary);
 
     // Then I should have an index record matching the term
-    $index = sharedcontent_index_load_by_entity_id( $term->tid, 'taxonomy_term');
+    $index = sharedcontent_index_load_by_entity_id($term->tid, 'taxonomy_term');
     $this->assertEqual($index->title, $term->name);
     $this->assertEqual($index->entity_id, $term->tid);
     $this->assertEqual($index->entity_type, 'taxonomy_term');
@@ -132,7 +132,7 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     taxonomy_term_delete($term->tid);
 
     // Then the index record should have status disabled.
-    $index = sharedcontent_index_load_by_entity_id( $term->tid, 'taxonomy_term');
+    $index = sharedcontent_index_load_by_entity_id($term->tid, 'taxonomy_term');
     $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_UNREACHABLE);
 
     // When I delete the vocabulary
@@ -146,7 +146,7 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     $account = $this->drupalCreateUser();
 
     // Then I should have an index record for the user
-    $index = sharedcontent_index_load_by_entity_id( $account->uid, 'user');
+    $index = sharedcontent_index_load_by_entity_id($account->uid, 'user');
     $this->assertEqual($index->title, $account->name);
     $this->assertEqual($index->entity_id, $account->uid);
     $this->assertEqual($index->entity_type, 'user');
@@ -168,7 +168,7 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     entity_save('file', $file);
 
     // Then I should have an index record for the file
-    $index = sharedcontent_index_load_by_entity_id( $file->fid, 'file');
+    $index = sharedcontent_index_load_by_entity_id($file->fid, 'file');
     $this->assertEqual($index->title, $file->filename);
     $this->assertEqual($index->entity_id, $file->fid);
     $this->assertEqual($index->entity_type, 'file');
@@ -495,7 +495,7 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
   private function serviceCountRequest($changed = '') {
     $options = array('absolute' => TRUE);
     if (!empty($changed)) {
-      $options['query'] = array( 'changed' => $changed);
+      $options['query'] = array('changed' => $changed);
     }
     $count = drupal_json_decode($this->curlExec(array(
       CURLOPT_URL => url("sharedcontent/index/count.json", $options),
