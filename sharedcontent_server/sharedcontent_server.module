@@ -502,7 +502,7 @@ function _sharedcontent_server_resource_list_query($changed = NULL) {
   $query->entityCondition('entity_type', 'sharedcontent_index')
     ->propertyCondition('origin', $exposed_origins, 'IN')
     ->propertyOrderBy('changed', 'DESC')
-    ->addTag('sharedcontent_index_access');
+    ->addTag('sharedcontent_index_reason_access');
 
   $changed = strtotime($changed);
   if ($changed) {

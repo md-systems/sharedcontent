@@ -149,4 +149,57 @@ class SharedcontentClientTestCase extends SharedcontentBaseTestCase {
     $this->assertTrue($instance, 'Page has a sharedcontent reference field.');
   }
 
+  /**
+   * Test access when edit a node with linked shared content.
+   */
+  function testEntityReferenceAccess() {
+    module_load_include('admin.inc', 'sharedcontent_client', 'includes/sharedcontent_client');
+
+    // Given a linkable node.
+    $content_type = $this->drupalCreateContentType(array('type' => 'foo'));
+    sharedcontent_client_create_shared_content_field('sharedcontent_reference');
+    sharedcontent_client_attach_shared_content_field('sharedcontent_reference', 'node', 'foo');
+    $node_linkable = $this->drupalCreateNode(array('type' => 'foo'));
+
+    // And an indexed node with a reason assigned to the index.
+    variable_set('sharedcontent_indexed_entities', array('node' => array('foo' => 1)));
+    $vocab = taxonomy_vocabulary_machine_name_load('sharedcontent_reason');
+    $term = new stdClass();
+    $term->name = $this->randomName();
+    $term->vid = $vocab->vid;
+    taxonomy_term_save($term);
+    $termfield[LANGUAGE_NONE][]['tid'] = $term->tid;
+    $node_indexed = $this->drupalCreateNode(array('type' => 'foo'));
+    $index = sharedcontent_index_load_by_entity_id($node_indexed->nid, 'node', $node_linkable->language);
+    $index->field_sharedcontent_reason = $termfield;
+    $index->save();
+
+    // And the indexed node is linked to the linkable node.
+    $node_linkable->sharedcontent_reference = array();
+    $node_linkable->sharedcontent_reference[LANGUAGE_NONE][0]['target_id'] = $index->id;
+    node_save($node_linkable);
+
+    // When I log in as editor.
+    $editor = $this->drupalCreateUser(array(
+      'administer nodes',
+      'edit any foo content',
+    ));
+    $this->drupalLogin($editor);
+
+    // And edit the linkable node.
+    $this->drupalPost("node/$node_linkable->nid/edit", array(), t('Save'));
+
+    // Then the node was successfully updated.
+    $this->assertText(t('@type @title has been updated.', array('@type' => $content_type->name, '@title' => $node_linkable->title)));
+
+    // Given reason check is enabled.
+    variable_set('sharedcontent_check_reason', TRUE);
+
+    // When I edit the linkable node.
+    $this->drupalPost("node/$node_linkable->nid/edit", array(), t('Save'));
+
+    // Then the node was successfully updated.
+    $this->assertText(t('@type @title has been updated.', array('@type' => $content_type->name, '@title' => $node_linkable->title)));
+    $this->assertNoText('The referenced entity (sharedcontent_index: 1) is invalid.');
+  }
 }

@@ -510,7 +510,7 @@ function sharedcontent_assignment_access($op, $entity = NULL, $account = NULL, $
  *
  * Restrict access to the exposed index by the corresponding taxonomy terms.
  */
-function sharedcontent_query_sharedcontent_index_access_alter(QueryAlterableInterface $query) {
+function sharedcontent_query_sharedcontent_index_reason_access_alter(QueryAlterableInterface $query) {
   // Do not restrict if full access is granted.
   // Also do not check if feature is disabled.
   if (user_access('access endpoint full') || !variable_get('sharedcontent_check_reason', FALSE)) {
