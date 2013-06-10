@@ -36,7 +36,7 @@ class SharedcontentUiTestCase extends DrupalWebTestCase {
       'name' => 'Shared Content UI tests',
       'description' => 'UI tests for Shared Content',
       'group' => 'Shared Content',
-      'dependencies' => array('search_api_db'),
+      'dependencies' => array('search_api_db', 'panels'),
     );
   }
 
@@ -48,6 +48,7 @@ class SharedcontentUiTestCase extends DrupalWebTestCase {
     parent::setUp(array(
       'search_api_db',
       'sharedcontent_template_ui',
+      'block'
     ));
 
     $server = entity_create('search_api_server', array(
