@@ -969,7 +969,8 @@ function sharedcontent_index_load_by_entity_id($id, $type = 'node', $language = 
  *   sharedcontent_index entity object if one exists, otherwise NULL.
  */
 function sharedcontent_index_load_by_uuid($uuid) {
-  return array_shift(entity_load('sharedcontent_index', FALSE, array('uuid' => $uuid)));
+  $entities = entity_load('sharedcontent_index', FALSE, array('uuid' => $uuid));
+  return reset($entities);
 }
 
 /**
@@ -981,7 +982,8 @@ function sharedcontent_index_load_by_uuid($uuid) {
  *   sharedcontent_assignment entity object if one exits, NULL otherwise.
  */
 function sharedcontent_assignment_load_by_uuid($uuid) {
-  return array_shift(entity_load('sharedcontent_assignment', FALSE, array('uuid' => $uuid)));
+  $entities = entity_load('sharedcontent_assignment', FALSE, array('uuid' => $uuid));
+  return reset($entities);
 }
 
 /**

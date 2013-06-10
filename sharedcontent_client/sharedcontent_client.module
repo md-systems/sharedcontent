@@ -1418,7 +1418,8 @@ function sharedcontent_client_get_shared_content_field($entity_type, $entity_bun
  * @todo Do we really need to create a new field here?
  */
 function sharedcontent_client_get_default_shared_content_field_name() {
-  $field_name = reset(sharedcontent_client_get_all_shared_content_field_names());
+  $field_names = sharedcontent_client_get_all_shared_content_field_names();
+  $field_name = reset($field_names);
   $field = field_info_field($field_name);
   if (empty($field)) {
     module_load_include('inc', 'sharedcontent_client', 'includes/sharedcontent_client.admin');
@@ -1663,9 +1664,10 @@ function _sharedcontent_client_update_assignments($entity, $type) {
         $connection_name = $targets[$assignment->target]->connection_name;
       }
       else {
-        $target_index_entity = reset(entity_load('sharedcontent_index', FALSE, array(
+        $entities = entity_load('sharedcontent_index', FALSE, array(
           'uuid' => $assignment->target,
-        )));
+        ));
+        $target_index_entity = reset($entities);
         $connection_name = $target_index_entity->connection_name;
       }
       $changed_assignments[$connection_name][$assignment->id] = $assignment;
