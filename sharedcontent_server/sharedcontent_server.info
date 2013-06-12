@@ -6,7 +6,7 @@ version = 7.x-0.19
 configure = admin/config/services/sharedcontent/server
 
 dependencies[] = sharedcontent
-dependencies[] = rules
+dependencies[] = services (3.3)
 
 files[] = sharedcontent_server.module
 files[] = sharedcontent_server.test

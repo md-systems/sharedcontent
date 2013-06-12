@@ -5,8 +5,7 @@ package = Shared Content
 
 dependencies[] = ctools
 dependencies[] = entity
-dependencies[] = rules
-dependencies[] = services (3.3)
+dependencies[] = services_client_connection
 
 test_dependencies[] = phpseclib
 

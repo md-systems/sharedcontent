@@ -7,7 +7,6 @@ project = sharedcontent_server_feature
 dependencies[] = features
 dependencies[] = rest_server
 dependencies[] = rules
-dependencies[] = services
 dependencies[] = sharedcontent
 dependencies[] = sharedcontent_server
 dependencies[] = taxonomy

@@ -7,7 +7,6 @@ configure = admin/config/services/sharedcontent/client
 
 dependencies[] = colorbox
 dependencies[] = entityreference
-dependencies[] = services_client_connection
 dependencies[] = sharedcontent
 
 files[] = sharedcontent_client.module
