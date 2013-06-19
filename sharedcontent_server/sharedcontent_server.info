@@ -2,11 +2,11 @@ name = Shared Content Server
 description = Create an index of content and expose them so that clients can retrieve it and are able to link to our content.
 core = 7.x
 package = Shared Content
-version = 7.x-0.19
+
 configure = admin/config/services/sharedcontent/server
 
 dependencies[] = sharedcontent
-dependencies[] = services (3.3)
+dependencies[] = services
 
 files[] = sharedcontent_server.module
 files[] = sharedcontent_server.test

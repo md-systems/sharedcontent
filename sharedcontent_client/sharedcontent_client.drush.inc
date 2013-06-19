@@ -177,7 +177,7 @@ function drush_sharedcontent_client_connection_create($endpoint, $username = '',
 
   if (!empty($username)) {
     $connection->config['auth'] = array(
-      'plugin' => 'ServicesClientConnectionSessionAuth',
+      'plugin' => 'ServicesClientConnectionBasicAuth',
       'config' => array(
         'username' => $username,
         'password' => $password,

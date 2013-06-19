@@ -62,6 +62,15 @@ entities has an uuid attribute and maintains proper values for them by itself.
 It is to be expected that Shared Content does not play well in combination with
 the uuid module.
 
+Since Services version 3.4, services added CSRF protection. Services Client does
+not support that. If you use session authentication you must use Services 3.3.
+
+SUPPORTED AUTHENTICATION MECHANISMS
+-----------------------------------
+
+The service endpoint can be queried both with http basic and session
+authentication. To make use of http basic authentication on the client, the
+Services client module needs to be patched. See https://drupal.org/node/2023089.
 
 SEO
 ---

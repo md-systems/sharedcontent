@@ -330,8 +330,8 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     // When I login as a client
     $this->loginAsClient();
 
-    // And access the index resource
-    $result = json_decode($this->drupalGet('sharedcontent/index.json'));
+    // And access the index resource.
+    $result = $this->httpBasicRequest('sharedcontent/index');
 
     // Then I should have five index records
     $this->assertEqual(count($nodes), count($result));
@@ -354,11 +354,10 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     $this->assertTrue(empty($record->changed));
     $this->assertTrue(isset($record->parent_uuid) || is_null($record->parent_uuid));
 
-
-    // When I access the index resource with an offset query
-    $result = json_decode($this->drupalGet('sharedcontent/index.json', array(
+    // When I access the index resource with an offset query.
+    $result = $this->httpBasicRequest('sharedcontent/index', array(
       'query' => array('offset' => 2),
-    )));
+    ));
 
     // Then I should have 3 index records
     $this->assertEqual(3, count($result));
@@ -368,10 +367,10 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     $this->assertEqual($nodes[3]->nid, $result[1]->entity_id);
     $this->assertEqual($nodes[4]->nid, $result[2]->entity_id);
 
-    // When I access the index resource with a limit query
-    $result = json_decode($this->drupalGet('sharedcontent/index.json', array(
+    // When I access the index resource with a limit query.
+    $result = $this->httpBasicRequest('sharedcontent/index', array(
       'query' => array('limit' => 2),
-    )));
+    ));
 
     // Then I should have 2 index records
     $this->assertEqual(2, count($result));
@@ -380,10 +379,10 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     $this->assertEqual($nodes[0]->nid, $result[0]->entity_id);
     $this->assertEqual($nodes[1]->nid, $result[1]->entity_id);
 
-    // When I access the index resource with a changed query
-    $result = json_decode($this->drupalGet('sharedcontent/index.json', array(
+    // When I access the index resource with a changed query.
+    $result = $this->httpBasicRequest('sharedcontent/index', array(
       'query' => array('changed' => format_date(REQUEST_TIME - 1799, 'custom', 'c')),
-    )));
+    ));
 
     // Then I should have 2 index records
     $this->assertEqual(2, count($result));
@@ -414,7 +413,7 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     variable_set('sharedcontent_check_reason', TRUE);
 
     // When I access the index resource
-    $result = json_decode($this->drupalGet('sharedcontent/index.json'));
+    $result = $this->httpBasicRequest('sharedcontent/index');
 
     // Then I should have one index record
     $this->assertEqual(1, count($result));
@@ -493,16 +492,49 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
    *  The index count.
    */
   private function serviceCountRequest($changed = '') {
-    $options = array('absolute' => TRUE);
+    $options = array();
     if (!empty($changed)) {
       $options['query'] = array('changed' => $changed);
     }
-    $count = drupal_json_decode($this->curlExec(array(
-      CURLOPT_URL => url("sharedcontent/index/count.json", $options),
-      CURLOPT_POST => TRUE,
-      CURLOPT_HTTPHEADER => array(),
-    )));
+    $count = $this->httpBasicRequest('sharedcontent/index/count', $options, CURLOPT_POST);
     return $count[0];
+  }
+
+  /**
+   * Does HTTP basic auth request.
+   *
+   * We do not use DrupalWebTestCase::drupalGet() because we need to set curl
+   * settings for basic authentication.
+   *
+   * @param string $path
+   *   The request path.
+   * @param array $options
+   *   Optional options array compatible to the url function.
+   * @param int $method
+   *   Curl HTTP method constant (CURLOPT_HTTPGET|CURLOPT_POST).
+   *
+   * @return mixed
+   *   The json decoded output.
+   */
+  protected function httpBasicRequest($path, array $options = array(), $method = CURLOPT_HTTPGET) {
+    $options['absolute'] = TRUE;
+    $curl_options = array(
+      $method => TRUE,
+      CURLOPT_URL => url($path, $options),
+      CURLOPT_HTTPHEADER => array(
+        'Accept: application/json'
+      ),
+      CURLOPT_NOBODY => FALSE,
+      CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+      CURLOPT_USERPWD => $this->loggedInUser->name . ':' . $this->loggedInUser->pass_raw,
+    );
+
+    $out = $this->curlExec($curl_options);
+
+    $this->verbose('GET request to: ' . $path .
+      '<hr />' . $out);
+
+    return json_decode($out);
   }
 
   /**
@@ -824,7 +856,7 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     foreach ($assertions as $uid => $requests) {
       $this->drupalLogin($accounts[$uid]);
       foreach ($requests as $path => $code) {
-        $this->drupalGet($path);
+        $this->httpBasicRequest($path);
         $this->assertEqual($code, curl_getinfo($this->curlHandle, CURLINFO_HTTP_CODE));
       }
     }
@@ -879,7 +911,7 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     foreach ($assertions as $uid => $requests) {
       $this->drupalLogin($accounts[$uid]);
       foreach ($requests as $path => $code) {
-        $this->drupalGet($path);
+        $this->httpBasicRequest($path);
         $this->assertEqual($code, curl_getinfo($this->curlHandle, CURLINFO_HTTP_CODE));
       }
     }

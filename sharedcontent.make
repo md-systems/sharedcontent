@@ -31,10 +31,13 @@ projects[panels] = 3.3
 projects[search_api][version] = 1.4
 projects[search_api][patch][] = http://drupal.org/files/1850838-1.patch
 
-projects[services][version] = 3.3
+projects[services][version] = 3.4
 projects[services][patch][] = http://drupal.org/files/services-rest_server-Spyc-make_documentation_check_libraries-1349588-37.patch
 
+projects[services_basic_auth][version] = 1.1
+
 projects[services_client] = 1.0-beta1
+projects[services_client][patch][] = https://drupal.org/files/services_client-2023089-1.patch
 
 libraries[yos-social-php][download][type] = git
 libraries[yos-social-php][download][url] = https://github.com/yahoo/yos-social-php.git

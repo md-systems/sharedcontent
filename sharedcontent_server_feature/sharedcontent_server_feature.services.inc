@@ -18,6 +18,7 @@ function sharedcontent_server_feature_default_services_endpoint() {
   $endpoint->path = 'sharedcontent';
   $endpoint->authentication = array(
     'services' => 'services',
+    'services_basic_auth' => 'services_basic_auth',
   );
   $endpoint->server_settings = array(
     'formatters' => array(
