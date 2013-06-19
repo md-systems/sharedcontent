@@ -1560,7 +1560,9 @@ function sharedcontent_create_or_update_index_for_entity($entity, $type) {
     $event = 'sharedcontent_index_is_being_created';
   }
   drupal_alter('sharedcontent_index', $index, $wrapped_entity, $op);
-  rules_invoke_event($event, $index, $wrapped_entity);
+  if (function_exists('rules_invoke_event')) {
+    rules_invoke_event($event, $index, $wrapped_entity);
+  }
 
   $index->save();
   return $index;
