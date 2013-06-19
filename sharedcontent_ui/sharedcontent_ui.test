@@ -144,4 +144,48 @@ class SharedcontentUiTestCase extends DrupalWebTestCase {
       $this->assertTrue(in_array($name, $all));
     }
   }
+
+  /**
+   * Test the display of the current select content.
+   */
+  public function testCurrentSelectedContent() {
+    // When I visit the ShareBoard.
+    $this->drupalGet('admin/content/sharedcontent');
+
+    // Then I see the ShareBoard.
+    $this->assertText('ShareBoard');
+    // And I do not see the region for the current selected content.
+    $this->assertNoText('Selected local content');
+    $this->assertNoText('References');
+    $pane_selected = $this->xpath("//div[contains(@class, 'pane-sharedcontent-local-content-selected')]");
+    $this->assertFalse($pane_selected);
+    $pane_referenced = $this->xpath("//div[contains(@class, 'pane-sharedcontent-references-current')]");
+    $this->assertFalse($pane_referenced);
+
+    // When I select an existing local content.
+    $this->drupalGet('admin/content/sharedcontent/dashboard/1');
+
+    // Then I still see the ShareBoard.
+    $this->assertText('ShareBoard');
+    // And I see the content appears as the current selected local content.
+    $this->assertText('Selected local content');
+    $this->assertText('References');
+    $pane_selected = $this->xpath("//div[contains(@class, 'pane-sharedcontent-local-content-selected')]");
+    $this->assertTrue($pane_selected);
+    $pane_referenced = $this->xpath("//div[contains(@class, 'pane-sharedcontent-references-current')]");
+    $this->assertTrue($pane_referenced);
+
+    // When I select a non existing local content.
+    $this->drupalGet('admin/content/sharedcontent/dashboard/invalid');
+
+    // Then I still see the ShareBoard.
+    $this->assertText('ShareBoard');
+    // And I do not see a selected local content.
+    $this->assertNoText('Selected local content');
+    $this->assertNoText('References');
+    $pane_selected = $this->xpath("//div[contains(@class, 'pane-sharedcontent-local-content-selected')]");
+    $this->assertFalse($pane_selected);
+    $pane_referenced = $this->xpath("//div[contains(@class, 'pane-sharedcontent-references-current')]");
+    $this->assertFalse($pane_referenced);
+  }
 }
