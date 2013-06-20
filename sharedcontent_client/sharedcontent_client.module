@@ -1052,7 +1052,11 @@ function sharedcontent_client_index_synchronize($config, $time_start = NULL, $of
     );
     $log_arguments['filters'] = $filters;
 
-    foreach ($connection->get('index', NULL, $filters) as $data) {
+   $result = $connection->get('index', NULL, $filters);
+    if (!is_array($result)) {
+      throw new ServicesClientException('Response is not an array.');
+    }
+    foreach ($result as $data) {
       $data['connection_name'] = $config->name;
       if (isset($data['uuid'])) {
 
