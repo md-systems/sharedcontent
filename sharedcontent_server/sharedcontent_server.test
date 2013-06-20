@@ -327,11 +327,8 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
       ->condition('entity_id', 3, '>=')
       ->execute();
 
-    // When I login as a client
-    $this->loginAsClient();
-
     // And access the index resource.
-    $result = $this->httpBasicRequest('sharedcontent/index');
+    $result = $this->httpBasicRequest('sharedcontent/index', array(), CURLOPT_HTTPGET, $this->user_client->name, $this->user_client->pass_raw);
 
     // Then I should have five index records
     $this->assertEqual(count($nodes), count($result));
@@ -357,7 +354,7 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     // When I access the index resource with an offset query.
     $result = $this->httpBasicRequest('sharedcontent/index', array(
       'query' => array('offset' => 2),
-    ));
+    ), CURLOPT_HTTPGET, $this->user_client->name, $this->user_client->pass_raw);
 
     // Then I should have 3 index records
     $this->assertEqual(3, count($result));
@@ -370,7 +367,7 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     // When I access the index resource with a limit query.
     $result = $this->httpBasicRequest('sharedcontent/index', array(
       'query' => array('limit' => 2),
-    ));
+    ), CURLOPT_HTTPGET, $this->user_client->name, $this->user_client->pass_raw);
 
     // Then I should have 2 index records
     $this->assertEqual(2, count($result));
@@ -381,8 +378,10 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
 
     // When I access the index resource with a changed query.
     $result = $this->httpBasicRequest('sharedcontent/index', array(
-      'query' => array('changed' => format_date(REQUEST_TIME - 1799, 'custom', 'c')),
-    ));
+      'query' => array(
+        'changed' => format_date(REQUEST_TIME - 1799, 'custom', 'c'),
+      ),
+    ), CURLOPT_HTTPGET, $this->user_client->name, $this->user_client->pass_raw);
 
     // Then I should have 2 index records
     $this->assertEqual(2, count($result));
@@ -413,7 +412,7 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     variable_set('sharedcontent_check_reason', TRUE);
 
     // When I access the index resource
-    $result = $this->httpBasicRequest('sharedcontent/index');
+    $result = $this->httpBasicRequest('sharedcontent/index', array(), CURLOPT_HTTPGET, $this->user_client->name, $this->user_client->pass_raw);
 
     // Then I should have one index record
     $this->assertEqual(1, count($result));
@@ -454,9 +453,6 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
       ->expression('changed', 'created')
       ->execute();
 
-    // Given I am logged in as a client
-    $this->loginAsClient();
-
     // When I do a count request to the index with changed date of current date.
     // Then the result should be zero.
     $date = new DateTime($request_time);
@@ -496,7 +492,7 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     if (!empty($changed)) {
       $options['query'] = array('changed' => $changed);
     }
-    $count = $this->httpBasicRequest('sharedcontent/index/count', $options, CURLOPT_POST);
+    $count = $this->httpBasicRequest('sharedcontent/index/count', $options, CURLOPT_POST, $this->user_client->name, $this->user_client->pass_raw);
     return $count[0];
   }
 
@@ -516,22 +512,33 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
    * @return mixed
    *   The json decoded output.
    */
-  protected function httpBasicRequest($path, array $options = array(), $method = CURLOPT_HTTPGET) {
+  protected function httpBasicRequest($path, array $options = array(), $method = CURLOPT_HTTPGET, $username = NULL, $password = NULL) {
+    if (!$username) {
+      $username = $this->loggedInUser->name;
+    }
+    if (!$password) {
+      $username = $this->loggedInUser->pass_raw;
+    }
     $options['absolute'] = TRUE;
     $curl_options = array(
       $method => TRUE,
       CURLOPT_URL => url($path, $options),
       CURLOPT_HTTPHEADER => array(
-        'Accept: application/json'
+        'Accept: application/json',
       ),
       CURLOPT_NOBODY => FALSE,
       CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-      CURLOPT_USERPWD => $this->loggedInUser->name . ':' . $this->loggedInUser->pass_raw,
+      CURLOPT_USERPWD => $username . ':' . $password,
     );
+
+    if ($method == CURLOPT_POST) {
+      $curl_options[CURLOPT_POSTFIELDS] = '';
+    }
 
     $out = $this->curlExec($curl_options);
 
     $this->verbose('GET request to: ' . $path .
+      '<hr />Headers: <pre>' . check_plain(var_export(array_map('trim', $this->headers), TRUE)) . '</pre>' .
       '<hr />' . $out);
 
     return json_decode($out);
@@ -854,9 +861,8 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     $assertions[$uid]['sharedcontent/labels/node'] = 200;
 
     foreach ($assertions as $uid => $requests) {
-      $this->drupalLogin($accounts[$uid]);
       foreach ($requests as $path => $code) {
-        $this->httpBasicRequest($path);
+        $this->httpBasicRequest($path, array(), CURLOPT_HTTPGET, $accounts[$uid]->name, $accounts[$uid]->pass_raw);
         $this->assertEqual($code, curl_getinfo($this->curlHandle, CURLINFO_HTTP_CODE));
       }
     }
@@ -909,9 +915,8 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     $assertions[$uid]['sharedcontent/index/' . $uuid_b] = 200;
 
     foreach ($assertions as $uid => $requests) {
-      $this->drupalLogin($accounts[$uid]);
       foreach ($requests as $path => $code) {
-        $this->httpBasicRequest($path);
+        $this->httpBasicRequest($path, array(), CURLOPT_HTTPGET, $accounts[$uid]->name, $accounts[$uid]->pass_raw);
         $this->assertEqual($code, curl_getinfo($this->curlHandle, CURLINFO_HTTP_CODE));
       }
     }
