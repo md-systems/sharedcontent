@@ -1204,7 +1204,7 @@ function sharedcontent_client_fetch_remote_content($index, $view_mode = 'sharedc
     }
     $content['#markup'] = isset($response['content']) ? $response['content'] : NULL;
     $arguments['content'] = $content;
-    sharedcontent_event_save('sharedcontent_client', __FUNCTION__, 'Remote content rendering', $arguments);
+    sharedcontent_event_save('sharedcontent_client', __FUNCTION__, 'Remote content rendering', $arguments, array('severity' => WATCHDOG_DEBUG));
 
     // Save the cached content into the cache if enabled.
     if ($cache_lifetime && $cid) {
