@@ -1918,25 +1918,23 @@ function sharedcontent_client_field_extra_fields_display_alter(&$displays, $cont
   $bundle_settings = field_bundle_settings($context['entity_type'], $context['bundle']);
 
   // Loop over the extra fields defined by Shared Content
-  $extra_fields = sharedcontent_client_field_extra_fields();
+  $extra_fields = field_info_extra_fields($context['entity_type'], $context['bundle'], 'display');
 
   // Prevent notices if there are no product types defined.
-  if (empty($extra_fields[$context['entity_type']][$context['bundle']])) {
+  if (empty($extra_fields)) {
     return;
   }
 
-  foreach ($extra_fields[$context['entity_type']][$context['bundle']] as $key => $value) {
-    foreach ($value as $extra_field_name => $extra_field) {
-      // If the current extra field is represented in the $displays array...
-      if (strpos($extra_field_name, ':sharedcontent_jump_links') !== FALSE) {
-        // And no data yet exists for the extra field in the bundle settings...
-        if (empty($bundle_settings['extra_fields']['display'][$extra_field_name]) ||
+  foreach ($extra_fields as $extra_field_name => $extra_field) {
+    // If the current extra field is represented in the $displays array...
+    if (strpos($extra_field_name, ':sharedcontent_jump_links') !== FALSE) {
+      // And no data yet exists for the extra field in the bundle settings...
+      if (empty($bundle_settings['extra_fields']['display'][$extra_field_name]) ||
           (empty($bundle_settings['view_modes'][$context['view_mode']]['custom_settings']) && empty($bundle_settings['extra_fields']['display'][$extra_field_name]['default'])) ||
           (!empty($bundle_settings['view_modes'][$context['view_mode']]['custom_settings']) && empty($bundle_settings['extra_fields']['display'][$extra_field_name][$context['view_mode']]))
-        ) {
-          // Default the extra field to be invisible.
-          $displays[$extra_field_name]['visible'] = FALSE;
-        }
+      ) {
+        // Default the extra field to be invisible.
+        $displays[$extra_field_name]['visible'] = FALSE;
       }
     }
   }
