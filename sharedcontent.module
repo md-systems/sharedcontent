@@ -1283,17 +1283,18 @@ function sharedcontent_get_assignment_status_labels() {
 /**
  * Get local entity bundle labels.
  *
- * @param $entity_type
+ * @param string $entity_type
  *   String of entity_type
- * @param $bundles
+ * @param array $bundles
  *   Array of entity types the bundles should be fetched for.
- * @return
+ *
+ * @return array
  *   Array with bundles as key and labels as value.
  */
-function sharedcontent_get_local_entity_bundle_labels($entity_type = 'node', $bundles = NULL) {
+function sharedcontent_get_local_entity_bundle_labels($entity_type = 'node', array $bundles = array()) {
   $labels = array();
   $entity_info = entity_get_info($entity_type);
-  if (is_null($bundles)) {
+  if (empty($bundles) && is_array($entity_info['bundles'])) {
     $bundles = array_keys($entity_info['bundles']);
   }
   $single = count($entity_info['bundles']) == 1;
