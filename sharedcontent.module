@@ -334,16 +334,14 @@ function sharedcontent_preprocess_entity(&$variables) {
     );
   }
 
-  // Add the content type
+  // Add the bundle label.
   $types = sharedcontent_get_all_entity_bundle_labels();
-  if (!empty($types[$index->entity_bundle])) {
-    $content['type'] = array(
-      '#type' => 'markup',
-      '#markup' => $types[$index->entity_bundle],
-      '#prefix' => '<div class="sharedcontent-index-type">',
-      '#suffix' => '</div>',
-    );
-  }
+  $content['type'] = array(
+    '#type' => 'markup',
+    '#markup' => isset($types[$index->entity_bundle]) ? $types[$index->entity_bundle] : $index->entity_bundle,
+    '#prefix' => '<div class="sharedcontent-index-type">',
+    '#suffix' => '</div>',
+  );
 
   // Show parent record if this is a chapter.
   if (!empty($index->parent_uuid) && $index->parent_uuid != SHAREDCONENT_CHAPTER_ORPHAN) {
