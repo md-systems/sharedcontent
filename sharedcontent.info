@@ -15,7 +15,11 @@ files[] = sharedcontent.automation.test
 files[] = sharedcontent.config.test
 files[] = sharedcontent_cs.test
 
-files[] = includes/sharedcontent.exception.inc
+files[] = includes/sharedcontent.exception.connection_not_found.inc
+files[] = includes/sharedcontent.exception.count_index.inc
+files[] = includes/sharedcontent.exception.indexing.inc
+files[] = includes/sharedcontent.exception.push_index.inc
+files[] = includes/sharedcontent.exception.synchronize.inc
 files[] = includes/sharedcontent.controller.assignment.inc
 files[] = includes/sharedcontent.controller.base.inc
 files[] = includes/sharedcontent.controller.index.inc
