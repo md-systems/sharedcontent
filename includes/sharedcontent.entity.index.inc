@@ -2,11 +2,13 @@
 
 /**
  * @file
- * Shared Content entities definitions.
+ * Contains SharedContentIndex.
  */
 
 /**
- * Class for sharedcontent_index entity.
+ * Shared Content Index
+ *
+ * Container for meta data about another entity.
  */
 class SharedContentIndex extends Entity {
 
@@ -119,7 +121,11 @@ class SharedContentIndex extends Entity {
   public $changed;
 
   /**
-   * Accessibility value. 0 if not accessible, 1 if public accessible and 2 if restricted.
+   * Accessibility value.
+   *
+   * 0 - if not accessible,
+   * 1 - if public accessible
+   * 2 - if restricted.
    */
   public $accessibility;
 
@@ -130,7 +136,7 @@ class SharedContentIndex extends Entity {
    *
    * @var array
    */
-  private static $exposed_attributes = array(
+  protected static $exposed_attributes = array(
     'uuid',
     'entity_id',
     'entity_type',
@@ -147,14 +153,14 @@ class SharedContentIndex extends Entity {
     'entity_changed',
   );
 
-
   /**
-   * Merges data to this object
+   * Merges data to this object.
    *
    * @param array $data
-   *    Associative array with the data to be merge to this object.
+   *   Associative array with the data to be merge to this object.
+   *
    * @return bool
-   *    TRUE if the merge led to a data change, FALSE otherwise.
+   *   TRUE if the merge led to a data change, FALSE otherwise.
    */
   public function merge(array $data) {
     $updated = FALSE;
@@ -170,12 +176,13 @@ class SharedContentIndex extends Entity {
   }
 
   /**
-   * Exposed attributes
+   * Exposed attributes.
    *
    * Get an object containing just the attributes that are meant to be
    * exposed to other systems.
    *
    * @return stdClass
+   *   Standard object containing the exposed attributes.
    */
   public function getExposedAttributes() {
     $exposed = new stdClass();
@@ -186,67 +193,9 @@ class SharedContentIndex extends Entity {
   }
 
   /**
-   * Override Entity.
+   * Overrides Entity::defaultUri().
    */
-  function defaultUri() {
+  public function defaultUri() {
     return array('path' => $this->url);
   }
-}
-
-/**
- * Class for sharedcontent_assignment entity.
- */
-class SharedContentAssignment extends Entity {
-
-  /**
-   * Entity id..
-   */
-  public $id;
-
-  /**
-   * Id of source content.
-   */
-  public $source_id;
-
-  /**
-   * uuid of source content..
-   */
-  public $source;
-
-  /**
-   * Id of target content.
-   */
-  public $target_id;
-
-  /**
-   * uuid of target content..
-   */
-  public $target;
-
-  /**
-   * The record origin.
-   *
-   * This defines the bundle of the entity with "local" val as default.
-   */
-  public $origin;
-
-  /**
-   * Linking status..
-   */
-  public $status;
-
-  /**
-   * Base URL of the system that reported this linking..
-   */
-  public $url;
-
-  /**
-   * Timestamp of the time the linking was created the last..
-   */
-  public $created;
-
-  /**
-   * Timestamp of the time the linking was changed the last..
-   */
-  public $changed;
 }
