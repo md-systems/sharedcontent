@@ -25,4 +25,5 @@ files[] = includes/sharedcontent.info.assignment.inc
 files[] = includes/sharedcontent.info.index.inc
 files[] = includes/sharedcontent.views.inc
 files[] = includes/sharedcontent.richmedia.inc
+files[] = includes/sharedcontent.richmedia.base.inc
 files[] = includes/sharedcontent.admin.inc
