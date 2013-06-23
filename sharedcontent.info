@@ -16,7 +16,9 @@ files[] = sharedcontent.config.test
 files[] = sharedcontent_cs.test
 
 files[] = includes/sharedcontent.exception.inc
-files[] = includes/sharedcontent.controller.inc
+files[] = includes/sharedcontent.controller.assignment.inc
+files[] = includes/sharedcontent.controller.base.inc
+files[] = includes/sharedcontent.controller.index.inc
 files[] = includes/sharedcontent.entity.assignment.inc
 files[] = includes/sharedcontent.entity.index.inc
 files[] = includes/sharedcontent.info.inc

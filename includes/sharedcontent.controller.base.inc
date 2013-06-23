@@ -2,9 +2,7 @@
 
 /**
  * @file
- * Shared Content entity controllers definitions.
- *
- * @ingroup sharedcontent
+ * Contains SharedContentBaseController.
  */
 
 /**
@@ -12,8 +10,6 @@
  *
  * This controller takes care that all entities have a valid uuid and the
  * the created and changed properties are correctly set.
- *
- * @ingroup sharedcontent
  */
 class SharedContentBaseController extends EntityAPIController {
 
@@ -47,7 +43,7 @@ class SharedContentBaseController extends EntityAPIController {
    *
    * @see http://api.drupal.org/api/drupal/core%21lib%21Drupal%21Component%21Uuid%21Php.php/function/Php%3A%3Agenerate/8
    *
-   * @return
+   * @return string
    *   A 32 byte integer represented as a hex string formatted with 4 hypens.
    */
   public function uuidGenerate() {
@@ -81,77 +77,14 @@ class SharedContentBaseController extends EntityAPIController {
    *
    * @see http://api.drupal.org/api/drupal/core%21lib%21Drupal%21Component%21Uuid%21Uuid.php/function/Uuid%3A%3AisValid/8
    *
-   * @param $uuid
+   * @param string $uuid
    *   The string to test.
    *
-   * @return
+   * @return string
    *   TRUE if the string is well formed, FALSE otherwise.
    */
   public function uuidIsValid($uuid) {
     return preg_match("/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/", $uuid);
   }
 
-}
-
-/**
- * Controller for sharedcontent_index entity.
- *
- * @ingroup sharedcontent
- */
-class SharedContentIndexController extends SharedContentBaseController {
-
-  /**
-   * Override EntityAPIController.
-   */
-  public function create(array $values = array()) {
-    $values += array(
-      'status' => SHAREDCONTENT_INDEX_STATUS_VISIBLE,
-      'accessibility' => SHAREDCONTENT_INDEX_ACCESSIBILITY_PUBLIC,
-      'origin' => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
-      'connection_name' => SHAREDCONTENT_LOCAL_CONNECTION_NAME,
-    );
-    return parent::create($values);
-  }
-}
-
-/**
- * Controller for sharedcontent_assignment entity.
- *
- * @ingroup sharedcontent
- */
-class SharedContentAssignmentController extends SharedContentBaseController {
-
-  /**
-   * Override EntityAPIController.
-   */
-  public function create(array $values = array()) {
-    $values += array(
-      'status' => SHAREDCONTENT_ASSIGNMENT_ACTIVE,
-      'url' => url(NULL, array('absolute' => TRUE)),
-      'origin' => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
-    );
-    return parent::create($values);
-  }
-
-  /**
-   * Override EntityAPIController.
-   */
-  public function save($entity) {
-    if (isset($entity->source)) {
-      $source = sharedcontent_index_load_by_uuid($entity->source);
-      $entity->source_id = $source->id;
-    }
-
-    if (isset($entity->target) && $target = sharedcontent_index_load_by_uuid($entity->target)) {
-      $entity->target_id = $target->id;
-    }
-
-    // Make sure we have a valid uuid for this entity.
-    // For testing purposed we allow invalid uuids.
-    if (!$this->uuidIsValid($entity->uuid) && !variable_get('sharedcontent_test', FALSE)) {
-      $entity->uuid = uuidGenerate();
-    }
-    $entity->changed = REQUEST_TIME;
-    return parent::save($entity);
-  }
 }
