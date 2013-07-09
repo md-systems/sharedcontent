@@ -521,21 +521,23 @@ function sharedcontent_client_field_formatter_prepare_view($entity_type, $entiti
   }
 
   if (!empty($ids)) {
-    // Get the visible records
+    // Get the visible records.
     $indexes = entity_load('sharedcontent_index', $ids, array(
       'status' => SHAREDCONTENT_INDEX_STATUS_VISIBLE,
     ));
 
     foreach ($items as $entity_id => $item) {
       foreach ($item as $delta => $entry) {
-        // Add the uuid to the record
+        // Add the uuid to the record.
         if (isset($indexes[$entry['target_id']])) {
           $items[$entity_id][$delta]['index'] = $indexes[$entry['target_id']];
+          $access = TRUE;
         }
-        // Record is invisible so we remove it
+        // Record is invisible so we remove it.
         else {
-          unset($items[$entity_id][$delta]);
+          $access = FALSE;
         }
+        $items[$entity_id][$delta]['access'] = $access;
       }
     }
   }
@@ -548,6 +550,9 @@ function sharedcontent_client_field_formatter_view($obj_type, $object, $field, $
   $settings = $display['settings'];
   $elements = array();
   foreach ($items as $delta => $item) {
+    if (!$item['access']) {
+      continue;
+    }
     $elements[$delta]['#theme'] = 'sharedcontent_view_linked_content';
     $elements[$delta]['#content'] = '';
     $subelem = sharedcontent_client_fetch_remote_content($item['index'], $settings['mode']);

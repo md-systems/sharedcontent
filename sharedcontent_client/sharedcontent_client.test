@@ -202,4 +202,52 @@ class SharedcontentClientTestCase extends SharedcontentBaseTestCase {
     $this->assertText(t('@type @title has been updated.', array('@type' => $content_type->name, '@title' => $node_linkable->title)));
     $this->assertNoText('The referenced entity (sharedcontent_index: 1) is invalid.');
   }
+
+  /**
+   * Test rendering of linked content.
+   */
+  public function testReferenceRendering() {
+    $xpath = "//div[starts-with(@id, 'sharedcontent-')]";
+
+    // Given a linkable node.
+    $this->drupalCreateContentType(array('type' => 'linkable'));
+    $field_name = sharedcontent_client_get_default_shared_content_field_name();
+    module_load_include('inc', 'sharedcontent_client', 'includes/sharedcontent_client.admin');
+    sharedcontent_client_attach_shared_content_field($field_name, 'node', 'linkable');
+    $node = $this->drupalCreateNode(array('type' => 'linkable'));
+
+    // And three indexed nodes.
+    $this->drupalCreateContentType(array('type' => 'indexed'));
+    variable_set('sharedcontent_indexed_entities', array(
+      'node' => array('indexed' => 'indexed'),
+    ));
+
+    for ($i = 0; $i < 3; $i++) {
+      $this->drupalCreateNode(array('type' => 'indexed'));
+    }
+    $indexes = entity_load('sharedcontent_index');
+
+    // And those index records are linked to the node.
+    foreach ($indexes as $index) {
+      $node->{$field_name}[LANGUAGE_NONE][]['target_id'] = $index->id;
+    }
+    node_save($node);
+
+    // When I render the node.
+    $this->drupalGet('node/' . $node->nid);
+
+    // Then I see three items rendered.
+    $this->assertEqual(count($this->xpath($xpath)), 3);
+
+    // When I mark the middle index record as deleted.
+    $index = $indexes[2];
+    $index->status = SHAREDCONTENT_INDEX_STATUS_UNREACHABLE;
+    $index->save();
+
+    // And render the node.
+    $this->drupalGet('node/' . $node->nid);
+
+    // Then I see two items rendered.
+    $this->assertEqual(count($this->xpath($xpath)), 2);
+  }
 }

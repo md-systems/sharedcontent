@@ -35,7 +35,7 @@ class SharedContentBaseController extends EntityAPIController {
     // Make sure we have a valid uuid for this entity.
     // For testing purposed we allow invalid uuids.
     if (!$this->uuidIsValid($entity->uuid) && !variable_get('sharedcontent_test', FALSE)) {
-      $entity->uuid = uuidGenerate();
+      $entity->uuid = $this->uuidGenerate();
     }
     $entity->changed = REQUEST_TIME;
 
