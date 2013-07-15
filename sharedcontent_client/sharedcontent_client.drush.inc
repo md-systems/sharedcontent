@@ -122,7 +122,7 @@ function _drush_sharedcontent_client_synchronize($connection, $time, $count) {
     sharedcontent_client_index_synchronize($connection, $time, 0, $count);
   }
   catch (SharedContentSynchronizeException $e) {
-    $message = $e->getMessage() . PHP_EOL . print_r($e->getArguments(), TRUE);
+    $message = $e->getMessage() . PHP_EOL . print_r($e->getData(), TRUE);
     drush_log($message, 'error');
   }
 }

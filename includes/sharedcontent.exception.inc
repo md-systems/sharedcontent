@@ -81,18 +81,39 @@ class SharedContentPushIndexException extends Exception {
  */
 class SharedContentSynchronizeException extends Exception {
 
-  private $arguments;
+  /**
+   * Array of context data.
+   *
+   * @var array
+   */
+  protected $data;
 
-  function __construct($connection_name, array $arguments = array(), Exception $previous = NULL) {
-    $this->arguments = $arguments;
+  /**
+   * Constructs a Synchronize Exception.
+   *
+   * @param string $connection_name
+   *   The Connection the exception occurred.
+   * @param array $data
+   *   Context data to this exception.
+   * @param Exception $previous
+   *   (Optional) Previous exception.
+   */
+  public function __construct($connection_name, array $data = array(), Exception $previous = NULL) {
+    $this->data = $data;
     $message = format_string('Failed to synchronize index with !name', array(
       '!name' => $connection_name,
     ));
     parent::__construct($message, 0, $previous);
   }
 
-  public function getArguments() {
-    return $this->arguments;
+  /**
+   * Gets the context data.
+   *
+   * @return array
+   *   Array of context data.
+   */
+  public function getData() {
+    return $this->data;
   }
 }
 

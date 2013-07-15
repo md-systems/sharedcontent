@@ -799,7 +799,7 @@ function sharedcontent_client_queue_synchronization_run(array $params) {
     call_user_func_array('sharedcontent_client_index_synchronize', $params);
   }
   catch (SharedContentSynchronizeException $e) {
-    sharedcontent_event_save('sharedcontent_client', __FUNCTION__, $e->getMessage(), $e->getArguments(), array('severity' => WATCHDOG_ERROR));
+    sharedcontent_event_save('sharedcontent_client', __FUNCTION__, $e->getMessage(), $e->getData(), array('severity' => WATCHDOG_ERROR));
     // @todo HIGH reschedule on failure?
     // @todo avoid endless loop (if server is unreachable) but gracefully cover temporary failure? Fail count with reset on success?
     // @todo sync is marked as done in any case!
