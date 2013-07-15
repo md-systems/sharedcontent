@@ -101,6 +101,7 @@ function _sharedcontent_drush_process_features_file($component, $namespace, $out
     if (strpos($entry, '.info') !== FALSE) {
       $source_replacements['Template'] = ucfirst($namespace);
       $source_replacements['<br />You may want to make a copy of this feature in order to customize. For this purpose use <code>drush sc-features</code>.'] = '';
+      $source_replacements["hidden = TRUE\n"] = '';
     }
     $source_code = strtr($source_code, $source_replacements);
 
