@@ -4,6 +4,7 @@
  * Contains SharedContentRichMediaBase.
  */
 
+use Drupal\sharedcontent\Plugin\Core\Entity\Index;
 /**
  * Base implementation of SharedContentRichMedia.
  */
@@ -19,28 +20,28 @@ class SharedContentRichMediaBase implements SharedContentRichMedia {
   /**
    * Implements getJsFiles().
    */
-  public function getJsFiles(SharedContentIndex $index, $view_mode, $langcode) {
+  public function getJsFiles(Index $index, $view_mode, $langcode) {
     return array();
   }
 
   /**
    * Implements getJsSettings().
    */
-  public function getJsSettings(SharedContentIndex $index, $view_mode, $langcode) {
+  public function getJsSettings(Index $index, $view_mode, $langcode) {
     return array();
   }
 
   /**
    * Implements getInlineJs().
    */
-  public function getInlineJs(SharedContentIndex $index, $view_mode, $langcode) {
+  public function getInlineJs(Index $index, $view_mode, $langcode) {
     return array();
   }
 
   /**
    * Implements getCssFiles().
    */
-  public function getCssFiles(SharedContentIndex $index, $view_mode, $langcode) {
+  public function getCssFiles(Index $index, $view_mode, $langcode) {
     return array();
   }
 
@@ -49,7 +50,7 @@ class SharedContentRichMediaBase implements SharedContentRichMedia {
    *
    * @todo: Pass in the $index and change this to getParents().
    *
-   * @param SharedContentIndex $index
+   * @param \Drupal\sharedcontent\Plugin\Core\Entity\Index $index
    *   The index record.
    * @param bool $parents
    *   (optional) FALSE if no parents should be loaded, defaults to TRUE.
@@ -57,7 +58,7 @@ class SharedContentRichMediaBase implements SharedContentRichMedia {
    * @return array
    *   Array with at least the index entity for the given UUID.
    */
-  protected function getIndexes(SharedContentIndex $index, $parents = TRUE) {
+  protected function getIndexes(Index $index, $parents = TRUE) {
     if (empty($indexes[$index->uuid])) {
       $indexes[$index->uuid][] = $index;
       while ($parents && !empty($indexes[$index->uuid][count($indexes[$index->uuid]) - 1]->parent_uuid)) {

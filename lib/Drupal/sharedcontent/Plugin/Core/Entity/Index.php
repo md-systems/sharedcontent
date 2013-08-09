@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains SharedContentIndex.
+ * Contains \Drupal\sharedcontent\Plugin\Core\Entity\Index.
  */
 
 namespace Drupal\sharedcontent\Plugin\Core\Entity;
@@ -15,7 +15,7 @@ use Drupal\Core\Entity\EntityStorageControllerInterface;
  *
  * Container for meta data about another entity.
  */
-class SharedContentIndex extends Entity {
+class Index extends Entity {
 
   /**
    * Entity id.
@@ -170,7 +170,7 @@ class SharedContentIndex extends Entity {
   public function merge(array $data) {
     $updated = FALSE;
     foreach ($data as $key => $value) {
-      if (in_array($key, SharedContentIndex::$exposed_attributes)
+      if (in_array($key, Index::$exposed_attributes)
         && $this->$key != $value
       ) {
         $this->$key = $value;
@@ -191,7 +191,7 @@ class SharedContentIndex extends Entity {
    */
   public function getExposedAttributes() {
     $exposed = new stdClass();
-    foreach (SharedContentIndex::$exposed_attributes as $attribute) {
+    foreach (Index::$exposed_attributes as $attribute) {
       $exposed->$attribute = $this->$attribute;
     }
     return $exposed;

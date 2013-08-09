@@ -6,6 +6,8 @@
 
 namespace Drupal\sharedcontent\Exception;
 
+use Drupal\sharedcontent\Plugin\Core\Entity\Index;
+
 /**
  * Push index exception
  *
@@ -23,12 +25,12 @@ class SharedContentPushIndexException extends \Exception {
    *
    * @param string $connection_name
    *   The name of the connection the exception occurred.
-   * @param SharedContentIndex $index
+   * @param \Drupal\sharedcontent\Plugin\Core\Entity\Index $index
    *   The index record that was expected to be pushed.
    * @param Exception $previous
    *   (optional) The previous exception used for the exception chaining.
    */
-  public function __construct($connection_name, SharedContentIndex $index, Exception $previous = NULL) {
+  public function __construct($connection_name, Index $index, Exception $previous = NULL) {
     $message = format_string('Could not push index !uuid to connection !name.', array(
       '!uuid' => isset($index->uuid) ? $index->uuid : NULL,
       '!name' => $connection_name,
