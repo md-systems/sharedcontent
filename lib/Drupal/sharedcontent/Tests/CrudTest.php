@@ -29,7 +29,7 @@ class CrudTest extends DrupalUnitTestBase {
   public function setUp() {
     parent::setUp();
 
-    $this->installSchema('sharedcontent', array('sharedcontent_index'));
+    $this->installSchema('sharedcontent', array('sharedcontent_index', 'sharedcontent_assignment'));
   }
 
   /**
@@ -38,5 +38,13 @@ class CrudTest extends DrupalUnitTestBase {
   public function testIndex() {
     $index = entity_create('sharedcontent_index', array());
     $this->assertEqual(SAVED_NEW, $index->save());
+  }
+
+  /**
+   * Test CRUD functions for the index.
+   */
+  public function testAssignment() {
+    $assignment = entity_create('sharedcontent_assignment', array());
+    $this->assertEqual(SAVED_NEW, $assignment->save());
   }
 }

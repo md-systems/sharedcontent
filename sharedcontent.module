@@ -168,104 +168,23 @@ function sharedcontent_menu_alter(&$items) {
 }
 
 /**
- * Implements hook_entity_info().
- */
-function sharedcontent_entity_info() {
-  $entities = array();
-
-  $entities['sharedcontent_index'] = array(
-    'label' => t('Shared Content Index'),
-    'entity class' => 'SharedContentIndex',
-    'controller class' => 'SharedContentIndexController',
-    'access callback' => 'sharedcontent_index_access',
-    'metadata controller class' => 'SharedContentIndexMetadataController',
-    'views controller class' => 'SharedContentIndexViewsController',
-    'base table' => 'sharedcontent_index',
-    'fieldable' => TRUE,
-    'entity keys' => array(
-      'id' => 'id',
-      'label' => 'title',
-      'bundle' => 'origin',
-      'language' => 'language',
-    ),
-    'bundle keys' => array(
-      'bundle' => 'origin',
-    ),
-    'bundles' => array(
-      'local' => array(
-        'label' => 'Local',
-        'admin' => array(
-          'path' => 'admin/config/services/sharedcontent/index',
-          'access arguments' => array('administer sharedcontent'),
-        ),
-      ),
-      'remote' => array(
-        'label' => 'Remote',
-      ),
-      'shadow' => array(
-        'label' => 'Shadow',
-      ),
-    ),
-    'uri callback' => 'entity_class_uri',
-    'label callback' => 'entity_class_label',
-    'module' => 'sharedcontent',
-    'view modes' => array(
-      'share_board' => array(
-        'label' => t('ShareBoard'),
-      ),
-    ),
-  );
-
-  $entities['sharedcontent_assignment'] = array(
-    'label' => t('Shared Content Assignment'),
-    'entity class' => 'SharedContentAssignment',
-    'controller class' => 'SharedContentAssignmentController',
-    'access callback' => 'sharedcontent_assignment_access',
-    'metadata controller class' => 'SharedContentAssignmentMetadataController',
-    'views controller class' => 'SharedContentAssignmentViewsController',
-    'base table' => 'sharedcontent_assignment',
-    'fieldable' => FALSE,
-    'entity keys' => array(
-      'id' => 'id',
-      'bundle' => 'origin',
-    ),
-    'bundle keys' => array(
-      'bundle' => 'origin',
-    ),
-    'bundles' => array(
-      'local' => array(
-        'label' => 'Local',
-      ),
-      'remote' => array(
-        'label' => 'Remote',
-      ),
-      'shadow' => array(
-        'label' => 'Shadow',
-      ),
-    ),
-    'label callback' => 'entity_class_label',
-    'module' => 'sharedcontent',
-  );
-
-  return $entities;
-}
-
-/**
  * Implements hook_entity_bundle_info().
  */
 function sharedcontent_entity_bundle_info() {
-  return array(
-    'sharedcontent_index' => array(
-      'local' => array(
-        'label' => t('Local'),
-      ),
-      'remote' => array(
-        'label' => ('Remote'),
-      ),
-      'shadow' => array(
-        'label' => ('Shadow'),
-      ),
+  $bundles = array(
+    'local' => array(
+      'label' => t('Local'),
     ),
+    'remote' => array(
+      'label' => ('Remote'),
+    ),
+    'shadow' => array(
+      'label' => ('Shadow'),
+    ),
+  );
+  return array(
+    'sharedcontent_index' => $bundles,
+    'sharedcontent_assignment' => $bundles,
   );
 }
 
@@ -1631,7 +1550,7 @@ function sharedcontent_entity_insert($entity, $type) {
  * Check if the given entity should be index and trigger an index
  * update.
  */
-function sharedcontent_entity_update(Index $entity, $type) {
+function sharedcontent_entity_update($entity, $type) {
   $indexed_entities = variable_get('sharedcontent_indexed_entities', array());
   if (isset($indexed_entities[$type][$entity->bundle()]) && $indexed_entities[$type][$entity->bundle()] == TRUE) {
     // Add nodes to be indexed to a queue if setting is active.

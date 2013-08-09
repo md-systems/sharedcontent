@@ -9,11 +9,40 @@ namespace Drupal\sharedcontent\Plugin\Core\Entity;
 
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\EntityStorageControllerInterface;
+use Drupal\Core\Entity\Annotation\EntityType;
+use Drupal\Core\Annotation\Translation;
+
+//$entities['sharedcontent_assignment'] = array(
+//
+//  'access callback' => 'sharedcontent_assignment_access', // @todo AccessController
+//  'metadata controller class' => 'SharedContentAssignmentMetadataController', // @todo EntityNG
+//  'views controller class' => 'SharedContentAssignmentViewsController',
+//);
 
 /**
- * Shared Content Assignment
+ * Defines the Shared Content Assignment entity class
  *
  * Describes the linkage between two shared entities.
+ *
+ * @EntityType(
+ *   id = "sharedcontent_assignment",
+ *   label = @Translation("Shared Content Assignment"),
+ *   bundle_label = @Translation("Origin"),
+ *   module = "sharedcontent",
+ *   controllers = {
+ *     "storage" = "Drupal\Core\Entity\DatabaseStorageController"
+ *   },
+ *   base_table = "sharedcontent_assignment",
+ *   fieldable = FALSE,
+ *   entity_keys = {
+ *     "id" = "id",
+ *     "bundle" = "origin",
+ *     "uuid" = "uuid"
+ *   },
+ *   bundle_keys = {
+ *     "bundle" = "origin"
+ *   }
+ * )
  */
 class Assignment extends Entity {
 
