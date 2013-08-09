@@ -7,6 +7,8 @@
  * server and the Shared Content client.
  */
 
+use \Drupal\sharedcontent\Exception\IndexingException;
+
 /**
  * Status value for the sharedcontent_index entity.
  *
@@ -1718,7 +1720,7 @@ function sharedcontent_index_queued_entities($data) {
     try {
       sharedcontent_create_or_update_index_for_entity($entity, $data['type']);
     }
-    catch (SharedContentIndexingException $e) {
+    catch (IndexingException $e) {
       if ($e->getCode() == SHAREDCONTENT_ERROR_NO_PARENT_INDEX
         && (empty($data['count']) || $data['count'] < 1)
       ) {

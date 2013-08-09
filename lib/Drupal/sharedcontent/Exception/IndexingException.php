@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains SharedContentIndexingException.
+ * Contains Drupal\sharedcontent\Exception\IndexingException.
  */
 
 namespace Drupal\sharedcontent\Exception;
@@ -23,7 +23,7 @@ define('SHAREDCONTENT_ERROR_NO_PARENT_INDEX', 7);
  *
  * @see SHAREDCONTENT_ERROR_NO_PARENT_INDEX
  */
-class SharedContentIndexingException extends \Exception {
+class IndexingException extends \Exception {
 
   public $data = array();
 

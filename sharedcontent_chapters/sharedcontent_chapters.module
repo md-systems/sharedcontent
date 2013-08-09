@@ -7,6 +7,8 @@
  * http://www.longtailvideo.com/support/jw-player/jw-player-for-flash-v5/17248/providing-video-chapter-markers/
  */
 
+use Drupal\sharedcontent\Exception\IndexingException;
+
 /**
  * Implements hook_form_field_ui_field_overview_form_alter().
  *
@@ -248,7 +250,7 @@ function sharedcontent_chapters_sharedcontent_index_presave($index) {
   // The parent index might not yet exist due to delayed indexing.
   // Queueing for later indexing.
   if (!is_object($parent_index)) {
-    throw new SharedContentIndexingException(SHAREDCONTENT_ERROR_NO_PARENT_INDEX, array(
+    throw new IndexingException(SHAREDCONTENT_ERROR_NO_PARENT_INDEX, array(
       'index' => $index,
       'entity' => $item,
       'parent entity' => $parent,

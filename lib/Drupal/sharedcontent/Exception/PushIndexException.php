@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains SharedContentPushIndexException.
+ * Contains \Drupal\sharedcontent\Exception\PushIndexException.
  */
 
 namespace Drupal\sharedcontent\Exception;
@@ -18,7 +18,7 @@ use Drupal\sharedcontent\Plugin\Core\Entity\Index;
  * @todo Provide a mechanism to push the index record and its associated
  *       assignments manually.
  */
-class SharedContentPushIndexException extends \Exception {
+class PushIndexException extends \Exception {
 
   /**
    * Constructor.

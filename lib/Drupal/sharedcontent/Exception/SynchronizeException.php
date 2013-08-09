@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains SharedContentSynchronizeException.
+ * Contains \Drupal\sharedcontent\Exception\SynchronizeException.
  */
 
 namespace Drupal\sharedcontent\Exception;
@@ -16,7 +16,7 @@ namespace Drupal\sharedcontent\Exception;
  * Use drush sc-sync or the resynchronization button to fix inconsistent
  * data that might have emerged from this error.
  */
-class SharedContentSynchronizeException extends \Exception {
+class SynchronizeException extends \Exception {
 
   /**
    * List of debugging data.

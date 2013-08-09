@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains SharedContentConnectionNotFoundException.
+ * Contains \Drupal\sharedcontent\Exception\ConnectionNotFoundException.
  */
 
 namespace Drupal\sharedcontent\Exception;
@@ -16,7 +16,7 @@ namespace Drupal\sharedcontent\Exception;
  * name from all index records that does contain them or create a valid
  * connection using this connection mane.
  */
-class SharedContentConnectionNotFoundException extends \Exception {
+class ConnectionNotFoundException extends \Exception {
 
   /**
    * Constructor.

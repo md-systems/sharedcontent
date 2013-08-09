@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains SharedContentCountIndexException.
+ * Contains \Drupal\sharedcontent\Exception\CountIndexException.
  */
 
 namespace Drupal\sharedcontent\Exception;
@@ -11,7 +11,7 @@ namespace Drupal\sharedcontent\Exception;
  *
  * This exception occurs when counting the indexes fails.
  */
-class SharedContentCountIndexException extends \Exception {
+class CountIndexException extends \Exception {
 
   /**
    * Constructor.
@@ -20,12 +20,12 @@ class SharedContentCountIndexException extends \Exception {
    *   The name of the connection the exception occurred.
    * @param int $time_start
    *   The start time of the time period.
-   * @param Exception $time_end
+   * @param int $time_end
    *   The end time of the time period.
-   * @param Exception $previous
+   * @param \Exception $previous
    *   (optional) The previous exception used for the exception chaining.
    */
-  public function __construct($connection_name, $time_start, $time_end, Exception $previous = NULL) {
+  public function __construct($connection_name, $time_start, $time_end, \Exception $previous = NULL) {
     $message = format_string('Could not count index for time frame !start – !end using connection !name.', array(
       '!name' => $connection_name,
       '!start' => $time_start,

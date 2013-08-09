@@ -6,6 +6,8 @@
  * Drush commands for administer Shared Content client.
  */
 
+use \Drupal\sharedcontent\Exception\SynchronizeException;
+
 /**
  * Implements hook_drush_command().
  */
@@ -121,7 +123,7 @@ function _drush_sharedcontent_client_synchronize($connection, $time, $count) {
   try {
     sharedcontent_client_index_synchronize($connection, $time, 0, $count);
   }
-  catch (SharedContentSynchronizeException $e) {
+  catch (SynchronizeException $e) {
     $message = $e->getMessage() . PHP_EOL . print_r($e->getData(), TRUE);
     drush_log($message, 'error');
   }

@@ -7,6 +7,11 @@
  * @todo ERROR Use the error message in the log event if one is present.
  */
 
+use \Drupal\sharedcontent\Exception\ConnectionNotFoundException;
+use \Drupal\sharedcontent\Exception\CountIndexException;
+use \Drupal\sharedcontent\Exception\PushIndexException;
+use \Drupal\sharedcontent\Exception\SynchronizeException;
+
 /**
  * Default Shared Content field flag.
  *
@@ -753,7 +758,7 @@ function sharedcontent_client_cron() {
       // currently if a sync temporary fails, index records will be missing. see sharedcontent_client_queue_synchronization_run().
       variable_set('sharedcontent_last_sync_' . $config->name, $current_time);
     }
-    catch (SharedContentCountIndexException $e) {
+    catch (CountIndexException $e) {
       $message = 'Failed to queue items for sync';
       $arguments['error'] = $e;
       $severity = WATCHDOG_WARNING;
@@ -798,7 +803,7 @@ function sharedcontent_client_queue_synchronization_run(array $params) {
   try {
     call_user_func_array('sharedcontent_client_index_synchronize', $params);
   }
-  catch (SharedContentSynchronizeException $e) {
+  catch (SynchronizeException $e) {
     sharedcontent_event_save('sharedcontent_client', __FUNCTION__, $e->getMessage(), $e->getData(), array('severity' => WATCHDOG_ERROR));
     // @todo HIGH reschedule on failure?
     // @todo avoid endless loop (if server is unreachable) but gracefully cover temporary failure? Fail count with reset on success?
@@ -965,7 +970,7 @@ function sharedcontent_client_manual_synchronize_finished($success, $results, $o
  * @return int
  *   Positive integer with the amount of available records.
  *
- * @throws SharedContentCountIndexException
+ * @throws \Drupal\sharedcontent\Exception\CountIndexException
  */
 function sharedcontent_client_index_count($config, $time_start = NULL) {
   $count = NULL;
@@ -980,8 +985,8 @@ function sharedcontent_client_index_count($config, $time_start = NULL) {
     );
     sharedcontent_event_save('sharedcontent_client', __FUNCTION__, 'Index Count.', $arguments, array('severity' => WATCHDOG_DEBUG));
   }
-  catch (ServicesClientConnectionResponseException $e) {
-    throw new SharedContentCountIndexException($config->name, $time_start, date('Y-m-d H:i', REQUEST_TIME - 1), $e);
+  catch (ConnectionResponseException $e) {
+    throw new CountIndexException($config->name, $time_start, date('Y-m-d H:i', REQUEST_TIME - 1), $e);
   }
   return $count;
 }
@@ -1029,6 +1034,8 @@ function _index_count($connection, $config, $time_start = NULL) {
  * @param $limit
  *   Synchronize only the given count of items. If NULL all indexes are
  *   synchronized.
+ *
+ * @throws \Drupal\sharedcontent\Exception\SynchronizeException
  *
  * @return
  *   TRUE if synchronization was completed successfully, FALSE otherwise.
@@ -1104,7 +1111,7 @@ function sharedcontent_client_index_synchronize($config, $time_start = NULL, $of
     sharedcontent_event_save('sharedcontent_client', __FUNCTION__, 'Successfully synchronized index', $log_arguments, array('severity' => WATCHDOG_INFO));
   }
   catch (Exception $e) {
-    throw new SharedContentSynchronizeException($config->name, $log_arguments, $e);
+    throw new SynchronizeException($config->name, $log_arguments, $e);
   }
 }
 
@@ -1457,7 +1464,8 @@ function sharedcontent_client_get_all_shared_content_field_names() {
  * @param $index
  *    Index of the source content for the assignments to be pushed.
  *
- * @todo HIGH Report failure.
+ * @throws \Drupal\sharedcontent\Exception\PushIndexException
+ * @throws \Drupal\sharedcontent\Exception\ConnectionNotFoundException
  */
 function sharedcontent_client_push_assignments($connection_name, $assignments, $index = NULL) {
   try {
@@ -1475,7 +1483,7 @@ function sharedcontent_client_push_assignments($connection_name, $assignments, $
 
     $config = services_client_connection_load($connection_name);
     if (is_null($config)) {
-      throw new SharedContentConnectionNotFoundException($connection_name);
+      throw new ConnectionNotFoundException($connection_name);
     }
     $connection = new ServicesClientConnection($config);
 
@@ -1502,7 +1510,7 @@ function sharedcontent_client_push_assignments($connection_name, $assignments, $
       }
       catch (Exception $e) {
         // record including the associated assignments.
-        throw new SharedContentPushIndexException($connection_name, $index, $e);
+        throw new PushIndexException($connection_name, $index, $e);
       }
     }
 
