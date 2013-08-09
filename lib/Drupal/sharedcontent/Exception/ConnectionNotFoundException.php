@@ -4,6 +4,8 @@
  * Contains SharedContentConnectionNotFoundException.
  */
 
+namespace Drupal\sharedcontent\Exception;
+
 /**
  * Connection not found.
  *
@@ -14,7 +16,7 @@
  * name from all index records that does contain them or create a valid
  * connection using this connection mane.
  */
-class SharedContentConnectionNotFoundException extends Exception {
+class SharedContentConnectionNotFoundException extends \Exception {
 
   /**
    * Constructor.

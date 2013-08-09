@@ -4,6 +4,8 @@
  * Contains SharedContentSynchronizeException.
  */
 
+namespace Drupal\sharedcontent\Exception;
+
 /**
  * Synchronization error
  *
@@ -14,7 +16,7 @@
  * Use drush sc-sync or the resynchronization button to fix inconsistent
  * data that might have emerged from this error.
  */
-class SharedContentSynchronizeException extends Exception {
+class SharedContentSynchronizeException extends \Exception {
 
   /**
    * List of debugging data.

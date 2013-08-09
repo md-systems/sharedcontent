@@ -5,6 +5,11 @@
  * Contains SharedContentAssignment.
  */
 
+namespace Drupal\sharedcontent\Plugin\Core\Entity;
+
+use Drupal\Core\Entity\Entity;
+use Drupal\Core\Entity\EntityStorageControllerInterface;
+
 /**
  * Shared Content Assignment
  *

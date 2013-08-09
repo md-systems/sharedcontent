@@ -5,6 +5,11 @@
  * Contains SharedContentIndex.
  */
 
+namespace Drupal\sharedcontent\Plugin\Core\Entity;
+
+use Drupal\Core\Entity\Entity;
+use Drupal\Core\Entity\EntityStorageControllerInterface;
+
 /**
  * Shared Content Index
  *

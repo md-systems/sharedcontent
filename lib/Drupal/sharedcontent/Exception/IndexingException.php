@@ -4,6 +4,8 @@
  * Contains SharedContentIndexingException.
  */
 
+namespace Drupal\sharedcontent\Exception;
+
 /**
  * No parent index record
  *
@@ -21,7 +23,7 @@ define('SHAREDCONTENT_ERROR_NO_PARENT_INDEX', 7);
  *
  * @see SHAREDCONTENT_ERROR_NO_PARENT_INDEX
  */
-class SharedContentIndexingException extends Exception {
+class SharedContentIndexingException extends \Exception {
 
   public $data = array();
 

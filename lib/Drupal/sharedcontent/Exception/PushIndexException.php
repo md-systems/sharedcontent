@@ -4,6 +4,8 @@
  * Contains SharedContentPushIndexException.
  */
 
+namespace Drupal\sharedcontent\Exception;
+
 /**
  * Push index exception
  *
@@ -14,7 +16,7 @@
  * @todo Provide a mechanism to push the index record and its associated
  *       assignments manually.
  */
-class SharedContentPushIndexException extends Exception {
+class SharedContentPushIndexException extends \Exception {
 
   /**
    * Constructor.

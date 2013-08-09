@@ -4,12 +4,14 @@
  * Contains SharedContentCountIndexException.
  */
 
+namespace Drupal\sharedcontent\Exception;
+
 /**
  * Count index exception.
  *
  * This exception occurs when counting the indexes fails.
  */
-class SharedContentCountIndexException extends Exception {
+class SharedContentCountIndexException extends \Exception {
 
   /**
    * Constructor.
