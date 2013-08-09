@@ -11,6 +11,7 @@ use \Drupal\sharedcontent\Exception\ConnectionNotFoundException;
 use \Drupal\sharedcontent\Exception\CountIndexException;
 use \Drupal\sharedcontent\Exception\PushIndexException;
 use \Drupal\sharedcontent\Exception\SynchronizeException;
+use \Drupal\sharedcontent\Plugin\Core\Entity\Index;
 
 /**
  * Default Shared Content field flag.
@@ -1301,7 +1302,7 @@ function sharedcontent_client_assign_index_to_local_content($index_record_id, $l
   // @todo this might fail!
   $local_content = entity_load_single($local_content_type, $local_content_id);
   // @todo index_record_id is redundant
-  list(, , $local_entity_bundle) = entity_extract_ids($local_content_type, $local_content);
+  $local_entity_bundle = $local_content->bundle();
 
   $shared_content_field = sharedcontent_client_get_shared_content_field($local_content_type, $local_entity_bundle, $shared_content_field_name);
 
@@ -1347,7 +1348,7 @@ function sharedcontent_client_assign_index_to_local_content($index_record_id, $l
  */
 function sharedcontent_client_remove_index_from_local_content($index_record_id, $local_content_id, $local_content_type = 'node', $shared_content_field_name = SHAREDCONTENT_CLIENT_SHARED_CONTENT_FIELD_DEFAULT) {
   $local_content = entity_load_single($local_content_type, $local_content_id);
-  list(, , $local_entity_bundle) = entity_extract_ids($local_content_type, $local_content);
+  $local_entity_bundle = $local_content->bundle();
 
   $shared_content_field = sharedcontent_client_get_shared_content_field($local_content_type, $local_entity_bundle, $shared_content_field_name);
 
@@ -1773,13 +1774,12 @@ function sharedcontent_client_entity_delete($entity, $type) {
  * Wrapper function to queue CRUD actions if
  * corresponding setting is active.
  */
-function sharedcontent_client_entity_manipulation($entity, $type) {
-  list($entity_id, , $bundle) = entity_extract_ids($type, $entity);
+function sharedcontent_client_entity_manipulation(Index $entity, $type) {
   $indexed_entities = variable_get('sharedcontent_indexed_entities', array());
-  if (isset($indexed_entities[$type][$bundle]) && $indexed_entities[$type][$bundle] == TRUE) {
+  if (isset($indexed_entities[$type][$entity->bundle()]) && $indexed_entities[$type][$entity->bundle()] == TRUE) {
     if (variable_get('sharedcontent_queue_indexed_entities', FALSE)) {
       $item = array(
-        'entity_id' => $entity_id,
+        'entity_id' => $entity->id(),
         'type' => $type,
       );
       $queue = DrupalQueue::get('sharedcontent_client_queue_crud_action');
@@ -1967,8 +1967,7 @@ function sharedcontent_client_field_attach_view_alter(&$output, $context) {
     return;
   }
 
-  list(, , $bundle) = entity_extract_ids($context['entity_type'], $context['entity']);
-  $extra_fields = field_extra_fields_get_display($context['entity_type'], $bundle, $context['view_mode']);
+  $extra_fields = field_extra_fields_get_display($context['entity_type'], $context['entity']->bundle(), $context['view_mode']);
   foreach ($extra_fields as $name => $settings) {
     if (strpos($name, ':sharedcontent_jump_links') !== FALSE && !empty($settings['visible'])) {
       list($field_name, ) = explode(':', $name);

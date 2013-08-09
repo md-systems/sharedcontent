@@ -8,6 +8,7 @@
  */
 
 use \Drupal\sharedcontent\Exception\IndexingException;
+use \Drupal\sharedcontent\Plugin\Core\Entity\Index;
 
 /**
  * Status value for the sharedcontent_index entity.
@@ -885,16 +886,17 @@ function sharedcontent_rules_get_tags($entity, $entity_type) {
 /**
  * Extract a bunch of keywords for a given local content.
  *
- * @param $entity
+ * @param \Drupal\sharedcontent\Plugin\Core\Entity\Index $entity
  *   The entity object of the local content
  * @param $entity_type
  *    The entity type of the local content as string.
- * @return
+ *
+ * @return array
  *   String with space separated keywords.
  */
-function sharedcontent_rules_get_keywords($entity, $entity_type) {
+function sharedcontent_rules_get_keywords(Index $entity, $entity_type) {
   $keywords = array();
-  list(, , $bundle) = entity_extract_ids($entity_type, $entity);
+  $bundle = $entity->bundle();
   $active_fields = variable_get('sharedcontent_keyword_fields', array());
   if (!empty($active_fields[$entity_type][$bundle])) {
     foreach ($active_fields[$entity_type][$bundle] as $field_name => $field_active) {
@@ -920,20 +922,20 @@ function sharedcontent_rules_get_keywords($entity, $entity_type) {
 /**
  * Check if there is already an index record for a given local content.
  *
- * @param $entity
+ * @param \Drupal\sharedcontent\Plugin\Core\Entity\Index $entity
  *   The entity object of the local content
  * @param $type
  *    The entity type of the local content as string.
  * @param $language
  *    Language code of the local content.
- * @return
+ *
+ * @return bool
  *   TRUE if there is already an index record, FALSE otherwise.
  *
  * @see sharedcontent_index_load_by_entity_id()
  */
-function sharedcontent_condition_index_record_exists($entity, $type, $language) {
-  list($id, , ) = entity_extract_ids($type, $entity);
-  return sharedcontent_index_load_by_entity_id($id, $type, $language) != NULL;
+function sharedcontent_condition_index_record_exists(Index $entity, $type, $language) {
+  return sharedcontent_index_load_by_entity_id($index->id(), $type, $language) != NULL;
 }
 
 /**
@@ -1482,12 +1484,11 @@ function sharedcontent_form_node_type_form_submit($form, &$form_state) {
  * @return
  *   TRUE if there is an existing index record, FALSE otherwise.
  */
-function sharedcontent_index_exists($entity, $type) {
-  list($id, , $bundle) = entity_extract_ids($type, $entity);
+function sharedcontent_index_exists(Index $entity, $type) {
 
   $query = new EntityFieldQuery;
   $query->entityCondition('entity_type', 'sharedcontent_index')
-    ->propertyCondition('entity_id', entity_id($type, $entity))
+    ->propertyCondition('entity_id', $entity->id())
     ->propertyCondition('entity_type', $type)
     ->propertyCondition('origin', SHAREDCONTENT_INDEX_BUNDLE_LOCAL);
 
@@ -1506,25 +1507,24 @@ function sharedcontent_index_exists($entity, $type) {
  * enrich the record with custom data like keywords, tags, status,
  * reasons or accessibility.
  *
- * @param $entity
+ * @param \Drupal\sharedcontent\Plugin\Core\Entity\Index $entity
  *  The entity that was inserted or updated.
  * @param $type
  *  The type of the given entity.
  *
- * @return
+ * @return \Drupal\sharedcontent\Plugin\Core\Entity\Index
  *   The resulting index record.
  */
-function sharedcontent_create_or_update_index_for_entity($entity, $type) {
-  list($id, , $bundle) = entity_extract_ids($type, $entity);
+function sharedcontent_create_or_update_index_for_entity(Index $entity, $type) {
   $language = sharedcontent_entity_language($entity, $type);
-  $index = sharedcontent_index_load_by_entity_id($id, $type, $language);
+  $index = sharedcontent_index_load_by_entity_id($entity->id(), $type, $language);
   $op = 'update';
   if (!$index) {
     // Create new record.
     $index = entity_create('sharedcontent_index', array(
-      'entity_id' => $id,
+      'entity_id' => $entity->id(),
       'entity_type' => $type,
-      'entity_bundle' => $bundle,
+      'entity_bundle' => $entity->bundle(),
       'origin' => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
     ));
     $op = 'create';
@@ -1631,14 +1631,13 @@ function sharedcontent_entity_insert($entity, $type) {
  * Check if the given entity should be index and trigger an index
  * update.
  */
-function sharedcontent_entity_update($entity, $type) {
-  list($entity_id, , $bundle) = entity_extract_ids($type, $entity);
+function sharedcontent_entity_update(Index $entity, $type) {
   $indexed_entities = variable_get('sharedcontent_indexed_entities', array());
-  if (isset($indexed_entities[$type][$bundle]) && $indexed_entities[$type][$bundle] == TRUE) {
+  if (isset($indexed_entities[$type][$entity->bundle()]) && $indexed_entities[$type][$entity->bundle()] == TRUE) {
     // Add nodes to be indexed to a queue if setting is active.
     if (variable_get('sharedcontent_queue_indexed_entities', FALSE)) {
       $item = array(
-        'entity_id' => $entity_id,
+        'entity_id' => $entity->id(),
         'type' => $type,
       );
       $queue = DrupalQueue::get('sharedcontent_indexing');
@@ -1666,19 +1665,18 @@ function sharedcontent_entity_delete($entity, $type) {
  * Set the status of an index record for a given entity as deleted. If
  * no index record exists, no action will be taken.
  *
- * @param $entity
+ * @param \Drupal\sharedcontent\Plugin\Core\Entity\Index $entity
  *   The entity the index should be updated for.
  * @param $type
  *   Type of the entity.
  *
  * @see sharedcontent_index_load_by_entity_id()
  */
-function sharedcontent_index_mark_as_deleted_if_exists($entity, $type) {
-  list($id, , $bundle) = entity_extract_ids($type, $entity);
+function sharedcontent_index_mark_as_deleted_if_exists(Index $entity, $type) {
   // @todo should we make $language optional with sharedcontent_index_load_by_entity_id.
   // @todo HIGH check if we deal right if an entity switches language.
   $language = sharedcontent_entity_language($entity, $type);
-  $index = sharedcontent_index_load_by_entity_id($id, $type, $language);
+  $index = sharedcontent_index_load_by_entity_id($entity->id(), $type, $language);
   if ($index) {
     $index->status = SHAREDCONTENT_INDEX_STATUS_UNREACHABLE;
     $index->save();
@@ -1782,9 +1780,8 @@ function sharedcontent_init() {
  * @return
  *   TRUE if at leas on flag is set for the entity, FALSE otherwise.
  */
-function sharedcontent_flag_value_get($data, array $options, $name, $type, $info) {
-  list($id, , ) = entity_extract_ids($type, $data);
-  $flag = flag_get_content_flags($type, $id, $name);
+function sharedcontent_flag_value_get(Index $data, array $options, $name, $type, $info) {
+  $flag = flag_get_content_flags($type, $data->id(), $name);
   return !empty($flag);
 }
 
