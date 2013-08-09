@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains SharedContentAssignment.
+ * Contains \Drupal\sharedcontent\Plugin\Core\Entity\Assignment.
  */
 
 namespace Drupal\sharedcontent\Plugin\Core\Entity;
@@ -15,7 +15,7 @@ use Drupal\Core\Entity\EntityStorageControllerInterface;
  *
  * Describes the linkage between two shared entities.
  */
-class SharedContentAssignment extends Entity {
+class Assignment extends Entity {
 
   /**
    * Entity id..
