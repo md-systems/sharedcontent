@@ -1,0 +1,8 @@
+name: 'Shared Content Core'
+description: 'Common functionality used by the Shared Content server and Shared Content client.'
+core: 8.x
+package: 'Shared Content'
+type: module
+
+test_dependencies:
+  - phpseclib

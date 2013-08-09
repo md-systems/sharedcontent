@@ -1,0 +1,5 @@
+name: 'Shared Content Chapters'
+description: 'Create Shared Content chapter records based on field collection.'
+core: 8.x
+package: 'Shared Content'
+type: module

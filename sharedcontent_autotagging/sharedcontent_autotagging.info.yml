@@ -1,0 +1,5 @@
+name: 'Shared Content Auto Tagging'
+description: 'Module that calls Yahoo service to get tags for indexed nodes.'
+core: 8.x
+package: 'Shared Content'
+type: module

@@ -1,0 +1,10 @@
+name: 'Shared Content Client'
+description: 'Retrieve exposed index records from one or several Shared Content servers and allow local content to be linked to the content from the severs.'
+core: 8.x
+package: 'Shared Content'
+type: module
+
+dependencies:
+ - colorbox
+ - entity_reference
+ - sharedcontent

@@ -1,7 +1,0 @@
-name = Shared Content Chapters
-description = Create Shared Content chapter records based on field collection.
-core = 7.x
-package = Shared Content
-version = 7.x-0.19
-
-dependencies[] = field_collection

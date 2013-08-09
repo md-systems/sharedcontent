@@ -1,0 +1,11 @@
+name: 'Shared Content Server'
+description: 'Create an index of content and expose them so that clients can retrieve it and are able to link to our content.'
+core: 8.x
+package: 'Shared Content'
+type: module
+
+configure: admin/config/services/sharedcontent/server
+
+dependencies:
+  - sharedcontent
+  - services
