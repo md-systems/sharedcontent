@@ -63,4 +63,34 @@ class SharedContentAssignment extends Entity {
    * Timestamp of the time the linking was changed the last..
    */
   public $changed;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function preSave(EntityStorageControllerInterface $storage_controller) {
+    if (isset($this->source)) {
+      $source = sharedcontent_index_load_by_uuid($this->source);
+      $this->source_id = $source->id;
+    }
+
+    if (isset($this->target) && $target = sharedcontent_index_load_by_uuid($this->target)) {
+      $this->target_id = $target->id;
+    }
+
+    $this->created = REQUEST_TIME;
+    parent::preSave($storage_controller);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function preCreate(EntityStorageControllerInterface $storage_controller, array &$values) {
+    $values += array(
+      'status' => SHAREDCONTENT_ASSIGNMENT_ACTIVE,
+      'url' => url(NULL, array('absolute' => TRUE)),
+      'origin' => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
+      'created' => REQUEST_TIME,
+    );
+    parent::preCreate($storage_controller, $values);
+  }
 }

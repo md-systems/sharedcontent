@@ -198,4 +198,26 @@ class SharedContentIndex extends Entity {
   public function defaultUri() {
     return array('path' => $this->url);
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function preSave(EntityStorageControllerInterface $storage_controller) {
+    $this->changed = REQUEST_TIME;
+    parent::preSave($storage_controller);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function preCreate(EntityStorageControllerInterface $storage_controller, array &$values) {
+    $values += array(
+      'status' => SHAREDCONTENT_INDEX_STATUS_VISIBLE,
+      'accessibility' => SHAREDCONTENT_INDEX_ACCESSIBILITY_PUBLIC,
+      'origin' => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
+      'connection_name' => SHAREDCONTENT_LOCAL_CONNECTION_NAME,
+      'created' => REQUEST_TIME,
+    );
+    parent::preCreate($storage_controller, $values);
+  }
 }
