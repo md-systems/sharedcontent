@@ -250,6 +250,25 @@ function sharedcontent_entity_info() {
 }
 
 /**
+ * Implements hook_entity_bundle_info().
+ */
+function sharedcontent_entity_bundle_info() {
+  return array(
+    'sharedcontent_index' => array(
+      'local' => array(
+        'label' => t('Local'),
+      ),
+      'remote' => array(
+        'label' => ('Remote'),
+      ),
+      'shadow' => array(
+        'label' => ('Shadow'),
+      ),
+    ),
+  );
+}
+
+/**
  * Implements MODULE_preprocess_HOOK().
  *
  * @todo doc

@@ -9,11 +9,56 @@ namespace Drupal\sharedcontent\Plugin\Core\Entity;
 
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\EntityStorageControllerInterface;
+use Drupal\Core\Entity\Annotation\EntityType;
+use Drupal\Core\Annotation\Translation;
+
+//$entities['sharedcontent_index'] = array(
+//
+//  'access callback' => 'sharedcontent_index_access', // @todo AccessController
+//  'metadata controller class' => 'SharedContentIndexMetadataController', // @todo EntityNG
+//  'views controller class' => 'SharedContentIndexViewsController',
+//);
+
+
+/*
+ *     "storage" = "Drupal\node\NodeStorageController",
+ *     "render" = "Drupal\node\NodeRenderController",
+ *     "access" = "Drupal\node\NodeAccessController",
+ *     "form" = {
+ *       "default" = "Drupal\node\NodeFormController",
+ *       "delete" = "Drupal\node\Form\NodeDeleteForm",
+ *       "edit" = "Drupal\node\NodeFormController"
+ *     },
+ *     "translation" = "Drupal\node\NodeTranslationController"
+ *
+ *     "access" = "Drupal\node\NodeAccessController",
+ */
 
 /**
- * Shared Content Index
+ * Defines the Shared Content Index entity class
  *
  * Container for meta data about another entity.
+ *
+ * @EntityType(
+ *   id = "sharedcontent_index",
+ *   label = @Translation("Shared Content Index"),
+ *   bundle_label = @Translation("Origin"),
+ *   module = "sharedcontent",
+ *   controllers = {
+ *     "storage" = "Drupal\Core\Entity\DatabaseStorageController"
+ *   },
+ *   base_table = "sharedcontent_index",
+ *   fieldable = TRUE,
+ *   entity_keys = {
+ *     "id" = "id",
+ *     "bundle" = "origin",
+ *     "label" = "title",
+ *     "uuid" = "uuid"
+ *   },
+ *   bundle_keys = {
+ *     "bundle" = "origin"
+ *   }
+ * )
  */
 class Index extends Entity {
 
@@ -200,8 +245,10 @@ class Index extends Entity {
   /**
    * Overrides Entity::defaultUri().
    */
-  public function defaultUri() {
-    return array('path' => $this->url);
+  public function uri() {
+    $uri = parent::uri();
+    $uri['path'] = $this->url;
+    return $uri;
   }
 
   /**
