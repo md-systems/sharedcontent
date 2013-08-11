@@ -7,31 +7,17 @@
 
 namespace Drupal\sharedcontent\Plugin\Core\Entity;
 
-use Drupal\Core\Entity\Entity;
-use Drupal\Core\Entity\EntityStorageControllerInterface;
-use Drupal\Core\Entity\Annotation\EntityType;
 use Drupal\Core\Annotation\Translation;
-
-//$entities['sharedcontent_index'] = array(
-//
-//  'access callback' => 'sharedcontent_index_access', // @todo AccessController
-//  'metadata controller class' => 'SharedContentIndexMetadataController', // @todo EntityNG
-//  'views controller class' => 'SharedContentIndexViewsController',
-//);
-
+use Drupal\Core\Entity\Annotation\EntityType;
+use Drupal\Core\Entity\EntityNG;
+use Drupal\Core\Entity\EntityStorageControllerInterface;
+use Drupal\sharedcontent\IndexInterface;
 
 /*
- *     "storage" = "Drupal\node\NodeStorageController",
- *     "render" = "Drupal\node\NodeRenderController",
- *     "access" = "Drupal\node\NodeAccessController",
- *     "form" = {
- *       "default" = "Drupal\node\NodeFormController",
- *       "delete" = "Drupal\node\Form\NodeDeleteForm",
- *       "edit" = "Drupal\node\NodeFormController"
- *     },
- *     "translation" = "Drupal\node\NodeTranslationController"
- *
- *     "access" = "Drupal\node\NodeAccessController",
+ * 'views controller class' => 'SharedContentIndexViewsController',
+ * "render" = "Drupal\node\NodeRenderController", --> sharedcontent_index_access
+ * "access" = "Drupal\node\NodeAccessController",
+ * "translation" = "Drupal\node\NodeTranslationController"
  */
 
 /**
@@ -45,7 +31,7 @@ use Drupal\Core\Annotation\Translation;
  *   bundle_label = @Translation("Origin"),
  *   module = "sharedcontent",
  *   controllers = {
- *     "storage" = "Drupal\Core\Entity\DatabaseStorageController"
+ *     "storage" = "Drupal\sharedcontent\Controller\IndexStorageController"
  *   },
  *   base_table = "sharedcontent_index",
  *   fieldable = TRUE,
@@ -60,124 +46,294 @@ use Drupal\Core\Annotation\Translation;
  *   }
  * )
  */
-class Index extends Entity {
+class Index extends EntityNG implements IndexInterface {
 
   /**
-   * Entity id.
+   * {@inheritdoc}
    */
-  public $id;
+  public function getConnectionName() {
+    return $this->get('connection_name')->getValue();
+  }
 
   /**
-   * Name of the connection the index record was retrieved from.
+   * {@inheritdoc}
    */
-  public $connection_name;
+  public function setConnectionName($connection_name) {
+    $this->set('connection_name', $connection_name);
+    return $this;
+  }
 
   /**
-   * The record origin.
-   *
-   * This defines the bundle of the entity with "local" val as default.
+   * {@inheritdoc}
    */
-  public $origin;
+  public function setBundle($origin) {
+    $this->set('origin', $origin);
+    return $this;
+  }
 
   /**
-   * The records uuid.
-   *
-   * Globally unique id of the indexed record.
+   * {@inheritdoc}
    */
-  public $uuid;
+  public function setUuid($uuid) {
+    $this->set('uuid', $uuid);
+    return $this;
+  }
 
   /**
-   * The records parent uuid.
-   *
-   * UUID of a possible parent record.
+   * {@inheritdoc}
    */
-  public $uuid_parent;
+  public function getParentUuid() {
+    return $this->get('uuid_parent')->getValue();
+  }
 
   /**
-   * Id of the indexed entity.
+   * {@inheritdoc}
    */
-  public $entity_id;
+  public function setParentUuid($uuid) {
+    $this->set('uuid_parent', $uuid);
+    return $this;
+  }
 
   /**
-   * Type of the indexed entity.
+   * {@inheritdoc}
    */
-  public $entity_type;
+  public function getEntityId() {
+    return $this->get('entity_id')->getValue();
+  }
 
   /**
-   * Bundle of the indexed entity.
+   * {@inheritdoc}
    */
-  public $entity_bundle;
+  public function setEntityId($id) {
+    $this->set('entity_id', $id);
+    return $this;
+  }
 
   /**
-   * Title of the indexed entity.
+   * {@inheritdoc}
    */
-  public $title;
+  public function getEntityType() {
+    return $this->get('entity_type')->getValue();
+  }
 
   /**
-   * Language of the indexed entity.
+   * {@inheritdoc}
    */
-  public $language;
+  public function setEntityType($type) {
+    $this->set('entity_type', $type);
+    return $this;
+  }
 
   /**
-   * Id if the translation set if nay.
+   * {@inheritdoc}
    */
-  public $translationset_id;
+  public function getEntityBundle() {
+    return $this->get('entity_bundle')->getValue();
+  }
 
   /**
-   * Set of keywords describing the indexed entity.
-   *
-   * The keywords are stored unstructured delimited by space.
+   * {@inheritdoc}
    */
-  public $keywords;
+  public function setEntityBundle($bundle) {
+    $this->set('entity_bundle', $bundle);
+    return $this;
+  }
 
   /**
-   * Set of tags describing the indexed entity.
-   *
-   * The tags are stored unstructured delimited by space.
+   * {@inheritdoc}
    */
-  public $tags;
+  public function getTitle() {
+    return $this->get('title')->getValue();
+  }
 
   /**
-   * Url where the indexed entity can be viewed.
+   * {@inheritdoc}
    */
-  public $url;
+  public function setTitle($title) {
+    $this->set('title', $title);
+    return $this;
+  }
+
 
   /**
-   * Status of index record.
-   *
-   * States if the index record an be linked or displayed or if the indexed
-   * content was deleted.
+   * {@inheritdoc}
    */
-  public $status;
+  public function getUrl() {
+    return $this->get('url')->getValue();
+  }
 
   /**
-   * Timestamp of the time the indexed entity was created.
+   * {@inheritdoc}
    */
-  public $entity_created;
+  public function setUrl($url) {
+    $this->set('url', $url);
+    return $this;
+  }
 
   /**
-   * Timestamp of the time the indexed entity was changed the last.
+   * {@inheritdoc}
    */
-  public $entity_changed;
+  public function getlanguage() {
+    return $this->get('language')->getValue();
+  }
 
   /**
-   * Timestamp of the time the index record was created.
+   * {@inheritdoc}
    */
-  public $created;
+  public function setLanguage($language) {
+    $this->set('language', $language);
+    return $this;
+  }
 
   /**
-   * Timestamp of the time the index record was changed the last.
+   * {@inheritdoc}
    */
-  public $changed;
+  public function getTranslationSetId() {
+    return $this->get('translationset_id')->getValue();
+  }
 
   /**
-   * Accessibility value.
-   *
-   * 0 - if not accessible,
-   * 1 - if public accessible
-   * 2 - if restricted.
+   * {@inheritdoc}
    */
-  public $accessibility;
+  public function setTranslationSetId($id) {
+    $this->set('translationset_id', $id);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getKeywords() {
+    return $this->get('keywords')->getValue();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setKeywords($keywords) {
+    $this->set('keywords', $keywords);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTags() {
+    return $this->get('tags')->getValue();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setTags($tags) {
+    $this->set('tags', $tags);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isLinkable() {
+    if ($this->bundle() != SHAREDCONTENT_INDEX_BUNDLE_LOCAL) {
+      return FALSE;
+    }
+    $field_names = sharedcontent_client_get_all_shared_content_field_names();
+    $instances = field_info_instances($this->getEntityType(), $this->getEntityBundle());
+    foreach ($field_names as $field_name) {
+      if (array_key_exists($field_name, $instances)) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isVisible() {
+    return $this->get('status')->getValue() == SHAREDCONTENT_INDEX_STATUS_LINKABLE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isReachable() {
+    return $this->get('status')->getValue() != SHAREDCONTENT_INDEX_STATUS_UNREACHABLE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getStatus() {
+    return $this->get('status')->getValue();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setStatus($status) {
+    $this->set('status', $status);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityCreated() {
+    return $this->get('entity_created')->getValue();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setEntityCreated($created) {
+    $this->set('entity_created', $created);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEntityChanged() {
+    return $this->get('entity_changed')->getValue();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setEntityChanged($changed) {
+    $this->set('entity_changed', $changed);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCreated() {
+    return $this->get('created')->getValue();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getChanged() {
+    return $this->get('changed')->getValue();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getAccessibility() {
+    return $this->get('accessibility')->getValue();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setAccessibility($accessibility) {
+    $this->set('accessibility', $accessibility);
+    return $this;
+  }
 
   /**
    * Exposed attributes
@@ -216,9 +372,9 @@ class Index extends Entity {
     $updated = FALSE;
     foreach ($data as $key => $value) {
       if (in_array($key, Index::$exposed_attributes)
-        && $this->$key != $value
+        && $this->get($key)->getValue() != $value
       ) {
-        $this->$key = $value;
+        $this->set($key, $value);
         $updated = TRUE;
       }
     }
@@ -237,7 +393,7 @@ class Index extends Entity {
   public function getExposedAttributes() {
     $exposed = new stdClass();
     foreach (Index::$exposed_attributes as $attribute) {
-      $exposed->$attribute = $this->$attribute;
+      $exposed->$attribute = $this->get($attribute)->getValue();
     }
     return $exposed;
   }
@@ -247,7 +403,7 @@ class Index extends Entity {
    */
   public function uri() {
     $uri = parent::uri();
-    $uri['path'] = $this->url;
+    $uri['path'] = $this->getUrl();
     return $uri;
   }
 
@@ -255,7 +411,7 @@ class Index extends Entity {
    * {@inheritdoc}
    */
   public function preSave(EntityStorageControllerInterface $storage_controller) {
-    $this->changed = REQUEST_TIME;
+    $this->set('changed', REQUEST_TIME);
     parent::preSave($storage_controller);
   }
 
