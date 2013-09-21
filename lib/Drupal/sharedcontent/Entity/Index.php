@@ -35,6 +35,7 @@ use Drupal\sharedcontent\IndexInterface;
  *   },
  *   base_table = "sharedcontent_index",
  *   fieldable = TRUE,
+ *   translatable = FALSE,
  *   entity_keys = {
  *     "id" = "id",
  *     "bundle" = "origin",
@@ -173,15 +174,15 @@ class Index extends EntityNG implements IndexInterface {
   /**
    * {@inheritdoc}
    */
-  public function getlanguage() {
-    return $this->get('language')->getValue();
+  public function getLangcode() {
+    return $this->get('langcode')->getValue();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setLanguage($language) {
-    $this->set('language', $language);
+  public function setLangcode($langcode) {
+    $this->set('langcode', $langcode);
     return $this;
   }
 
@@ -388,7 +389,7 @@ class Index extends EntityNG implements IndexInterface {
       'description' => t('Title of the indexed entity.'),
       'type' => 'string_field',
     );
-    $properties['language'] = array(
+    $properties['langcode'] = array(
       'label' => t('Language'),
       'description' => t('Language of the indexed entity.'),
       'type' => 'language_field',
@@ -489,7 +490,7 @@ class Index extends EntityNG implements IndexInterface {
     'title',
     'keywords',
     'tags',
-    'language',
+    'langcode',
     'translationset_id',
     'status',
     'url',

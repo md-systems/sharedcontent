@@ -66,7 +66,7 @@ function sharedcontent_schema() {
         'not null' => TRUE,
         'description' => 'Title of the indexed local content.',
       ),
-      'language' => array(
+      'langcode' => array(
         'type' => 'varchar',
         'length' => 12,
         'not null' => TRUE,
@@ -142,7 +142,7 @@ function sharedcontent_schema() {
         'entity_type',
         'entity_id',
         'origin',
-        'language'
+        'langcode',
       ),
     )
   );

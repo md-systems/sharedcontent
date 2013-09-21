@@ -173,18 +173,18 @@ interface IndexInterface extends EntityChangedInterface {
    * @return string
    *   The language of the indexed bundle.
    */
-  public function getlanguage();
+  public function getLangcode();
 
   /**
    * Sets the entity language.
    *
-   * @param string $language
+   * @param string $langcode
    *   Language of the indexed entity.
    *
    * @return \Drupal\sharedcontent\IndexInterface
    *   The called index entity.
    */
-  public function setLanguage($language);
+  public function setLangcode($langcode);
 
   /**
    * Returns the translation set.
