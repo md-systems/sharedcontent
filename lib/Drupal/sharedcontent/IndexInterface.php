@@ -346,7 +346,7 @@ interface IndexInterface extends EntityChangedInterface {
    * @return int
    *   Timestamp of the creation date.
    */
-  public function getCreated();
+  public function getCreatedTime();
 
   /**
    * Returns the accessibility.

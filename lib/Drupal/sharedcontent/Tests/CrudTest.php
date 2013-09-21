@@ -41,6 +41,9 @@ class CrudTest extends DrupalUnitTestBase {
   public function testIndex() {
     $index = entity_create('sharedcontent_index', array());
     $this->assertEqual(SAVED_NEW, $index->save(), 'Successfully saved an index.');
+
+    $loaded_index = sharedcontent_index_load($index->id());
+    $this->assertTrue($loaded_index, 'Successfully loaded index');
   }
 
   /**

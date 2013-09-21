@@ -858,15 +858,18 @@ function sharedcontent_condition_index_record_exists(Index $entity, $type, $lang
 }
 
 /**
- * Load a sharedcontent_index record.
+ * Loads an sahredcontent_index from the database.
  *
- * @param $id
- *    Id of the index record.
- * @return
- *  sharedcontent_index object
+ * @param int $id
+ *   The id of the index to load.
+ * @param bool $reset
+ *   Whether to reset the internal cache. Defaults to false.
+ *
+ * @return Drupal\sharedcontent\IndexInterface|null
+ *   The index object, or NULL if there is no index with the given id.
  */
-function sharedcontent_index_load($id) {
-  return entity_load_single('sharedcontent_index', $id);
+function sharedcontent_index_load($id, $reset = FALSE) {
+  return entity_load('sharedcontent_index', $id, $reset);
 }
 
 /**

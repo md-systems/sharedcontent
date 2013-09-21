@@ -309,7 +309,7 @@ class Index extends EntityNG implements IndexInterface {
   /**
    * {@inheritdoc}
    */
-  public function getCreated() {
+  public function getCreatedTime() {
     return $this->get('created')->getValue();
   }
 
@@ -349,6 +349,7 @@ class Index extends EntityNG implements IndexInterface {
       'label' => t('UUID'),
       'description' => t('The index UUID.'),
       'type' => 'uuid_field',
+      'read-only' => TRUE,
     );
     $properties['parent_uuid'] = array(
       'label' => t('Parent UUID'),
