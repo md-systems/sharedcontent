@@ -7,8 +7,9 @@
  * server and the Shared Content client.
  */
 
-use \Drupal\sharedcontent\Exception\IndexingException;
-use \Drupal\sharedcontent\Plugin\Core\Entity\Index;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\sharedcontent\Exception\IndexingException;
+use Drupal\sharedcontent\IndexInterface;
 
 /**
  * Status value for the sharedcontent_index entity.
@@ -878,27 +879,18 @@ function sharedcontent_index_load($id, $reset = FALSE) {
  * For we only need this locally, this function will only return a
  * index record of type SHAREDCONTENT_INDEX_BUNDLE_LOCAL.
  *
- * @param $id
- *   Id the of the entity in question.
- * @param $type
- *   Entity type
- * @param $connection_name
- *   In case of a record for a remote content, the name of the connection the
- *   index is synchronized. "local" in case of records for local content.
- * @param $language
- *    Language code of the local content.
- * @return
- *   sharedcontent_index entity object if one exists, otherwise NULL.
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity to search index record for.
  *
- * @todo Rename to sharedcontent_index_load_by_entity. Change $id to
- * $entity and skip $language.
+ * @return \Drupal\sharedcontent\IndexInterface|null
+ *   The index object, or NULL if there is no index for the given entity.
  */
-function sharedcontent_index_load_by_entity_id($id, $type = 'node', $language = LANGUAGE_NONE) {
-  $entity = entity_load('sharedcontent_index', FALSE, array(
-    'entity_id' => $id,
-    'entity_type' => $type,
+function sharedcontent_index_load_by_entity(EntityInterface $entity) {
+  $entity = entity_load_multiple_by_properties('sharedcontent_index', array(
+    'entity_id' => $entity->id(),
+    'entity_type' => $entity->bundle(),
     'origin' => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
-    'language' => $language,
+    'langcode' => $entity->language()->id,
   ));
   return array_shift($entity);
 }
