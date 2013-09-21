@@ -16,6 +16,7 @@ function sharedcontent_schema() {
     'fields' => array(
       'id' => array(
         'type' => 'serial',
+        'unsigned' => TRUE,
         'not null' => TRUE,
       ),
       'connection_name' => array(
@@ -69,6 +70,7 @@ function sharedcontent_schema() {
         'type' => 'varchar',
         'length' => 12,
         'not null' => TRUE,
+        'default' => '',
         'description' => 'Language of the indexed local content.',
       ),
       'translationset_id' => array(
