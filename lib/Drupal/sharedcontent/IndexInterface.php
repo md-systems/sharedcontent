@@ -7,7 +7,9 @@
 
 namespace Drupal\sharedcontent;
 
-interface IndexInterface {
+use Drupal\Core\Entity\EntityChangedInterface;
+
+interface IndexInterface extends EntityChangedInterface {
 
   /**
    * Returns the connection name.
@@ -345,14 +347,6 @@ interface IndexInterface {
    *   Timestamp of the creation date.
    */
   public function getCreated();
-
-  /**
-   * Returns the records changed date.
-   *
-   * @return int
-   *   Timestamp of the creation date.
-   */
-  public function getChanged();
 
   /**
    * Returns the accessibility.

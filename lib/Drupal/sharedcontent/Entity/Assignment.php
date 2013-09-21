@@ -5,7 +5,7 @@
  * Contains \Drupal\sharedcontent\Plugin\Core\Entity\Assignment.
  */
 
-namespace Drupal\sharedcontent\Plugin\Core\Entity;
+namespace Drupal\sharedcontent\Entity;
 
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\EntityStorageControllerInterface;
