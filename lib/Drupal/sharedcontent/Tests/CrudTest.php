@@ -1,12 +1,12 @@
 <?php
- 
+
 /**
  * @file
  * Contains \Drupal\sharedcontent\Tests\CrudTest.
  */
- 
+
 namespace Drupal\sharedcontent\Tests;
- 
+
 use Drupal\simpletest\DrupalUnitTestBase;
 
 class CrudTest extends DrupalUnitTestBase {
@@ -26,7 +26,10 @@ class CrudTest extends DrupalUnitTestBase {
     );
   }
 
-  public function setUp() {
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp() {
     parent::setUp();
 
     $this->installSchema('sharedcontent', array('sharedcontent_index', 'sharedcontent_assignment'));
@@ -37,7 +40,7 @@ class CrudTest extends DrupalUnitTestBase {
    */
   public function testIndex() {
     $index = entity_create('sharedcontent_index', array());
-    $this->assertEqual(SAVED_NEW, $index->save());
+    $this->assertEqual(SAVED_NEW, $index->save(), 'Successfully saved an index.');
   }
 
   /**
@@ -45,6 +48,6 @@ class CrudTest extends DrupalUnitTestBase {
    */
   public function testAssignment() {
     $assignment = entity_create('sharedcontent_assignment', array());
-    $this->assertEqual(SAVED_NEW, $assignment->save());
+    $this->assertEqual(SAVED_NEW, $assignment->save(), 'Successfully saved an assignment.');
   }
 }
