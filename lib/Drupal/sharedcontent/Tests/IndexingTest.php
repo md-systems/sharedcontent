@@ -94,7 +94,6 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'The index record has status visible.');
     $this->assertEqual($index->getTags(), NULL, 'The tags are empty.');
     $this->assertEqual($index->getTitle(), 'Indexed node', 'The title matches.');
-    $this->assertEqual($index->getTranslationSetId(), '', 'The translation set id is empty.');
     $node_uri = $entity->uri();
     $this->assertTrue(preg_match("|{$node_uri['path']}$|", $index->getUrl()), 'The translation set id is empty.');
 
@@ -103,7 +102,7 @@ class IndexingTest extends DrupalUnitTestBase {
 
     // Then the status of the index is set to "not reachable;..
     $index = sharedcontent_index_load_by_entity($entity);
-    $this->assertEqual($index->getStatus(), IndexInterface::STATUS_NOT_REACHABLE);
+    $this->assertEqual($index->getStatus(), IndexInterface::STATUS_NOT_REACHABLE, 'Index hat status not reachable.');
   }
 
   /**
@@ -160,7 +159,6 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'The index record has status visible.');
     $this->assertEqual($index->getTags(), NULL, 'The tags are empty.');
     $this->assertEqual($index->getTitle(), 'Indexed user', 'The title matches.');
-    $this->assertEqual($index->getTranslationSetId(), '', 'The translation set id is empty.');
     $node_uri = $entity->uri();
     $this->assertTrue(preg_match("|{$node_uri['path']}$|", $index->getUrl()), 'The translation set id is empty.');
 
@@ -169,7 +167,7 @@ class IndexingTest extends DrupalUnitTestBase {
 
     // Then the status of the index is set to "not reachable;..
     $index = sharedcontent_index_load_by_entity($entity);
-    $this->assertEqual($index->getStatus(), IndexInterface::STATUS_NOT_REACHABLE);
+    $this->assertEqual($index->getStatus(), IndexInterface::STATUS_NOT_REACHABLE, 'Index hat status not reachable.');
   }
 
   /**
@@ -188,7 +186,6 @@ class IndexingTest extends DrupalUnitTestBase {
       'uri' => 'public://non_indexed.txt',
     ));
     $entity->save();
-    debug($entity->label());
 
     // Then no index record was created.
     $this->assertFalse(sharedcontent_index_exists($entity), 'No index record was created.');
@@ -230,6 +227,6 @@ class IndexingTest extends DrupalUnitTestBase {
 
     // Then the status of the index is set to "not reachable;..
     $index = sharedcontent_index_load_by_entity($entity);
-    $this->assertEqual($index->getStatus(), IndexInterface::STATUS_NOT_REACHABLE);
+    $this->assertEqual($index->getStatus(), IndexInterface::STATUS_NOT_REACHABLE, 'Index hat status not reachable.');
   }
 }
