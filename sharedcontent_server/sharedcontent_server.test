@@ -68,32 +68,6 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
    * Test if the index is built correctly for core entities.
    */
   function testIndexCreation() {
-    // When I create a new node
-    $node = $this->drupalCreateNode();
-
-    // Then I should have an index record in the sc index
-    $index = sharedcontent_index_load_by_entity_id($node->nid, 'node');
-    $this->assertEqual($index->title, $node->title);
-    $this->assertEqual($index->entity_id, $node->nid);
-    $this->assertEqual($index->entity_type, 'node');
-    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_VISIBLE);
-    $this->assertEqual($index->entity_created, $node->created);
-    $this->assertEqual($index->entity_changed, $node->changed);
-    $this->assertEqual($index->created, REQUEST_TIME);
-    $this->assertEqual($index->changed, REQUEST_TIME);
-
-    // When I get the index record for created node
-    $index = sharedcontent_index_load_by_entity_id($node->nid, 'node');
-
-    // Then I should have a existing record
-    $this->assertFalse($index->id == NULL);
-
-    // When I delete the node
-    node_delete($node->nid);
-
-    // Then the index record should have status disabled.
-    $index = sharedcontent_index_load_by_entity_id($node->nid, 'node');
-    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_UNREACHABLE);
 
     // When I create a new vocabulary
     $vocabulary = $this->createVocabulary();
