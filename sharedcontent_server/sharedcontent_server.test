@@ -65,40 +65,6 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
   }
 
   /**
-   * Test if the index is built correctly for core entities.
-   */
-  function testIndexCreation() {
-
-    // When I create a new term
-    $term = $this->createTerm($vocabulary);
-
-    // Then I should have an index record matching the term
-    $index = sharedcontent_index_load_by_entity_id($term->tid, 'taxonomy_term');
-    $this->assertEqual($index->title, $term->name);
-    $this->assertEqual($index->entity_id, $term->tid);
-    $this->assertEqual($index->entity_type, 'taxonomy_term');
-    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_VISIBLE);
-    $this->assertEqual($index->entity_created, REQUEST_TIME);
-    $this->assertEqual($index->entity_changed, REQUEST_TIME);
-    $this->assertEqual($index->created, REQUEST_TIME);
-    $this->assertEqual($index->changed, REQUEST_TIME);
-
-    // When I delete the therm
-    taxonomy_term_delete($term->tid);
-
-    // Then the index record should have status disabled.
-    $index = sharedcontent_index_load_by_entity_id($term->tid, 'taxonomy_term');
-    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_UNREACHABLE);
-
-    // When I delete the vocabulary
-    taxonomy_vocabulary_delete($vocabulary->vid);
-
-    // Then the index record should have status disabled.
-    $index = sharedcontent_index_load_by_entity_id($vocabulary->vid, 'taxonomy_vocabulary');
-    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_UNREACHABLE);
-  }
-
-  /**
    * Test if the keywords are built correctly.
    */
   function testKeywordBuilding() {
