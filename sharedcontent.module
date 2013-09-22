@@ -11,6 +11,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\file\FileInterface;
 use Drupal\sharedcontent\AssignmentInterface;
+use Drupal\sharedcontent\Entity\Index;
 use Drupal\sharedcontent\Exception\IndexingException;
 use Drupal\sharedcontent\IndexInterface;
 
@@ -1467,17 +1468,14 @@ function sharedcontent_entity_insert(EntityInterface $entity) {
  *
  * Check if the given entity should be index and trigger an index
  * update.
- *
- * @todo Replace variable lookup.
  */
 function sharedcontent_entity_update(EntityInterface $entity) {
-  $indexed_entities = variable_get('sharedcontent_indexed_entities', array('node' => array('indexed' => TRUE)));
-  if (isset($indexed_entities[$entity->entityType()][$entity->bundle()]) && $indexed_entities[$entity->entityType()][$entity->bundle()]) {
+  if (Index::isIndexable($entity)) {
     // Add nodes to be indexed to a queue if setting is active.
-    if (variable_get('sharedcontent_queue_indexed_entities', FALSE)) {
+    if (\Drupal::config('sharedcontent.indexing')->get('queued')) {
       $item = array(
         'entity_id' => $entity->id(),
-        'type' => $type,
+        'type' => $entity->entityType(),
       );
       $queue = DrupalQueue::get('sharedcontent_indexing');
       $queue->createItem($item);

@@ -9,6 +9,7 @@ namespace Drupal\sharedcontent\Entity;
 
 use Drupal\Core\Annotation\Translation;
 use Drupal\Core\Entity\Annotation\EntityType;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityNG;
 use Drupal\Core\Entity\EntityStorageControllerInterface;
 use Drupal\sharedcontent\IndexInterface;
@@ -48,6 +49,47 @@ use Drupal\sharedcontent\IndexInterface;
  * )
  */
 class Index extends EntityNG implements IndexInterface {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function isIndexable(EntityInterface $entity) {
+    $key = Index::settingsKey($entity->entityType(), $entity->bundle());
+    $indexable = \Drupal::config('sharedcontent.indexables')->get($key);
+    return $indexable ? TRUE : FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function setIndexable($entity_type, $bundle, $value) {
+    $key = Index::settingsKey($entity_type, $bundle);
+    \Drupal::config('sharedcontent.indexables')->set($key, $value)->save();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function setIndexableByEntity(EntityInterface $entity, $value) {
+    Index::setIndexable($entity->entityType(), $entity->bundle(), $value);
+  }
+
+  /**
+   * Helper for creating a settings key.
+   *
+   * @param string $entity_type
+   *   An entity type.
+   * @param string $bundle
+   *   An entity bundle
+   *
+   * @return string
+   *   The resulting settings key.
+   */
+  protected static function settingsKey($entity_type, $bundle) {
+    $entity_type = preg_replace('/[^0-9a-zA-Z_]/', "_", $entity_type);
+    $bundle = preg_replace('/[^0-9a-zA-Z_]/', "_", $bundle);
+    return $entity_type . '.' . $bundle . '.indexed';
+  }
 
   /**
    * {@inheritdoc}

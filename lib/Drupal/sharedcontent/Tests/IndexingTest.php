@@ -8,6 +8,7 @@
 namespace Drupal\sharedcontent\Tests;
 
 use Drupal\Core\Language\Language;
+use Drupal\sharedcontent\Entity\Index;
 use Drupal\sharedcontent\IndexInterface;
 use Drupal\simpletest\DrupalUnitTestBase;
 
@@ -51,11 +52,27 @@ class IndexingTest extends DrupalUnitTestBase {
       'node_field_revision',
     ));
 
-    // Given bundle 'indexed' of entity 'node' is 'enabled' for indexing.
-    // @todo Implement configruation.
+    // Given bundle 'indexed' of entity 'node' is 'not enabled' for indexing.
+    Index::setIndexable('node', 'indexable', FALSE);
 
     // When I create a new entity of type 'node' with bundle 'indexed'.
-    $node = entity_create('node', array('type' => 'indexed'));
+    $node = entity_create('node', array(
+      'title' => 'Not indexed node',
+      'type' => 'indexed',
+    ));
+    $node->save();
+
+    // Then no index record was created.
+    $this->assertFalse(sharedcontent_index_exists($node), 'No index record was created.');
+
+    // Given bundle 'indexed' of entity 'node' is 'enabled' for indexing.
+    Index::setIndexableByEntity($node, TRUE);
+
+    // When I create a new entity of type 'node' with bundle 'indexed'.
+    $node = entity_create('node', array(
+      'title' => 'Indexed node',
+      'type' => 'indexed',
+    ));
     $node->save();
 
     // Then a new index record was created.
@@ -76,7 +93,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getParentUuid(), NULL, 'The index has no parent.');
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'The index record has status visible.');
     $this->assertEqual($index->getTags(), NULL, 'The tags are empty.');
-    $this->assertEqual($index->getTitle(), $node->label(), 'The title matches.');
+    $this->assertEqual($index->getTitle(), 'Indexed node', 'The title matches.');
     $this->assertEqual($index->getTranslationSetId(), '', 'The translation set id is empty.');
     $node_uri = $node->uri();
     $this->assertTrue(preg_match("|{$node_uri['path']}$|", $index->getUrl()), 'The translation set id is empty.');

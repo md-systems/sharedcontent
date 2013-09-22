@@ -8,6 +8,7 @@
 namespace Drupal\sharedcontent;
 
 use Drupal\Core\Entity\EntityChangedInterface;
+use Drupal\Core\Entity\EntityInterface;
 
 interface IndexInterface extends EntityChangedInterface {
 
@@ -72,6 +73,46 @@ interface IndexInterface extends EntityChangedInterface {
    * to track those orphaned records.
    */
   const ORPHAN = 'orphaned chapter';
+
+  /**
+   * Checks if an entity is indexable.
+   *
+   * Whether or not an entity can be indexed is retrieved from configuration and
+   * is based on the entity type and bundle.
+   *
+   * @param EntityInterface $entity
+   *   The entity to check.
+   *
+   * @return bool
+   *   TRUE if the entity is indexable, FALSE otherwise.
+   */
+  public static function isIndexable(EntityInterface $entity);
+
+  /**
+   * Configure indexability of an entity.
+   *
+   * Set the indexability for a entity bundle based on an entity.
+   *
+   * @param EntityInterface $entity
+   *   The entity which bundle ist to be configured.
+   * @param bool $value
+   *   Whether or not the entity bundle should be indexable.
+   */
+  public static function setIndexableByEntity(EntityInterface $entity, $value);
+
+  /**
+   * Configure indexability of an entity.
+   *
+   * Set the indexability for a entity bundle.
+   *
+   * @param string $entity_type
+   *   The entity type to be configured.
+   * @param string $bundle
+   *   The entity bundle to be configured.
+   * @param bool $value
+   *   Whether or not the entity bundle should be indexable.
+   */
+  public static function setIndexable($entity_type, $bundle, $value);
 
   /**
    * Returns the connection name.
