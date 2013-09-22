@@ -97,5 +97,12 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getTranslationSetId(), '', 'The translation set id is empty.');
     $node_uri = $node->uri();
     $this->assertTrue(preg_match("|{$node_uri['path']}$|", $index->getUrl()), 'The translation set id is empty.');
+
+    // When I delete the node.
+    $node->delete();
+
+    // Then the status of the index is set to "not reachable;..
+    $index = sharedcontent_index_load_by_entity($node);
+    $this->assertEqual($index->getStatus(), IndexInterface::STATUS_NOT_REACHABLE);
   }
 }

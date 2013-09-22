@@ -131,6 +131,17 @@ interface IndexInterface extends ContentEntityInterface, EntityChangedInterface 
   public static function indexEntity(EntityInterface $entity);
 
   /**
+   * Index a deleted entity.
+   *
+   * Index records are never deleted. When an idnexed entity gets deleted the
+   * index status is set to 'not reachable'.
+   *
+   * @param EntityInterface $entity
+   *   The deleted entity.
+   */
+  public static function indexDeletedEntity(EntityInterface $entity);
+
+  /**
    * Update indexed data.
    *
    * @param EntityInterface $entity

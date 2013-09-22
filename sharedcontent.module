@@ -1403,32 +1403,7 @@ function sharedcontent_entity_update(EntityInterface $entity) {
  * exists.
  */
 function sharedcontent_entity_delete($entity, $type) {
-  sharedcontent_index_mark_as_deleted_if_exists($entity, $type);
-}
-
-/**
- * Mark as deleted
- *
- * Set the status of an index record for a given entity as deleted. If
- * no index record exists, no action will be taken.
- *
- * @param \Drupal\sharedcontent\Plugin\Core\Entity\Index $entity
- *   The entity the index should be updated for.
- * @param $type
- *   Type of the entity.
- *
- * @see sharedcontent_index_load_by_entity_id()
- */
-function sharedcontent_index_mark_as_deleted_if_exists(Index $entity, $type) {
-  // @todo should we make $language optional with sharedcontent_index_load_by_entity_id.
-  // @todo HIGH check if we deal right if an entity switches language.
-  $language = sharedcontent_entity_language($entity, $type);
-  $index = sharedcontent_index_load_by_entity_id($entity->id(), $type, $language);
-  if ($index) {
-    $index->status = IndexInterface::STATUS_NOT_REACHABLE;
-    $index->save();
-    // @todo log
-  }
+  Index::indexDeletedEntity($entity);
 }
 
 /**

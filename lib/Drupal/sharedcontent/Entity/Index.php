@@ -129,6 +129,19 @@ class Index extends EntityNG implements IndexInterface {
   /**
    * {@inheritdoc}
    */
+  public static function indexDeletedEntity(EntityInterface $entity) {
+    if (sharedcontent_index_exists($entity)) {
+      $index = sharedcontent_index_load_by_entity($entity);
+      // Make sure we got the latest data.
+      $index->updateData($entity);
+      $index->setStatus(IndexInterface::STATUS_NOT_REACHABLE);
+      $index->save();
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function updateData(EntityInterface $entity) {
     $this->setLangcode($entity->language()->id);
     $this->setTitle($entity->label());
