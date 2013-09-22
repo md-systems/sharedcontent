@@ -59,8 +59,10 @@ class IndexingTest extends DrupalUnitTestBase {
     $node->save();
 
     // Then a new index record was created.
+    $this->assertTrue(sharedcontent_index_exists($node), 'Found index record for created node.');
+
+    // And the created index matches the values from the indexed 'node'.
     $index = sharedcontent_index_load_by_entity($node);
-    $this->assertTrue($index, 'Found index record for created node.');
     $this->assertEqual($index->getConnectionName(), NULL, 'The connection name is empty.');
     $this->assertEqual($index->getChangedTime(), REQUEST_TIME, 'The index record was last changed within this request.');
     $this->assertEqual($index->getCreatedTime(), REQUEST_TIME, 'The index record was created within this request.');

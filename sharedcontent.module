@@ -1316,20 +1316,18 @@ function sharedcontent_form_node_type_form_submit($form, &$form_state) {
 /**
  * Check for existing index record.
  *
- * @param $entity
+ * @param \Drupal\Core\Entity\EntityInterface $entity
  *   The entity the index is checked for.
- * @param $type
- *   The type of the entity.
- * @return
+ *
+ * @return bool
  *   TRUE if there is an existing index record, FALSE otherwise.
  */
-function sharedcontent_index_exists(Index $entity, $type) {
-
-  $query = new EntityFieldQuery;
-  $query->entityCondition('entity_type', 'sharedcontent_index')
-    ->propertyCondition('entity_id', $entity->id())
-    ->propertyCondition('entity_type', $type)
-    ->propertyCondition('origin', IndexInterface::BUNDLE_LOCAL);
+function sharedcontent_index_exists(EntityInterface $entity) {
+  $query = \Drupal::entityQuery('sharedcontent_index');
+  $query->andConditionGroup()
+    ->condition('entity_uuid', $entity->uuid())
+    ->condition('entity_type', $entity->entityType())
+    ->condition('origin', IndexInterface::BUNDLE_LOCAL);
 
   $result = $query->execute();
   $exists = !empty($result);
