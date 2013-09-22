@@ -115,28 +115,6 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     // Then the index record should have status disabled.
     $index = sharedcontent_index_load_by_entity_id($vocabulary->vid, 'taxonomy_vocabulary');
     $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_UNREACHABLE);
-
-    // When I create a file
-    $file = current($this->drupalGetTestFiles('text'));
-    entity_save('file', $file);
-
-    // Then I should have an index record for the file
-    $index = sharedcontent_index_load_by_entity_id($file->fid, 'file');
-    $this->assertEqual($index->title, $file->filename);
-    $this->assertEqual($index->entity_id, $file->fid);
-    $this->assertEqual($index->entity_type, 'file');
-    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_VISIBLE);
-    $this->assertEqual($index->entity_created, $file->timestamp);
-    $this->assertEqual($index->entity_changed, $file->timestamp);
-    $this->assertEqual($index->created, REQUEST_TIME);
-    $this->assertEqual($index->changed, REQUEST_TIME);
-
-    // When I delete the file
-    entity_delete('file', $file->fid);
-
-    // Then the index record should have status disabled.
-    $index = sharedcontent_index_load_by_entity_id($file->fid, 'file');
-    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_UNREACHABLE);
   }
 
   /**

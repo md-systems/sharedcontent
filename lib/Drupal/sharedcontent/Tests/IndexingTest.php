@@ -171,4 +171,65 @@ class IndexingTest extends DrupalUnitTestBase {
     $index = sharedcontent_index_load_by_entity($entity);
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_NOT_REACHABLE);
   }
+
+  /**
+   * Test indexing for files.
+   */
+  public function testIndexingFile() {
+    $this->enableModules(array('file'));
+    $this->installSchema('file', array('file_managed', 'file_usage'));
+
+    // Given bundle 'field' of entity 'file' is 'not enabled' for indexing.
+    Index::setIndexable('file', 'file', FALSE);
+
+    // When I create a new entity of type 'user' with bundle 'user'.
+    file_put_contents('public://non_indexed.txt', $this->randomName());
+    $entity = entity_create('file', array(
+      'uri' => 'public://non_indexed.txt',
+    ));
+    $entity->save();
+    debug($entity->label());
+
+    // Then no index record was created.
+    $this->assertFalse(sharedcontent_index_exists($entity), 'No index record was created.');
+
+    // Given bundle 'user' of entity 'user' is 'enabled' for indexing.
+    Index::setIndexableByEntity($entity, TRUE);
+
+    // When I create a new entity of type 'node' with bundle 'indexed'.
+    file_put_contents('public://indexed.txt', $this->randomName());
+    $entity = entity_create('file', array(
+      'uri' => 'public://indexed.txt',
+    ));
+    $entity->save();
+
+    // Then a new index record was created.
+    $this->assertTrue(sharedcontent_index_exists($entity), 'Found index record for created node.');
+
+    // And the created index matches the values from the indexed 'node'.
+    $index = sharedcontent_index_load_by_entity($entity);
+
+    $this->assertEqual($index->getConnectionName(), NULL, 'The connection name is empty.');
+    $this->assertEqual($index->getChangedTime(), REQUEST_TIME, 'The index record was last changed within this request.');
+    $this->assertEqual($index->getCreatedTime(), REQUEST_TIME, 'The index record was created within this request.');
+    $this->assertEqual($index->getEntityChangedTime(), REQUEST_TIME, 'The changed time matches.');
+    $this->assertEqual($index->getEntityCreatedTime(), REQUEST_TIME, 'The created time matches.');
+    $this->assertEqual($index->getEntityType(), 'file', 'The entity type matches.');
+    $this->assertEqual($index->getEntityBundle(), 'file', 'The entity bundle matches.');
+    $this->assertEqual($index->getEntityUuid(), $entity->uuid(), 'The indexed id matches.');
+    $this->assertEqual($index->getKeywords(), NULL, 'The keywords are empty.');
+    $this->assertEqual($index->getLangcode(), Language::LANGCODE_DEFAULT, 'The language is undefined.');
+    $this->assertEqual($index->getParentUuid(), NULL, 'The index has no parent.');
+    $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'The index record has status visible.');
+    $this->assertEqual($index->getTags(), NULL, 'The tags are empty.');
+    $this->assertEqual($index->getTitle(), 'indexed.txt', 'The title matches.');
+    $this->assertTrue(preg_match('|indexed.txt$|', $index->getUrl()), 'The uri matches.');
+
+    // When I delete the node.
+    $entity->delete();
+
+    // Then the status of the index is set to "not reachable;..
+    $index = sharedcontent_index_load_by_entity($entity);
+    $this->assertEqual($index->getStatus(), IndexInterface::STATUS_NOT_REACHABLE);
+  }
 }
