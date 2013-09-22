@@ -116,27 +116,6 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
     $index = sharedcontent_index_load_by_entity_id($vocabulary->vid, 'taxonomy_vocabulary');
     $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_UNREACHABLE);
 
-    // When I create a user
-    $account = $this->drupalCreateUser();
-
-    // Then I should have an index record for the user
-    $index = sharedcontent_index_load_by_entity_id($account->uid, 'user');
-    $this->assertEqual($index->title, $account->name);
-    $this->assertEqual($index->entity_id, $account->uid);
-    $this->assertEqual($index->entity_type, 'user');
-    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_VISIBLE);
-    $this->assertEqual($index->entity_created, $account->created);
-    $this->assertEqual($index->entity_changed, $index->entity_created);
-    $this->assertEqual($index->created, REQUEST_TIME);
-    $this->assertEqual($index->changed, REQUEST_TIME);
-
-    // When I delete the user
-    entity_delete('user', $account->uid);
-
-    // Then the index record should have status disabled.
-    $index = sharedcontent_index_load_by_entity_id($account->uid, 'user');
-    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_UNREACHABLE);
-
     // When I create a file
     $file = current($this->drupalGetTestFiles('text'));
     entity_save('file', $file);
