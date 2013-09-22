@@ -69,25 +69,6 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
    */
   function testIndexCreation() {
 
-    // When I create a new vocabulary
-    $vocabulary = $this->createVocabulary();
-
-    // Then I should have an index record matching the vocabulary
-    $index = sharedcontent_index_load_by_entity_id($vocabulary->vid, 'taxonomy_vocabulary');
-    $this->assertEqual($index->title, $vocabulary->name);
-    $this->assertEqual($index->entity_id, $vocabulary->vid);
-    $this->assertEqual($index->entity_type, 'taxonomy_vocabulary');
-    $this->assertEqual($index->status, SHAREDCONTENT_INDEX_STATUS_UNREACHABLE);
-    $this->assertEqual($index->entity_created, REQUEST_TIME);
-    $this->assertEqual($index->entity_changed, REQUEST_TIME);
-    $this->assertEqual($index->created, REQUEST_TIME);
-    $this->assertEqual($index->changed, REQUEST_TIME);
-
-    // Given the terms for the created vocabulary are indexed
-    $indexed = variable_get('sharedcontent_indexed_entities', array());
-    $indexed['taxonomy_term'][$vocabulary->machine_name] = TRUE;
-    variable_set('sharedcontent_indexed_entities', $indexed);
-
     // When I create a new term
     $term = $this->createTerm($vocabulary);
 
