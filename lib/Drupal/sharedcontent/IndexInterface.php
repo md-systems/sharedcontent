@@ -78,7 +78,7 @@ interface IndexInterface extends EntityChangedInterface {
    * @return int
    *   The id of the indexed entity.
    */
-  public function getEntityId();
+  public function getEntityUuid();
 
   /**
    * Sets the entity id.
@@ -308,7 +308,7 @@ interface IndexInterface extends EntityChangedInterface {
    * @return int
    *   Timestamp of the creation date.
    */
-  public function getEntityCreated();
+  public function getEntityCreatedTime();
 
   /**
    * Sets the entities creation date.
@@ -319,7 +319,7 @@ interface IndexInterface extends EntityChangedInterface {
    * @return \Drupal\sharedcontent\IndexInterface
    *   The called index entity.
    */
-  public function setEntityCreated($created);
+  public function setEntityCreatedTime($created);
 
   /**
    * Returns the entities changed date.
@@ -327,7 +327,7 @@ interface IndexInterface extends EntityChangedInterface {
    * @return int
    *   Timestamp of the changed date.
    */
-  public function getEntityChanged();
+  public function getEntityChangedTime();
 
   /**
    * Sets the entities changed date.
@@ -338,7 +338,7 @@ interface IndexInterface extends EntityChangedInterface {
    * @return \Drupal\sharedcontent\IndexInterface
    *   The called index entity.
    */
-  public function setEntityChanged($changed);
+  public function setEntityChangedTime($changed);
 
   /**
    * Returns the records creation date.

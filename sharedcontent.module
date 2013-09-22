@@ -8,6 +8,7 @@
  */
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\sharedcontent\Exception\IndexingException;
 use Drupal\sharedcontent\IndexInterface;
 
@@ -886,13 +887,13 @@ function sharedcontent_index_load($id, $reset = FALSE) {
  *   The index object, or NULL if there is no index for the given entity.
  */
 function sharedcontent_index_load_by_entity(EntityInterface $entity) {
-  $entity = entity_load_multiple_by_properties('sharedcontent_index', array(
-    'entity_id' => $entity->id(),
-    'entity_type' => $entity->bundle(),
-    'origin' => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
+  $results = entity_load_multiple_by_properties('sharedcontent_index', array(
+    'entity_uuid' => $entity->uuid(),
+    'entity_type' => $entity->entityType(),
+    'origin' => IndexInterface::BUNDLE_LOCAL,
     'langcode' => $entity->language()->id,
   ));
-  return array_shift($entity);
+  return array_shift($results);
 }
 
 /**
@@ -1414,30 +1415,27 @@ function sharedcontent_index_exists(Index $entity, $type) {
 /**
  * Update index record.
  *
- * Update the corresponding sharedcontent_index record for the given
- * entity. If no record exists a new on is created.
+ * Update the corresponding sharedcontent_index record for the given entity. If
+ * no record exists a new one is created.
  *
- * There is also teh rule event … triggered and therefore allowing
- * enrich the record with custom data like keywords, tags, status,
- * reasons or accessibility.
+ * There is also teh rule event … triggered and therefore allowing enrich the
+ * record with custom data like keywords, tags, status, reasons or
+ * accessibility.
  *
- * @param \Drupal\sharedcontent\Plugin\Core\Entity\Index $entity
- *  The entity that was inserted or updated.
- * @param $type
- *  The type of the given entity.
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *  The entity that was created or updated.
  *
- * @return \Drupal\sharedcontent\Plugin\Core\Entity\Index
+ * @return \Drupal\sharedcontent\IndexInterface
  *   The resulting index record.
  */
-function sharedcontent_create_or_update_index_for_entity(Index $entity, $type) {
-  $language = sharedcontent_entity_language($entity, $type);
-  $index = sharedcontent_index_load_by_entity_id($entity->id(), $type, $language);
+function sharedcontent_create_or_update_index_for_entity(EntityInterface $entity) {
+  $index = sharedcontent_index_load_by_entity($entity);
   $op = 'update';
   if (!$index) {
     // Create new record.
     $index = entity_create('sharedcontent_index', array(
-      'entity_id' => $entity->id(),
-      'entity_type' => $type,
+      'entity_uuid' => $entity->uuid(),
+      'entity_type' => $entity->entityType(),
       'entity_bundle' => $entity->bundle(),
       'origin' => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
     ));
@@ -1445,56 +1443,59 @@ function sharedcontent_create_or_update_index_for_entity(Index $entity, $type) {
   }
 
   // Get the entities absolute url.
-  $uri = entity_uri($type, $entity);
+  $uri = $entity->uri();
   $uri['options']['absolute'] = TRUE;
   $url = isset($uri['path']) ? url($uri['path'], $uri['options']) : '';
-  if ($type == 'file') {
+  if ($entity->entityType() == 'file') {
     $url = file_create_url($entity->uri);
   }
 
   // check if anonymous users can access the entity
-  $anonymous = drupal_anonymous_user();
-  $accessible = entity_access('view', $type, $entity, $anonymous) ? SHAREDCONTENT_INDEX_ACCESSIBILITY_PUBLIC : SHAREDCONTENT_INDEX_ACCESSIBILITY_RESTRICTED;
+  $accessible = $entity->access('view', drupal_anonymous_user()) ? SHAREDCONTENT_INDEX_ACCESSIBILITY_PUBLIC : SHAREDCONTENT_INDEX_ACCESSIBILITY_RESTRICTED;
 
-  $index->status = empty($url) ? SHAREDCONTENT_INDEX_STATUS_UNREACHABLE : SHAREDCONTENT_INDEX_STATUS_VISIBLE;
-  $index->title = entity_label($type, $entity);
-  $index->url = $url;
-  $index->language = $language;
-  $index->accessibility = $accessible;
+  $index->setStatus(empty($url) ? IndexInterface::STATUS_NOT_REACHABLE : IndexInterface::STATUS_VISIBLE);
+  $index->setTitle($entity->label());
+  $index->setUrl($url);
+  $index->setLangcode($entity->language()->id);
+  $index->setAccessibility($accessible);
 
   // Setting default created value.
-  if (empty($index->entity_created)) {
+  $created = $index->getEntityCreatedTime();
+  if (empty($created)) {
     if (!empty($entity->created)) {
-      $index->entity_created = $entity->created;
+      $index->setEntityCreatedTime($entity->created->value);
     }
     elseif (!empty($entity->timestamp)) {
-      $index->entity_created = $entity->timestamp;
+      $index->setEntityCreatedTime($entity->timestamp->value);
     }
     else {
-      $index->entity_created = REQUEST_TIME;
+      $index->setEntityCreatedTime(REQUEST_TIME);
     }
   }
 
   // Setting default changed value.
-  if (!empty($entity->changed)) {
-    $index->entity_changed = $entity->changed;
+  if ($entity instanceof EntityChangedInterface) {
+    $index->setEntityChangedTime($entity->getChangedTime());
+  }
+  elseif (!empty($entity->changed)) {
+    $index->setEntityChangedTime($entity->changed->value);
   }
   elseif (!empty($entity->timestamp)) {
-    $index->entity_changed = $entity->timestamp;
+    $index->setEntityChangedTime($entity->timestamp->value);
   }
   else {
-    $index->entity_changed = $index->entity_created;
+    $index->setEntityChangedTime($index->getCreatedTime());
   }
 
   // Trigger alter hook and rules event allowing other parties to alter
   // the index to their likings.
-  $wrapped_entity = entity_metadata_wrapper($type, $entity);
-  $event = 'sharedcontent_index_is_being_updated';
-  if ($op == 'created') {
-    $event = 'sharedcontent_index_is_being_created';
-  }
-  drupal_alter('sharedcontent_index', $index, $wrapped_entity, $op);
+  \Drupal::moduleHandler()->alter('sharedcontent_index', $index, $op);
+  // @todo Update once rules got ported.
   if (function_exists('rules_invoke_event')) {
+    $event = 'sharedcontent_index_is_being_updated';
+    if ($op == 'created') {
+      $event = 'sharedcontent_index_is_being_created';
+    }
     rules_invoke_event($event, $index, $wrapped_entity);
   }
 
@@ -1535,8 +1536,8 @@ function sharedcontent_entity_language($entity, $type) {
  *
  * @see sharedcontent_entity_update().
  */
-function sharedcontent_entity_insert($entity, $type) {
-  sharedcontent_entity_update($entity, $type);
+function sharedcontent_entity_insert(EntityInterface $entity) {
+  sharedcontent_entity_update($entity);
 }
 
 /**
@@ -1544,10 +1545,12 @@ function sharedcontent_entity_insert($entity, $type) {
  *
  * Check if the given entity should be index and trigger an index
  * update.
+ *
+ * @todo Replace variable lookup.
  */
-function sharedcontent_entity_update($entity, $type) {
-  $indexed_entities = variable_get('sharedcontent_indexed_entities', array());
-  if (isset($indexed_entities[$type][$entity->bundle()]) && $indexed_entities[$type][$entity->bundle()] == TRUE) {
+function sharedcontent_entity_update(EntityInterface $entity) {
+  $indexed_entities = variable_get('sharedcontent_indexed_entities', array('node' => array('indexed' => TRUE)));
+  if (isset($indexed_entities[$entity->entityType()][$entity->bundle()]) && $indexed_entities[$entity->entityType()][$entity->bundle()]) {
     // Add nodes to be indexed to a queue if setting is active.
     if (variable_get('sharedcontent_queue_indexed_entities', FALSE)) {
       $item = array(
@@ -1558,7 +1561,7 @@ function sharedcontent_entity_update($entity, $type) {
       $queue->createItem($item);
     }
     else {
-      sharedcontent_create_or_update_index_for_entity($entity, $type);
+      sharedcontent_create_or_update_index_for_entity($entity);
     }
   }
 }

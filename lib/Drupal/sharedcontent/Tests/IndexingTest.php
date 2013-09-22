@@ -7,6 +7,8 @@
 
 namespace Drupal\sharedcontent\Tests;
 
+use Drupal\Core\Language\Language;
+use Drupal\sharedcontent\IndexInterface;
 use Drupal\simpletest\DrupalUnitTestBase;
 
 class IndexingTest extends DrupalUnitTestBase {
@@ -16,13 +18,7 @@ class IndexingTest extends DrupalUnitTestBase {
    *
    * @var array
    */
-  public static $modules = array(
-    'user',
-    'system',
-    'field',
-    'node',
-    'sharedcontent',
-  );
+  public static $modules = array('user', 'system', 'field', 'sharedcontent');
 
   static function getInfo() {
     return array(
@@ -42,24 +38,45 @@ class IndexingTest extends DrupalUnitTestBase {
       'sharedcontent_index',
       'sharedcontent_assignment',
     ));
+  }
 
+  /**
+   * Test indexing for nodes.
+   */
+  public function testIndexingNode() {
+    $this->enableModules(array('node'));
     $this->installSchema('node', array(
       'node',
       'node_field_data',
       'node_field_revision',
     ));
-  }
 
-  /**
-   * Test CRUD functions for the index.
-   */
-  public function testNewIndexOnNodeCreation() {
-    $node = entity_create('node', array(
-      'type' => 'indexed',
-    ));
+    // Given bundle 'indexed' of entity 'node' is 'enabled' for indexing.
+    // @todo Implement configruation.
+
+    // When I create a new entity of type 'node' with bundle 'indexed'.
+    $node = entity_create('node', array('type' => 'indexed'));
     $node->save();
 
+    // Then a new index record was created.
     $index = sharedcontent_index_load_by_entity($node);
     $this->assertTrue($index, 'Found index record for created node.');
+    $this->assertEqual($index->getConnectionName(), NULL, 'The connection name is empty.');
+    $this->assertEqual($index->getChangedTime(), REQUEST_TIME, 'The index record was last changed within this request.');
+    $this->assertEqual($index->getCreatedTime(), REQUEST_TIME, 'The index record was created within this request.');
+    $this->assertEqual($index->getEntityChangedTime(), $node->getChangedTime(), 'The changed time matches.');
+    $this->assertEqual($index->getEntityCreatedTime(), $node->getCreatedTime(), 'The created time matches.');
+    $this->assertEqual($index->getEntityType(), 'node', 'The entity type matches.');
+    $this->assertEqual($index->getEntityBundle(), 'indexed', 'The entity bundle matches.');
+    $this->assertEqual($index->getEntityUuid(), $node->uuid(), 'The indexed id matches.');
+    $this->assertEqual($index->getKeywords(), NULL, 'The keywords are empty.');
+    $this->assertEqual($index->getLangcode(), Language::LANGCODE_DEFAULT, 'The language is undefined.');
+    $this->assertEqual($index->getParentUuid(), NULL, 'The index has no parent.');
+    $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'The index record has status visible.');
+    $this->assertEqual($index->getTags(), NULL, 'The tags are empty.');
+    $this->assertEqual($index->getTitle(), $node->label(), 'The title matches.');
+    $this->assertEqual($index->getTranslationSetId(), '', 'The translation set id is empty.');
+    $node_uri = $node->uri();
+    $this->assertTrue(preg_match("|{$node_uri['path']}$|", $index->getUrl()), 'The translation set id is empty.');
   }
 }

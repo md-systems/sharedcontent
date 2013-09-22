@@ -44,8 +44,9 @@ function sharedcontent_schema() {
         'not null' => FALSE,
         'description' => 'UUID of a possible parent record.',
       ),
-      'entity_id' => array(
-        'type' => 'int',
+      'entity_uuid' => array(
+        'type' => 'varchar',
+        'length' => 37,
         'not null' => TRUE,
         'description' => 'Id of the indexed local content.',
       ),
@@ -140,7 +141,7 @@ function sharedcontent_schema() {
     'indexes' => array(
       'reference' => array(
         'entity_type',
-        'entity_id',
+        'entity_uuid',
         'origin',
         'langcode',
       ),

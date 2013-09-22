@@ -53,7 +53,7 @@ class Index extends EntityNG implements IndexInterface {
    * {@inheritdoc}
    */
   public function getConnectionName() {
-    return $this->get('connection_name')->getValue();
+    return $this->get('connection_name')->value;
   }
 
   /**
@@ -84,29 +84,29 @@ class Index extends EntityNG implements IndexInterface {
    * {@inheritdoc}
    */
   public function getParentUuid() {
-    return $this->get('uuid_parent')->getValue();
+    return $this->get('parent_uuid')->value;
   }
 
   /**
    * {@inheritdoc}
    */
   public function setParentUuid($uuid) {
-    $this->set('uuid_parent', $uuid);
+    $this->set('parent_uuid', $uuid);
     return $this;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getEntityId() {
-    return $this->get('entity_id')->getValue();
+  public function getEntityUuid() {
+    return $this->get('entity_uuid')->value;
   }
 
   /**
    * {@inheritdoc}
    */
   public function setEntityId($id) {
-    $this->set('entity_id', $id);
+    $this->set('entity_uuid', $id);
     return $this;
   }
 
@@ -114,7 +114,7 @@ class Index extends EntityNG implements IndexInterface {
    * {@inheritdoc}
    */
   public function getEntityType() {
-    return $this->get('entity_type')->getValue();
+    return $this->get('entity_type')->value;
   }
 
   /**
@@ -129,7 +129,7 @@ class Index extends EntityNG implements IndexInterface {
    * {@inheritdoc}
    */
   public function getEntityBundle() {
-    return $this->get('entity_bundle')->getValue();
+    return $this->get('entity_bundle')->value;
   }
 
   /**
@@ -144,7 +144,7 @@ class Index extends EntityNG implements IndexInterface {
    * {@inheritdoc}
    */
   public function getTitle() {
-    return $this->get('title')->getValue();
+    return $this->get('title')->value;
   }
 
   /**
@@ -160,7 +160,7 @@ class Index extends EntityNG implements IndexInterface {
    * {@inheritdoc}
    */
   public function getUrl() {
-    return $this->get('url')->getValue();
+    return $this->get('url')->value;
   }
 
   /**
@@ -175,7 +175,7 @@ class Index extends EntityNG implements IndexInterface {
    * {@inheritdoc}
    */
   public function getLangcode() {
-    return $this->get('langcode')->getValue();
+    return $this->get('langcode')->value;
   }
 
   /**
@@ -190,7 +190,7 @@ class Index extends EntityNG implements IndexInterface {
    * {@inheritdoc}
    */
   public function getTranslationSetId() {
-    return $this->get('translationset_id')->getValue();
+    return $this->get('translationset_id')->value;
   }
 
   /**
@@ -205,7 +205,7 @@ class Index extends EntityNG implements IndexInterface {
    * {@inheritdoc}
    */
   public function getKeywords() {
-    return $this->get('keywords')->getValue();
+    return $this->get('keywords')->value;
   }
 
   /**
@@ -220,7 +220,7 @@ class Index extends EntityNG implements IndexInterface {
    * {@inheritdoc}
    */
   public function getTags() {
-    return $this->get('tags')->getValue();
+    return $this->get('tags')->value;
   }
 
   /**
@@ -252,21 +252,21 @@ class Index extends EntityNG implements IndexInterface {
    * {@inheritdoc}
    */
   public function isVisible() {
-    return $this->get('status')->getValue() == SHAREDCONTENT_INDEX_STATUS_LINKABLE;
+    return $this->get('status')->value == SHAREDCONTENT_INDEX_STATUS_LINKABLE;
   }
 
   /**
    * {@inheritdoc}
    */
   public function isReachable() {
-    return $this->get('status')->getValue() != SHAREDCONTENT_INDEX_STATUS_UNREACHABLE;
+    return $this->get('status')->value != SHAREDCONTENT_INDEX_STATUS_UNREACHABLE;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getStatus() {
-    return $this->get('status')->getValue();
+    return $this->get('status')->value;
   }
 
   /**
@@ -280,14 +280,14 @@ class Index extends EntityNG implements IndexInterface {
   /**
    * {@inheritdoc}
    */
-  public function getEntityCreated() {
-    return $this->get('entity_created')->getValue();
+  public function getEntityCreatedTime() {
+    return $this->get('entity_created')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setEntityCreated($created) {
+  public function setEntityCreatedTime($created) {
     $this->set('entity_created', $created);
     return $this;
   }
@@ -295,14 +295,14 @@ class Index extends EntityNG implements IndexInterface {
   /**
    * {@inheritdoc}
    */
-  public function getEntityChanged() {
-    return $this->get('entity_changed')->getValue();
+  public function getEntityChangedTime() {
+    return $this->get('entity_changed')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setEntityChanged($changed) {
+  public function setEntityChangedTime($changed) {
     $this->set('entity_changed', $changed);
     return $this;
   }
@@ -311,21 +311,21 @@ class Index extends EntityNG implements IndexInterface {
    * {@inheritdoc}
    */
   public function getCreatedTime() {
-    return $this->get('created')->getValue();
+    return $this->get('created')->value;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getChangedTime() {
-    return $this->get('changed')->getValue();
+    return $this->get('changed')->value;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getAccessibility() {
-    return $this->get('accessibility')->getValue();
+    return $this->get('accessibility')->value;
   }
 
   /**
@@ -355,7 +355,7 @@ class Index extends EntityNG implements IndexInterface {
     $properties['parent_uuid'] = array(
       'label' => t('Parent UUID'),
       'description' => t('The UUID of the parent index.'),
-      'type' => 'uuid_field',
+      'type' => 'string_field',
     );
     $properties['origin'] = array(
       'label' => t('Bundle'),
@@ -367,11 +367,10 @@ class Index extends EntityNG implements IndexInterface {
       'description' => t('The originating site of the indexed entity.'),
       'type' => 'string_field',
     );
-//    $properties['connection_name']['options list'] = 'sharedcontent_get_connection_labels';
-    $properties['entity_id'] = array(
-      'label' => t('Entity ID'),
-      'description' => t('ID of the indexed entity.'),
-      'type' => 'integer_field',
+    $properties['entity_uuid'] = array(
+      'label' => t('Entity UUID'),
+      'description' => t('UUID of the indexed entity.'),
+      'type' => 'string_field',
     );
     $properties['entity_type'] = array(
       'label' => t('Entity type'),
@@ -383,7 +382,6 @@ class Index extends EntityNG implements IndexInterface {
       'description' => t('Bundle of the indexed entity.'),
       'type' => 'string_field',
     );
-//    $properties['entity_bundle']['options list'] = 'sharedcontent_get_all_entity_bundle_labels';
     $properties['title'] = array(
       'label' => t('Title'),
       'description' => t('Title of the indexed entity.'),
@@ -394,7 +392,6 @@ class Index extends EntityNG implements IndexInterface {
       'description' => t('Language of the indexed entity.'),
       'type' => 'language_field',
     );
-//    $properties['language']['options list'] = 'entity_metadata_language_list';
     $properties['translationset_id'] = array(
       'label' => t('Translation set ID'),
       'description' => t('ID of the translation set the indexed entity belongs to.'),
@@ -420,7 +417,6 @@ class Index extends EntityNG implements IndexInterface {
       'description' => t('Status.'),
       'type' => 'integer_field',
     );
-//    $properties['status']['options list'] = 'sharedcontent_get_index_status_labels';
     $properties['accessibility'] = array(
       'label' => t('Accessibility'),
       'description' => t('Indicates the degree the indexed entity is accessible.'),
@@ -456,6 +452,11 @@ class Index extends EntityNG implements IndexInterface {
       'type' => 'boolean_field',
       'read-only' => TRUE,
     );
+    // @todo Where do those lines have to go?
+//    $properties['connection_name']['options list'] = 'sharedcontent_get_connection_labels';
+//    $properties['entity_bundle']['options list'] = 'sharedcontent_get_all_entity_bundle_labels';
+//    $properties['language']['options list'] = 'entity_metadata_language_list';
+//    $properties['status']['options list'] = 'sharedcontent_get_index_status_labels';
 //    // Add a calculated property for each flag associated with this entity.
 //    if (module_exists('flag')) {
 //      foreach (flag_get_flags('sharedcontent_index') as $key => $flag) {
@@ -484,7 +485,7 @@ class Index extends EntityNG implements IndexInterface {
    */
   protected static $exposed_attributes = array(
     'uuid',
-    'entity_id',
+    'entity_uuid',
     'entity_type',
     'entity_bundle',
     'title',
@@ -512,7 +513,7 @@ class Index extends EntityNG implements IndexInterface {
     $updated = FALSE;
     foreach ($data as $key => $value) {
       if (in_array($key, Index::$exposed_attributes)
-        && $this->get($key)->getValue() != $value
+        && $this->get($key)->value != $value
       ) {
         $this->set($key, $value);
         $updated = TRUE;
@@ -533,7 +534,7 @@ class Index extends EntityNG implements IndexInterface {
   public function getExposedAttributes() {
     $exposed = new stdClass();
     foreach (Index::$exposed_attributes as $attribute) {
-      $exposed->$attribute = $this->get($attribute)->getValue();
+      $exposed->$attribute = $this->get($attribute)->value;
     }
     return $exposed;
   }
