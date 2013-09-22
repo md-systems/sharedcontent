@@ -4,7 +4,9 @@
  * @file
  * Hooks for the shared content server module.
  */
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\sharedcontent\AssignmentInterface;
+use Drupal\sharedcontent\Entity\Index;
 
 /**
  * Implements hook_menu().
@@ -744,4 +746,46 @@ function sharedcontent_server_views_pre_view($view, $display_id, $args) {
     // This somehow does not work.
     // $view->localization_plugin = views_get_plugin('localization', 'none');
   }
+}
+
+/**
+ * Implements hook_entity_insert().
+ *
+ * @see sharedcontent_server_entity_update()
+ */
+function sharedcontent_server_entity_insert(EntityInterface $entity) {
+  sharedcontent_server_entity_update($entity);
+}
+
+/**
+ * Implements hook_entity_update().
+ *
+ * Check if the given entity should be index and trigger an index update.
+ */
+function sharedcontent_server_entity_update(EntityInterface $entity) {
+  if (Index::isIndexable($entity)) {
+    // Add nodes to be indexed to a queue if setting is active.
+    if (\Drupal::config('sharedcontent.indexing')->get('queued')) {
+      $item = array(
+        'entity_id' => $entity->id(),
+        'type' => $entity->entityType(),
+      );
+      $queue = DrupalQueue::get('sharedcontent_indexing');
+      $queue->createItem($item);
+    }
+    else {
+      Index::indexEntity($entity);
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ *
+ * Set sharedcontent_index to
+ * \Drupal\sharedcontent\IndexInterface::STATUS_NOT_REACHABLE if a record
+ * exists.
+ */
+function sharedcontent_server_entity_delete($entity, $type) {
+  Index::indexDeletedEntity($entity);
 }

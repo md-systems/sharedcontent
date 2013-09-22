@@ -19,7 +19,13 @@ class IndexingTest extends DrupalUnitTestBase {
    *
    * @var array
    */
-  public static $modules = array('user', 'system', 'field', 'sharedcontent');
+  public static $modules = array(
+    'user',
+    'system',
+    'field',
+    'sharedcontent',
+    'sharedcontent_server',
+  );
 
   static function getInfo() {
     return array(
