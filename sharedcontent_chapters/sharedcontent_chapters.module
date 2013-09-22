@@ -242,11 +242,7 @@ function sharedcontent_chapters_sharedcontent_index_presave($index) {
   }
 
   // Link with parent record.
-  $parent_index = sharedcontent_index_load_by_entity_id(
-    entity_id($parent->type(), $parent->value()),
-    $parent->type(),
-    sharedcontent_entity_language($parent->value(), $parent->type())
-  );
+  $parent_index = sharedcontent_index_load_by_entity($parent);
 
 
   // The parent index might not yet exist due to delayed indexing.
