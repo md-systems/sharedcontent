@@ -11,6 +11,7 @@ use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\EntityStorageControllerInterface;
 use Drupal\Core\Entity\Annotation\EntityType;
 use Drupal\Core\Annotation\Translation;
+use Drupal\sharedcontent\AssignmentInterface;
 
 //$entities['sharedcontent_assignment'] = array(
 //
@@ -44,7 +45,7 @@ use Drupal\Core\Annotation\Translation;
  *   }
  * )
  */
-class Assignment extends Entity {
+class Assignment extends Entity implements AssignmentInterface {
 
   /**
    * Entity id..
@@ -101,6 +102,13 @@ class Assignment extends Entity {
   /**
    * {@inheritdoc}
    */
+  public function getChangedTime() {
+    return $this->changed;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function preSave(EntityStorageControllerInterface $storage_controller) {
     if (isset($this->source)) {
       $source = sharedcontent_index_load_by_uuid($this->source);
@@ -120,9 +128,9 @@ class Assignment extends Entity {
    */
   public static function preCreate(EntityStorageControllerInterface $storage_controller, array &$values) {
     $values += array(
-      'status' => SHAREDCONTENT_ASSIGNMENT_ACTIVE,
+      'status' => AssignmentInterface::STATUS_ACTIVE,
       'url' => url(NULL, array('absolute' => TRUE)),
-      'origin' => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
+      'origin' => AssignmentInterface::BUNDLE_LOCAL,
       'created' => REQUEST_TIME,
     );
     parent::preCreate($storage_controller, $values);

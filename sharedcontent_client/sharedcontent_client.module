@@ -7,6 +7,7 @@
  * @todo ERROR Use the error message in the log event if one is present.
  */
 
+use Drupal\sharedcontent\AssignmentInterface;
 use \Drupal\sharedcontent\Exception\ConnectionNotFoundException;
 use \Drupal\sharedcontent\Exception\CountIndexException;
 use \Drupal\sharedcontent\Exception\PushIndexException;
@@ -1664,14 +1665,14 @@ function _sharedcontent_client_update_assignments($entity, $type) {
     $target_exists = array_key_exists($assignment->target, $targets);
     if ($target_exists) {
       // @todo log
-      $assignment->status = SHAREDCONTENT_ASSIGNMENT_ACTIVE;
+      $assignment->status = AssignmentInterface::STATUS_ACTIVE;
       $changed = TRUE;
       rules_invoke_event('sharedcontent_assignment_local_link', $assignment);
     }
     // The assignment does no longer exists
     else {
       // @todo log
-      $assignment->status = SHAREDCONTENT_ASSIGNMENT_DELETED;
+      $assignment->status = AssignmentInterface::STATUS_DELETED;
       $changed = TRUE;
       rules_invoke_event('sharedcontent_assignment_local_unlink', $assignment);
     }

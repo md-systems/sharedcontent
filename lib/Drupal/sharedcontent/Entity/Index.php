@@ -235,7 +235,7 @@ class Index extends EntityNG implements IndexInterface {
    * {@inheritdoc}
    */
   public function isLinkable() {
-    if ($this->bundle() != SHAREDCONTENT_INDEX_BUNDLE_LOCAL) {
+    if ($this->bundle() != IndexInterface::BUNDLE_LOCAL) {
       return FALSE;
     }
     $field_names = sharedcontent_client_get_all_shared_content_field_names();
@@ -252,14 +252,14 @@ class Index extends EntityNG implements IndexInterface {
    * {@inheritdoc}
    */
   public function isVisible() {
-    return $this->get('status')->value == SHAREDCONTENT_INDEX_STATUS_LINKABLE;
+    return $this->get('status')->value == IndexInterface::STATUS_LINKABLE;
   }
 
   /**
    * {@inheritdoc}
    */
   public function isReachable() {
-    return $this->get('status')->value != SHAREDCONTENT_INDEX_STATUS_UNREACHABLE;
+    return $this->get('status')->value != IndexInterface::STATUS_NOT_REACHABLE;
   }
 
   /**
@@ -563,10 +563,9 @@ class Index extends EntityNG implements IndexInterface {
    */
   public static function preCreate(EntityStorageControllerInterface $storage_controller, array &$values) {
     $values += array(
-      'status' => SHAREDCONTENT_INDEX_STATUS_VISIBLE,
-      'accessibility' => SHAREDCONTENT_INDEX_ACCESSIBILITY_PUBLIC,
-      'origin' => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
-      'connection_name' => SHAREDCONTENT_LOCAL_CONNECTION_NAME,
+      'status' => IndexInterface::STATUS_VISIBLE,
+      'accessibility' => IndexInterface::ACCESSIBILITY_PUBLIC,
+      'origin' => IndexInterface::BUNDLE_LOCAL,
       'created' => REQUEST_TIME,
     );
     parent::preCreate($storage_controller, $values);

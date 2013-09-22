@@ -27,10 +27,10 @@ function hook_sharedcontent_index_alter($index, $wrapper, $op) {
     $index->tags = sharedcontent_rules_get_tags($node, 'node');
     switch ($node->status) {
       case NODE_PUBLISHED:
-        $index->status = SHAREDCONTENT_INDEX_STATUS_VISIBLE;
+        $index->status = \Drupal\sharedcontent\IndexInterface::STATUS_VISIBLE;
         break;
       default:
-        $index->status = SHAREDCONTENT_INDEX_STATUS_LINKABLE;
+        $index->status = \Drupal\sharedcontent\IndexInterface::STATUS_LINKABLE;
     }
 
     $terms = taxonomy_get_term_by_name($op, 'sharedcontent_reason');

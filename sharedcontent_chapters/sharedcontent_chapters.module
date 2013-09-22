@@ -8,6 +8,7 @@
  */
 
 use Drupal\sharedcontent\Exception\IndexingException;
+use Drupal\sharedcontent\IndexInterface;
 
 /**
  * Implements hook_form_field_ui_field_overview_form_alter().
@@ -194,9 +195,9 @@ function sharedcontent_chapters_sharedcontent_index_presave($index) {
       // This might be an edge case but a chapter might be generated without
       // an existing parent record. So we make this obvious.
       if (empty($index->parent_uuid)) {
-        $index->parent_uuid = SHAREDCONENT_CHAPTER_ORPHAN;
+        $index->parent_uuid = IndexInterface::ORPHAN;
       }
-      elseif ($index->parent_uuid == SHAREDCONENT_CHAPTER_ORPHAN) {
+      elseif ($index->parent_uuid == IndexInterface::ORPHAN) {
         // We came here the second time in one request and the field
         // collection still has no parent item.
         // We need to exit here in order to prevent possible loop in

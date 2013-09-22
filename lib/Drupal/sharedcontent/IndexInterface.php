@@ -12,6 +12,68 @@ use Drupal\Core\Entity\EntityChangedInterface;
 interface IndexInterface extends EntityChangedInterface {
 
   /**
+   * Status value for the sharedcontent_index entity.
+   *
+   * States that the indexed entity was deleted or can not be accessed
+   * for other reasons. Records with this status can not be linked any
+   * more. Already linked records will not be displayed any longer.
+   */
+  const STATUS_NOT_REACHABLE = 0;
+
+  /**
+   * Status value for the sharedcontent_index entity.
+   *
+   * States that the indexed entity is existing and visible and therefore this
+   * index record can be linked and displayed.
+   */
+  const STATUS_VISIBLE = 1;
+
+  /**
+   * Status value for the sharedcontent_index entity.
+   *
+   * States that the indexed entity is existing but not visible and therefore
+   * this index record can be linked but not displayed.
+   */
+  const STATUS_LINKABLE = 2;
+
+  /**
+   * The index record is created and have a corresponding content locally.
+   */
+  const BUNDLE_LOCAL = 'local';
+
+  /**
+   * The index record was received during a synchronization process.
+   */
+  const BUNDLE_REMOTE = 'remote';
+
+  /**
+   * The index record was received by a push from a client.
+   */
+  const BUNDLE_SHADOW = 'shadow';
+
+  /**
+   * Accessibility status (not accessible).
+   */
+  const ACCESSIBILITY_NONE = 0;
+
+  /**
+   * Accessibility status (public accessible).
+   */
+  const ACCESSIBILITY_PUBLIC = 1;
+
+  /**
+   * Accessibility status (restricted).
+   */
+  const ACCESSIBILITY_RESTRICTED = 2;
+
+  /**
+   * A chapter record may be created without parent. The string defined
+   * by this constant is used instead of the parent uuid so we are able
+   * to track those orphaned records.
+   */
+  const ORPHAN = 'orphaned chapter';
+
+  /**
    * Returns the connection name.
    *
    * @return int
@@ -249,7 +311,7 @@ interface IndexInterface extends EntityChangedInterface {
    * @return bool
    *   TRUE if the record can be linked, FALSE otherwise.
    *
-   * @see SHAREDCONTENT_INDEX_STATUS_VISIBLE
+   * @see \Drupal\sharedcontent\IndexInterface::STATUS_LINKABLE
    */
   public function isLinkable();
 
@@ -259,7 +321,7 @@ interface IndexInterface extends EntityChangedInterface {
    * @return bool
    *   TRUE if the indexed record is publicly visible, FALSE otherwise.
    *
-   * @see SHAREDCONTENT_INDEX_STATUS_LINKABLE
+   * @see \Drupal\sharedcontent\IndexInterface::STATUS_VISIBLE
    */
   public function isVisible();
 
@@ -269,7 +331,7 @@ interface IndexInterface extends EntityChangedInterface {
    * @return bool
    *   TRUE if the indexed record is reachable, FALSE otherwise.
    *
-   * @see SHAREDCONTENT_INDEX_STATUS_UNREACHABLE
+   * @see \Drupal\sharedcontent\IndexInterface::STATUS_NOT_REACHABLE
    */
   public function isReachable();
 
@@ -280,9 +342,9 @@ interface IndexInterface extends EntityChangedInterface {
    *   Number indicating if the record can be linked or displayed or if the
    *  indexed entity was deleted.
    *
-   * @see SHAREDCONTENT_INDEX_STATUS_VISIBLE
-   * @see SHAREDCONTENT_INDEX_STATUS_LINKABLE
-   * @see SHAREDCONTENT_INDEX_STATUS_UNREACHABLE
+   * @see \Drupal\sharedcontent\IndexInterface::STATUS_VISIBLE
+   * @see \Drupal\sharedcontent\IndexInterface::STATUS_LINKABLE
+   * @see \Drupal\sharedcontent\IndexInterface::STATUS_NOT_REACHABLE
    */
   public function getStatus();
 
@@ -296,9 +358,9 @@ interface IndexInterface extends EntityChangedInterface {
    *   The called index entity.
    *
    * @see \Drupal\sharedcontent\IndexInterface::getStatus()
-   * @see SHAREDCONTENT_INDEX_STATUS_VISIBLE
-   * @see SHAREDCONTENT_INDEX_STATUS_LINKABLE
-   * @see SHAREDCONTENT_INDEX_STATUS_UNREACHABLE
+   * @see \Drupal\sharedcontent\IndexInterface::STATUS_VISIBLE
+   * @see \Drupal\sharedcontent\IndexInterface::STATUS_LINKABLE
+   * @see \Drupal\sharedcontent\IndexInterface::STATUS_NOT_REACHABLE
    */
   public function setStatus($status);
 
