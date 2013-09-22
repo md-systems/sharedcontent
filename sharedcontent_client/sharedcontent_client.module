@@ -8,11 +8,11 @@
  */
 
 use Drupal\sharedcontent\AssignmentInterface;
+use Drupal\sharedcontent\Entity\Index;
 use \Drupal\sharedcontent\Exception\ConnectionNotFoundException;
 use \Drupal\sharedcontent\Exception\CountIndexException;
 use \Drupal\sharedcontent\Exception\PushIndexException;
 use \Drupal\sharedcontent\Exception\SynchronizeException;
-use \Drupal\sharedcontent\Plugin\Core\Entity\Index;
 
 /**
  * Default Shared Content field flag.
@@ -1616,7 +1616,7 @@ function sharedcontent_client_get_remote_entity_bundle_labels($types) {
  * @see _sharedcontent_entity_is_linkable()
  * @see sharedcontent_client_get_all_shared_content_field_names()
  * @see sharedcontent_index_exists()
- * @see sharedcontent_create_or_update_index_for_entity()
+ * @see \Drupal\sharedcontent\IndexInterface::indexEntity()
  */
 function _sharedcontent_client_update_assignments($entity, $type) {
   // Do nothing when the content type is not linkable.
@@ -1647,7 +1647,7 @@ function _sharedcontent_client_update_assignments($entity, $type) {
 
   // Take care there is a valid index record for the source entity.
   // @todo log
-  $source_index = sharedcontent_create_or_update_index_for_entity($entity, $type);
+  $source_index = Index::indexEntity($entity);
 
   // Get existing assignments for this source entity
   $assignments = entity_load('sharedcontent_assignment', FALSE, array(

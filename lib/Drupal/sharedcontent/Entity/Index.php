@@ -9,9 +9,11 @@ namespace Drupal\sharedcontent\Entity;
 
 use Drupal\Core\Annotation\Translation;
 use Drupal\Core\Entity\Annotation\EntityType;
+use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityNG;
 use Drupal\Core\Entity\EntityStorageControllerInterface;
+use Drupal\file\FileInterface;
 use Drupal\sharedcontent\IndexInterface;
 
 /*
@@ -89,6 +91,148 @@ class Index extends EntityNG implements IndexInterface {
     $entity_type = preg_replace('/[^0-9a-zA-Z_]/', "_", $entity_type);
     $bundle = preg_replace('/[^0-9a-zA-Z_]/', "_", $bundle);
     return $entity_type . '.' . $bundle . '.indexed';
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @todo Trigger rules invocation once rules got ported.
+   */
+  public static function indexEntity(EntityInterface $entity) {
+    $index = sharedcontent_index_load_by_entity($entity);
+    $op = 'update';
+    if (!$index) {
+      // Create new record.
+      $index = entity_create('sharedcontent_index', array(
+        'entity_uuid' => $entity->uuid(),
+        'entity_type' => $entity->entityType(),
+        'entity_bundle' => $entity->bundle(),
+        'origin' => IndexInterface::BUNDLE_LOCAL,
+      ));
+      $op = 'create';
+    }
+
+    $index->updateData($entity);
+
+    // Trigger alter hook and rules event allowing other parties to alter
+    // the index to their likings.
+    \Drupal::moduleHandler()->alter('sharedcontent_index', $index, $op);
+//    if (function_exists('rules_invoke_event')) {
+//      $event = 'sharedcontent_index_is_being_' . $op . 'd';
+//      rules_invoke_event($event, $index, $wrapped_entity);
+//    }
+
+    $index->save();
+    return $index;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function updateData(EntityInterface $entity) {
+    $this->setLangcode($entity->language()->id);
+    $this->setTitle($entity->label());
+    $this->updateUrl($entity);
+    $this->updateAccessibility($entity);
+    $this->updateCreatedTime($entity);
+    $this->updateChangedTime($entity);
+  }
+
+  /**
+   * Update url from entity.
+   *
+   * @param EntityInterface $entity
+   *   The entity to index the url from.
+   */
+  protected function updateUrl(EntityInterface $entity) {
+    // Get the entities absolute url.
+    $uri = $entity->uri();
+    $uri['options']['absolute'] = TRUE;
+    $url = isset($uri['path']) ? url($uri['path'], $uri['options']) : '';
+    if ($entity instanceof FileInterface) {
+      $url = file_create_url($entity->getFileUri());
+    }
+    $this->setUrl($url);
+    $this->updateStatus($entity);
+  }
+
+  /**
+   * Update createdTime from entity.
+   *
+   * The creation date is only updated if it was not previspuly set.
+   *
+   * @param EntityInterface $entity
+   *   The entity to index the createdTime from.
+   */
+  protected function updateCreatedTime(EntityInterface $entity) {
+    $created = $this->getEntityCreatedTime();
+    if (empty($created)) {
+      if (method_exists($entity, 'getCreatedTime')) {
+        $this->setEntityCreatedTime($entity->getCreatedTime());
+      }
+      elseif (!empty($entity->created)) {
+        $this->setEntityCreatedTime($entity->created->value);
+      }
+      elseif (!empty($entity->timestamp)) {
+        $this->setEntityCreatedTime($entity->timestamp->value);
+      }
+      else {
+        $this->setEntityCreatedTime(REQUEST_TIME);
+      }
+    }
+  }
+
+  /**
+   * Update changedTime from entity.
+   *
+   * @param EntityInterface $entity
+   *   The entity to index the changedTime from.
+   */
+  protected function updateChangedTime(EntityInterface $entity) {
+    if ($entity instanceof EntityChangedInterface) {
+      $this->setEntityChangedTime($entity->getChangedTime());
+    }
+    elseif (!empty($entity->changed)) {
+      $this->setEntityChangedTime($entity->changed->value);
+    }
+    elseif (!empty($entity->timestamp)) {
+      $this->setEntityChangedTime($entity->timestamp->value);
+    }
+    else {
+      $this->setEntityChangedTime($this->getCreatedTime());
+    }
+  }
+
+  /**
+   * Update accessibility from entity.
+   *
+   * The accessibility is calculated based on the view permission for anonymous.
+   *
+   * @param EntityInterface $entity
+   *   The entity to index the accessibility from.
+   */
+  protected function updateAccessibility(EntityInterface $entity) {
+    $accessible = $entity->access('view', drupal_anonymous_user()) ? IndexInterface::ACCESSIBILITY_PUBLIC : IndexInterface::ACCESSIBILITY_RESTRICTED;
+    $this->setAccessibility($accessible);
+  }
+
+  /**
+   * Update status from entity.
+   *
+   * The status is calculated based on url.
+   *
+   * @param EntityInterface $entity
+   *   The entity to index the accessibility from.
+   *
+   * @see \Drupal\sharedcontent\Entity\Index::updateUrl()
+   */
+  protected function updateStatus(EntityInterface $entity) {
+    if (empty($this->get('url')->value)) {
+      $this->setStatus(IndexInterface::STATUS_NOT_REACHABLE);
+    }
+    else {
+      $this->setStatus(IndexInterface::STATUS_VISIBLE);
+    }
   }
 
   /**

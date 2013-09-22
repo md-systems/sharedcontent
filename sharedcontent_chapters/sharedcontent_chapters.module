@@ -7,6 +7,7 @@
  * http://www.longtailvideo.com/support/jw-player/jw-player-for-flash-v5/17248/providing-video-chapter-markers/
  */
 
+use Drupal\sharedcontent\Entity\Index;
 use Drupal\sharedcontent\Exception\IndexingException;
 use Drupal\sharedcontent\IndexInterface;
 
@@ -285,5 +286,5 @@ function sharedcontent_chapters_sharedcontent_index_presave($index) {
  */
 function sharedcontent_chapters_prevent_orphaned_chapters($id) {
   $item = field_collection_item_load($id, TRUE);
-  sharedcontent_create_or_update_index_for_entity($item, 'field_collection_item');
+  Index::indexEntity($item);
 }

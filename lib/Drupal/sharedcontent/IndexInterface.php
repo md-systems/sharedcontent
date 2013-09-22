@@ -115,6 +115,31 @@ interface IndexInterface extends EntityChangedInterface {
   public static function setIndexable($entity_type, $bundle, $value);
 
   /**
+   * Index an entity.
+   *
+   * Creates or updates an index record for the given entity.
+   *
+   * @param EntityInterface $entity
+   *   The entity to be indexed.
+   *
+   * @return \Drupal\sharedcontent\IndexInterface
+   *   The created or updated index record.
+   *
+   * @throws \Drupal\sharedcontent\Exception\IndexingException
+   */
+  public static function indexEntity(EntityInterface $entity);
+
+  /**
+   * Update indexed data.
+   *
+   * @param EntityInterface $entity
+   *   The entity to take the updated data from.
+   *
+   * @throws \Drupal\sharedcontent\Exception\IndexingException
+   */
+  public function updateData(EntityInterface $entity);
+
+  /**
    * Returns the connection name.
    *
    * @return int
