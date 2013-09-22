@@ -9,6 +9,7 @@
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
+use Drupal\file\FileInterface;
 use Drupal\sharedcontent\AssignmentInterface;
 use Drupal\sharedcontent\Exception\IndexingException;
 use Drupal\sharedcontent\IndexInterface;
@@ -1369,8 +1370,8 @@ function sharedcontent_create_or_update_index_for_entity(EntityInterface $entity
   $uri = $entity->uri();
   $uri['options']['absolute'] = TRUE;
   $url = isset($uri['path']) ? url($uri['path'], $uri['options']) : '';
-  if ($entity->entityType() == 'file') {
-    $url = file_create_url($entity->uri);
+  if ($entity instanceof FileInterface) {
+    $url = file_create_url($entity->getFileUri());
   }
 
   // check if anonymous users can access the entity
