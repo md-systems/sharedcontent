@@ -1,0 +1,16 @@
+id: sharedcontent_index.field_sharedcontent_reason
+uuid: 12016451-ab7e-4c0e-8541-651e404049ea
+status: true
+langcode: und
+name: field_sharedcontent_reason
+entity_type: sharedcontent_index
+type: taxonomy_term_reference
+settings:
+  allowed_values:
+    - vocabulary: sharedcontent_reason
+  options_list_callback: ''
+active: true
+locked: fasle
+cardinality: -1
+translatable: false
+indexes: {  }

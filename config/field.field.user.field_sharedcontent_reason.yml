@@ -1,0 +1,16 @@
+id: user.field_sharedcontent_reason
+uuid: 0d17e086-61b3-4ce8-a700-fd196ae6dbb4
+status: true
+langcode: und
+name: field_sharedcontent_reason
+entity_type: user
+type: taxonomy_term_reference
+settings:
+  allowed_values:
+    - vocabulary: sharedcontent_reason
+  options_list_callback: ''
+active: true
+locked: fasle
+cardinality: -1
+translatable: false
+indexes: {  }

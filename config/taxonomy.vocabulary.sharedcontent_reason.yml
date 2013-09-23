@@ -1,0 +1,7 @@
+vid: sharedcontent_reason
+name: 'SharedContent Reason'
+description: 'Reasons for why a SharedContent index does exists. Can be used for entity access.'
+hierarchy: false
+weight: 0
+status: true
+langcode: und

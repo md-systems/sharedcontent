@@ -1,0 +1,13 @@
+id: user.user.field_sharedcontent_reason
+status: true
+langcode: und
+field_uuid: 0d17e086-61b3-4ce8-a700-fd196ae6dbb4
+entity_type: user
+bundle: user
+label: 'SharedContent Reason'
+description: 'If <em>sharedcontent.settings.check_reason</em> is set to <em>true</em>, users have only access to index records having at least one common term.'
+required: false
+default_value: {  }
+default_value_function: ''
+settings: {  }
+field_type: taxonomy_term_reference

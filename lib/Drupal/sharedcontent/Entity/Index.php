@@ -19,8 +19,6 @@ use Drupal\sharedcontent\IndexInterface;
 /*
  * 'views controller class' => 'SharedContentIndexViewsController',
  * "render" = "Drupal\node\NodeRenderController", --> sharedcontent_index_access
- * "access" = "Drupal\node\NodeAccessController",
- * "translation" = "Drupal\node\NodeTranslationController"
  */
 
 /**
@@ -34,7 +32,8 @@ use Drupal\sharedcontent\IndexInterface;
  *   bundle_label = @Translation("Origin"),
  *   module = "sharedcontent",
  *   controllers = {
- *     "storage" = "Drupal\sharedcontent\Controller\IndexStorageController"
+ *     "storage" = "Drupal\sharedcontent\Controller\IndexStorageController",
+ *     "access" = "Drupal\sharedcontent\Controller\IndexAccessController"
  *   },
  *   base_table = "sharedcontent_index",
  *   fieldable = TRUE,
