@@ -304,7 +304,7 @@ function sharedcontent_client_rule_content_link($local_content, $remote_content,
   // If this is the case we load the parent record that is expected to be linkable.
   $linkable_local_content = $local_content;
   if (!empty($local_content->parent_uuid)) {
-    $linkable_local_content = sharedcontent_index_load_by_uuid($local_content->parent_uuid);
+    $linkable_local_content = entity_load_by_uuid('sharedcontent_index', $local_content->parent_uuid);
     $arguments['linkable_local_content'] = $linkable_local_content;
   }
 
@@ -1080,7 +1080,7 @@ function sharedcontent_client_index_synchronize($config, $time_start = NULL, $of
 
         $log_arguments['received index records'][] = $data['uuid'];
 
-        $record = sharedcontent_index_load_by_uuid($data['uuid']);
+        $record = entity_load_by_uuid('sharedcontent_index', $data['uuid']);
 
         if (!$record) {
           $record = entity_create('sharedcontent_index', $data);

@@ -270,7 +270,7 @@ class SharedContentServerTestCase extends SharedcontentBaseTestCase {
 
     // Given an index record with a reason other than 'default'
     $term = $this->createTerm(taxonomy_vocabulary_machine_name_load('sharedcontent_reason'));
-    $index = sharedcontent_index_load(1);
+    $index = entity_load('sharedcontent_index', 1);
     $index->field_sharedcontent_reason = array(
       LANGUAGE_NONE => array(
         0 => array('tid' => $term->tid),

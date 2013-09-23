@@ -111,11 +111,11 @@ class Assignment extends Entity implements AssignmentInterface {
    */
   public function preSave(EntityStorageControllerInterface $storage_controller) {
     if (isset($this->source)) {
-      $source = sharedcontent_index_load_by_uuid($this->source);
+      $source = entity_load_by_uuid('sharedcontent_index', $this->source);
       $this->source_id = $source->id;
     }
 
-    if (isset($this->target) && $target = sharedcontent_index_load_by_uuid($this->target)) {
+    if (isset($this->target) && $target = entity_load_by_uuid('sharedcontent_index', $this->target)) {
       $this->target_id = $target->id;
     }
 

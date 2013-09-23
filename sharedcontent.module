@@ -8,8 +8,6 @@
  */
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityChangedInterface;
-use Drupal\file\FileInterface;
 use Drupal\sharedcontent\AssignmentInterface;
 use Drupal\sharedcontent\Entity\Index;
 use Drupal\sharedcontent\Exception\IndexingException;
@@ -213,7 +211,7 @@ function sharedcontent_preprocess_entity(&$variables) {
 
   // Show parent record if this is a chapter.
   if (!empty($index->parent_uuid) && $index->parent_uuid != IndexInterface::ORPHAN) {
-    $parent_index = sharedcontent_index_load_by_uuid($index->parent_uuid);
+    $parent_index = entity_load_by_uuid('sharedcontent_index', $index->parent_uuid);
     $content['chapter'] = array(
       '#type' => 'link',
       '#title' => $parent_index->title,
@@ -704,21 +702,6 @@ function sharedcontent_condition_index_record_exists(Index $entity, $type, $lang
 }
 
 /**
- * Loads an sahredcontent_index from the database.
- *
- * @param int $id
- *   The id of the index to load.
- * @param bool $reset
- *   Whether to reset the internal cache. Defaults to false.
- *
- * @return Drupal\sharedcontent\IndexInterface|null
- *   The index object, or NULL if there is no index with the given id.
- */
-function sharedcontent_index_load($id, $reset = FALSE) {
-  return entity_load('sharedcontent_index', $id, $reset);
-}
-
-/**
  * Load an sharedcontent_index by entity.
  *
  * For we only need this locally, this function will only return a
@@ -738,32 +721,6 @@ function sharedcontent_index_load_by_entity(EntityInterface $entity) {
     'langcode' => $entity->language()->id,
   ));
   return array_shift($results);
-}
-
-/**
- * Load a sharedcontent_index by uuid.
- *
- * @param $uuid
- *   Uuid the of the record.
- * @return
- *   sharedcontent_index entity object if one exists, otherwise NULL.
- */
-function sharedcontent_index_load_by_uuid($uuid) {
-  $entities = entity_load('sharedcontent_index', FALSE, array('uuid' => $uuid));
-  return reset($entities);
-}
-
-/**
- * Load a sharedcontent_assignment by uuid.
- *
- * @param $uuid
- *   Uuid of the record.
- * @return
- *   sharedcontent_assignment entity object if one exits, NULL otherwise.
- */
-function sharedcontent_assignment_load_by_uuid($uuid) {
-  $entities = entity_load('sharedcontent_assignment', FALSE, array('uuid' => $uuid));
-  return reset($entities);
 }
 
 /**
@@ -868,7 +825,6 @@ function sharedcontent_preprocess_sharedcontent(&$variables) {
  * @return
  *   The renderable array, extended and cleaned for sharedcontent.
  *
- * @see sharedcontent_index_load_by_uuid()
  * @see sharedcontent_preprocess_sharedcontent()
  */
 function sharedcontent_render_content($index, $view_mode = 'sharedcontent_teaser', $langcode = NULL) {

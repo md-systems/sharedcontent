@@ -361,12 +361,12 @@ function sharedcontent_server_service_access($op, $endpoint, $args = array()) {
     case 'sharedcontent_index':
       $index = NULL;
       if (!empty($args['uuid'])) {
-        $index = sharedcontent_index_load_by_uuid($args['uuid']);
+        $index = entity_load_by_uuid('sharedcontent_index', $args['uuid']);
       }
       $access = entity_access($op, 'sharedcontent_index', $index ? $index : NULL);
       break;
     case 'sharedcontent_content':
-      $index = sharedcontent_index_load_by_uuid($args['uuid']);
+      $index = entity_load_by_uuid('sharedcontent_index', $args['uuid']);
       if ($index->origin == SHAREDCONTENT_INDEX_BUNDLE_LOCAL) {
         $entity = entity_load_single($index->entity_type, $index->entity_id);
         if ($entity) {
@@ -376,7 +376,7 @@ function sharedcontent_server_service_access($op, $endpoint, $args = array()) {
       break;
     case 'sharedcontent_assignments':
       if (isset($args['uuid']) && !empty($args['uuid'])) {
-        $assignment = sharedcontent_assignment_load_by_uuid($args['uuid']);
+        $assignment = entity_load_by_uuid('sharedcontent_assignemnt', $args['uuid']);
         $access = entity_access($op, 'sharedcontent_assignment', $assignment);
       }
       break;
@@ -394,7 +394,7 @@ function sharedcontent_server_service_access($op, $endpoint, $args = array()) {
  * Render content and deliver for remote inclusion.
  */
 function sharedcontent_server_render_content($uuid, $view_mode = 'sharedcontent_teaser', $langcode = NULL) {
-  $index = sharedcontent_index_load_by_uuid($uuid);
+  $index = entity_load_by_uuid('sharedcontent_index', $uuid);
   $entity = sharedcontent_render_content($index, $view_mode, $langcode);
 
   // now handle forwarding of js / css
@@ -540,7 +540,7 @@ function _sharedcontent_server_resource_list_query($changed = NULL) {
 function sharedcontent_server_resource_index($uuid, array $values = NULL) {
   sharedcontent_event_save('sharedcontent_server', __FUNCTION__, 'Load index record.', array('uuid' => $uuid), array('severity' => WATCHDOG_DEBUG));
 
-  $index = sharedcontent_index_load_by_uuid($uuid);
+  $index = entity_load_by_uuid('sharedcontent_index', $uuid);
 
   // Variable to determine if we need to save the record.
   $updated = FALSE;
@@ -601,7 +601,7 @@ function sharedcontent_server_resource_assignment($uuid, $values = NULL) {
   $arguments = array(
     'uuid' => $uuid,
   );
-  $assignment = sharedcontent_assignment_load_by_uuid($uuid);
+  $assignment = entity_load_by_uuid('sharedcontent_assignemnt', $uuid);
   $updated = FALSE;
 
   if ($assignment) {
@@ -632,8 +632,8 @@ function sharedcontent_server_resource_assignment($uuid, $values = NULL) {
   }
 
   if ($updated) {
-    $source = sharedcontent_index_load_by_uuid($assignment->source);
-    $target = sharedcontent_index_load_by_uuid($assignment->target);
+    $source = entity_load_by_uuid('sharedcontent_index', $assignment->source);
+    $target = entity_load_by_uuid('sharedcontent_index', $assignment->target);
     if ($assignment->status == AssignmentInterface::STATUS_ACTIVE) {
       rules_invoke_event('sharedcontent_assignment_client_link', $assignment, $source, $target);
       sharedcontent_event_save('sharedcontent_server', __FUNCTION__, 'Assignment link.', $arguments, array('severity' => WATCHDOG_DEBUG));

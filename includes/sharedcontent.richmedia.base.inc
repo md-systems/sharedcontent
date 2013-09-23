@@ -62,7 +62,7 @@ class SharedContentRichMediaBase implements SharedContentRichMedia {
     if (empty($indexes[$index->uuid])) {
       $indexes[$index->uuid][] = $index;
       while ($parents && !empty($indexes[$index->uuid][count($indexes[$index->uuid]) - 1]->parent_uuid)) {
-        $indexes[$index->uuid][] = sharedcontent_index_load_by_uuid($indexes[$index->uuid][count($indexes) - 1]->parent_uuid);
+        $indexes[$index->uuid][] = entity_load_by_uuid('sharedcontent_index', $indexes[$index->uuid][count($indexes) - 1]->parent_uuid);
       }
     }
     return $indexes[$index->uuid];
