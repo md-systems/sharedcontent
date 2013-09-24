@@ -266,29 +266,6 @@ function sharedcontent_preprocess_entity(&$variables) {
 }
 
 /**
- * Checks access to sharedcontent_assignment.
- *
- * @param $op
- *   The operation being performed. One of 'view', 'update', 'create' or
- *   'delete'.
- * @param $entity_type
- *   The entity type of the entity to check for.
- * @param $entity
- *   Optionally an entity to check access for. If no entity is given, it will be
- *   determined whether access is allowed for all entities of the given type.
- * @param $account
- *   The user to check for. Leave it to NULL to check for the global user.
- *
- * @return bool
- *   Whether access is allowed or not.
- *
- * @see entity_access()
- */
-function sharedcontent_assignment_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
-  return user_access('access endpoint full', $account) || user_access('access endpoint restricted', $account);
-}
-
-/**
  * Implements hook_query_TAG_alter().
  *
  * Restrict access to the exposed index by the corresponding taxonomy terms.

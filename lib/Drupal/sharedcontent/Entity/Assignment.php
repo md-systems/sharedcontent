@@ -14,12 +14,9 @@ use Drupal\Core\Annotation\Translation;
 use Drupal\sharedcontent\AssignmentInterface;
 use Drupal\sharedcontent\IndexInterface;
 
-//$entities['sharedcontent_assignment'] = array(
-//
-//  'access callback' => 'sharedcontent_assignment_access', // @todo AccessController
-//  'metadata controller class' => 'SharedContentAssignmentMetadataController', // @todo EntityNG
-//  'views controller class' => 'SharedContentAssignmentViewsController',
-//);
+/**
+ * 'views controller class' => 'SharedContentAssignmentViewsController'
+ */
 
 /**
  * Defines the Shared Content Assignment entity class
@@ -32,7 +29,8 @@ use Drupal\sharedcontent\IndexInterface;
  *   bundle_label = @Translation("Origin"),
  *   module = "sharedcontent",
  *   controllers = {
- *     "storage" = "Drupal\sharedcontent\Controller\AssignmentStorageController"
+ *     "storage" = "Drupal\sharedcontent\Controller\AssignmentStorageController",
+ *     "access" = "Drupal\sharedcontent\Controller\AssignmentAccessController"
  *   },
  *   base_table = "sharedcontent_assignment",
  *   fieldable = FALSE,

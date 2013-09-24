@@ -102,6 +102,23 @@ class SecurityTest extends EntityUnitTestBase {
   }
 
   /**
+   * Test assignment access.
+   */
+  public function testAssignmentAccess() {
+    $assignment = entity_create('sharedcontent_assignment', array());
+    $assignment->save();
+
+    $operations_all = array('view', 'create', 'update', 'delete');
+    $access_none = array();
+    $access_full = array('access endpoint full');
+    $access_restricted = array('access endpoint restricted');
+
+    $this->assertEntityAccess($assignment, $access_none, $access_none, $operations_all);
+    $this->assertEntityAccess($assignment, $access_restricted, $operations_all, array());
+    $this->assertEntityAccess($assignment, $access_full, $operations_all, array());
+  }
+
+  /**
    * @var int
    */
   protected $nextUid = 2;
