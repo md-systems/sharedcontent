@@ -1,0 +1,3 @@
+services:
+  sharedcontent.indexing:
+    class: Drupal\sharedcontent\Indexing

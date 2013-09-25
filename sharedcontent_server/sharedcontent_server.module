@@ -763,7 +763,7 @@ function sharedcontent_server_entity_insert(EntityInterface $entity) {
  * Check if the given entity should be index and trigger an index update.
  */
 function sharedcontent_server_entity_update(EntityInterface $entity) {
-  if (Index::isIndexable($entity)) {
+  if (\Drupal::service('sharedcontent.indexing')->isIndexable($entity)) {
     // Add nodes to be indexed to a queue if setting is active.
     if (\Drupal::config('sharedcontent.settings')->get('queued')) {
       $item = array(
@@ -774,7 +774,7 @@ function sharedcontent_server_entity_update(EntityInterface $entity) {
       $queue->createItem($item);
     }
     else {
-      Index::indexEntity($entity);
+      \Drupal::service('sharedcontent.indexing')->indexEntity($entity);
     }
   }
 }
@@ -787,7 +787,7 @@ function sharedcontent_server_entity_update(EntityInterface $entity) {
  * exists.
  */
 function sharedcontent_server_entity_delete($entity, $type) {
-  Index::indexDeletedEntity($entity);
+  \Drupal::service('sharedcontent.indexing')->indexDeletedEntity($entity);
 }
 
 /**
@@ -811,5 +811,5 @@ function sharedcontent_server_queue_info() {
  *   The queued data item.
  */
 function sharedcontent_server_indexing_queue_callback(array $data) {
-  Index::indexQueuedEntity($data);
+  \Drupal::service('sharedcontent.indexing')->indexQueuedEntity($data);
 }

@@ -27,6 +27,13 @@ class IndexingTest extends DrupalUnitTestBase {
     'sharedcontent_server',
   );
 
+  /**
+   * The indexing service.
+   *
+   * @var \Drupal\sharedcontent\Indexing.
+   */
+  protected $indexing;
+
   static function getInfo() {
     return array(
       'name' => 'Indexing tests',
@@ -45,6 +52,8 @@ class IndexingTest extends DrupalUnitTestBase {
       'sharedcontent_index',
       'sharedcontent_assignment',
     ));
+
+    $this->indexing = \Drupal::service('sharedcontent.indexing');
   }
 
   /**
@@ -59,7 +68,7 @@ class IndexingTest extends DrupalUnitTestBase {
     ));
 
     // Given bundle 'indexed' of entity 'node' is 'not enabled' for indexing.
-    Index::setIndexable('node', 'indexable', FALSE);
+    $this->indexing->setIndexable('node', 'indexable', FALSE);
 
     // When I create a new entity of type 'node' with bundle 'indexed'.
     $entity = entity_create('node', array(
@@ -72,7 +81,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertFalse(sharedcontent_index_exists($entity), 'No index record was created.');
 
     // Given bundle 'indexed' of entity 'node' is 'enabled' for indexing.
-    Index::setIndexableByEntity($entity, TRUE);
+    $this->indexing->setIndexableByEntity($entity, TRUE);
 
     // When I create a new entity of type 'node' with bundle 'indexed'.
     $entity = entity_create('node', array(
@@ -119,7 +128,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->installSchema('user', array('users', 'users_data', 'users_roles'));
 
     // Given bundle 'user' of entity 'user' is 'not enabled' for indexing.
-    Index::setIndexable('user', 'user', FALSE);
+    $this->indexing->setIndexable('user', 'user', FALSE);
 
     // When I create a new entity of type 'user' with bundle 'user'.
     $entity = entity_create('user', array(
@@ -134,7 +143,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertFalse(sharedcontent_index_exists($entity), 'No index record was created.');
 
     // Given bundle 'user' of entity 'user' is 'enabled' for indexing.
-    Index::setIndexableByEntity($entity, TRUE);
+    $this->indexing->setIndexableByEntity($entity, TRUE);
 
     // When I create a new entity of type 'node' with bundle 'indexed'.
     $entity = entity_create('user', array(
@@ -184,7 +193,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->installSchema('file', array('file_managed', 'file_usage'));
 
     // Given bundle 'field' of entity 'file' is 'not enabled' for indexing.
-    Index::setIndexable('file', 'file', FALSE);
+    $this->indexing->setIndexable('file', 'file', FALSE);
 
     // When I create a new entity of type 'user' with bundle 'user'.
     file_put_contents('public://non_indexed.txt', $this->randomName());
@@ -197,7 +206,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertFalse(sharedcontent_index_exists($entity), 'No index record was created.');
 
     // Given bundle 'user' of entity 'user' is 'enabled' for indexing.
-    Index::setIndexableByEntity($entity, TRUE);
+    $this->indexing->setIndexableByEntity($entity, TRUE);
 
     // When I create a new entity of type 'node' with bundle 'indexed'.
     file_put_contents('public://indexed.txt', $this->randomName());
@@ -254,7 +263,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $vocabulary->save();
 
     // Given bundle 'user' of entity 'user' is 'not enabled' for indexing.
-    Index::setIndexable('taxonomy_term', 'test_vocab', FALSE);
+    $this->indexing->setIndexable('taxonomy_term', 'test_vocab', FALSE);
 
     // When I create a new entity of type 'user' with bundle 'user'.
     $entity = entity_create('taxonomy_term', array(
@@ -267,7 +276,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertFalse(sharedcontent_index_exists($entity), 'No index record was created.');
 
     // Given bundle 'user' of entity 'user' is 'enabled' for indexing.
-    Index::setIndexableByEntity($entity, TRUE);
+    $this->indexing->setIndexableByEntity($entity, TRUE);
 
     // When I create a new entity of type 'node' with bundle 'indexed'.
     $entity = entity_create('taxonomy_term', array(
@@ -324,7 +333,7 @@ class IndexingTest extends DrupalUnitTestBase {
     \Drupal::config('sharedcontent.settings')->set('queued', TRUE);
 
     // When I create a content that gets indexed.
-    Index::setIndexable('node', 'indexed', TRUE);
+    $this->indexing->setIndexable('node', 'indexed', TRUE);
     $account = entity_create('user', array(
       'name' => $this->randomName(),
       'status' => 1,
