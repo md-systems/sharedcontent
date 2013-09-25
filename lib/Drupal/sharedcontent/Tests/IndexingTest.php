@@ -306,4 +306,45 @@ class IndexingTest extends DrupalUnitTestBase {
     $index = sharedcontent_index_load_by_entity($entity);
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_NOT_REACHABLE, 'Index hat status not reachable.');
   }
+
+  /**
+   * Test queued indexing.
+   */
+  public function testQueuedIndexing() {
+    $this->enableModules(array('node', 'shared'));
+    $this->installSchema('system', array('sequences', 'queue'));
+    $this->installSchema('user', array('users'));
+    $this->installSchema('node', array(
+      'node',
+      'node_field_data',
+      'node_field_revision',
+    ));
+
+    // Given queued indexing is enabled.
+    \Drupal::config('sharedcontent.settings')->set('queued', TRUE);
+
+    // When I create a content that gets indexed.
+    Index::setIndexable('node', 'indexed', TRUE);
+    $account = entity_create('user', array(
+      'name' => $this->randomName(),
+      'status' => 1,
+    ));
+    $account->enforceIsNew();
+    $account->save();
+    $entity = entity_create('node', array(
+      'title' => 'Indexed node',
+      'type' => 'indexed',
+      'uid' => $account,
+    ));
+    $entity->save();
+
+    // Then no index record was created.
+    $this->assertFalse(sharedcontent_index_exists($entity), 'No index record was created.');
+
+    // When cron gets executed.
+    $this->assertTrue(drupal_cron_run(), 'Cron run was successful.');
+
+    // Then an index record exists for the created content.
+    $this->assertTrue(sharedcontent_index_exists($entity), 'Index record was created.');
+  }
 }

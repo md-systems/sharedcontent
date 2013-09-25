@@ -1219,46 +1219,17 @@ function sharedcontent_event_save($module, $machine_name, $message, array $argum
 }
 
 /**
- * Implements hook_cron_queue_info().
+ * Implements hook_queue_info().
  */
-function sharedcontent_cron_queue_info() {
+function sharedcontent_queue_info() {
   $queues['sharedcontent_indexing'] = array(
-    'worker callback' => 'sharedcontent_index_queued_entities',
-    'time' => 30,
+    'title' => t('SharedContent Indexing'),
+    'worker callback' => array('Drupal\sharedcontent\Entity\Index', 'indexQueuedEntity'),
+    'cron' => array(
+      'time' => 30,
+    )
   );
   return $queues;
-}
-
-/**
- * Callback which dequeues nodes indexes queued nodes.
- *
- * @todo Rename: not only nodes anymore!
- */
-function sharedcontent_index_queued_entities($data) {
-  $entity = entity_load_single($data['type'], $data['entity_id']);
-  if ($entity) {
-    try {
-      Index::indexEntity($entity);
-    }
-    catch (IndexingException $e) {
-      if ($e->getCode() == SHAREDCONTENT_ERROR_NO_PARENT_INDEX
-        && (empty($data['count']) || $data['count'] < 1)
-      ) {
-        // We do not have control about the order the items get indexed.
-        // If we do come here the first time we do a reschedule the first
-        // time expecting the parent index record to be generated later
-        // during this cron run.
-        $data['count'] = 1;
-        DrupalQueue::get('sharedcontent_indexing')->createItem($data);
-      }
-      else {
-        sharedcontent_event_save('sharedcontent', __FUNCTION__, $e->getMessage(), $e->data, array('severity' => WATCHDOG_ERROR));
-      }
-    }
-  }
-  else {
-    sharedcontent_event_save('sharedcontent', __FUNCTION__, 'Failed to load entity', $data, array('severity' => WATCHDOG_WARNING));
-  }
 }
 
 /**

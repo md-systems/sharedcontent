@@ -128,6 +128,36 @@ class Index extends EntityNG implements IndexInterface {
   /**
    * {@inheritdoc}
    */
+  public static function indexQueuedEntity(array $data) {
+    $entity = entity_load($data['type'], $data['entity_id']);
+    if ($entity) {
+      try {
+        Index::indexEntity($entity);
+      }
+      catch (IndexingException $e) {
+        if ($e->getCode() == SHAREDCONTENT_ERROR_NO_PARENT_INDEX
+          && (empty($data['count']) || $data['count'] < 1)
+        ) {
+          // We do not have control about the order the items get indexed.
+          // If we do come here the first time we do a reschedule the first
+          // time expecting the parent index record to be generated later
+          // during this cron run.
+          $data['count'] = 1;
+          DrupalQueue::get('sharedcontent_indexing')->createItem($data);
+        }
+        else {
+          sharedcontent_event_save('sharedcontent', __FUNCTION__, $e->getMessage(), $e->data, array('severity' => WATCHDOG_ERROR));
+        }
+      }
+    }
+    else {
+      sharedcontent_event_save('sharedcontent', __FUNCTION__, 'Failed to load entity', $data, array('severity' => WATCHDOG_WARNING));
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function indexDeletedEntity(EntityInterface $entity) {
     if (sharedcontent_index_exists($entity)) {
       $index = sharedcontent_index_load_by_entity($entity);

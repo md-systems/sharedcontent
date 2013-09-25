@@ -765,12 +765,12 @@ function sharedcontent_server_entity_insert(EntityInterface $entity) {
 function sharedcontent_server_entity_update(EntityInterface $entity) {
   if (Index::isIndexable($entity)) {
     // Add nodes to be indexed to a queue if setting is active.
-    if (\Drupal::config('sharedcontent.indexing')->get('queued')) {
+    if (\Drupal::config('sharedcontent.settings')->get('queued')) {
       $item = array(
         'entity_id' => $entity->id(),
         'type' => $entity->entityType(),
       );
-      $queue = DrupalQueue::get('sharedcontent_indexing');
+      $queue = \Drupal::queue('sharedcontent_indexing');
       $queue->createItem($item);
     }
     else {
