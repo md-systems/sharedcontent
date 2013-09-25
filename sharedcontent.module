@@ -1219,20 +1219,6 @@ function sharedcontent_event_save($module, $machine_name, $message, array $argum
 }
 
 /**
- * Implements hook_queue_info().
- */
-function sharedcontent_queue_info() {
-  $queues['sharedcontent_indexing'] = array(
-    'title' => t('SharedContent Indexing'),
-    'worker callback' => array('Drupal\sharedcontent\Entity\Index', 'indexQueuedEntity'),
-    'cron' => array(
-      'time' => 30,
-    )
-  );
-  return $queues;
-}
-
-/**
  * Implements hook_init()
  *
  * Set Origin and Access-Control-Allow-Origin in order to make remote js

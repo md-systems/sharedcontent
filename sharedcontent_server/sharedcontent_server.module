@@ -789,3 +789,27 @@ function sharedcontent_server_entity_update(EntityInterface $entity) {
 function sharedcontent_server_entity_delete($entity, $type) {
   Index::indexDeletedEntity($entity);
 }
+
+/**
+ * Implements hook_queue_info().
+ */
+function sharedcontent_server_queue_info() {
+  $queues['sharedcontent_indexing'] = array(
+    'title' => t('SharedContent Indexing'),
+    'worker callback' => 'sharedcontent_server_indexing_queue_callback',
+    'cron' => array(
+      'time' => 30,
+    ),
+  );
+  return $queues;
+}
+
+/**
+ * Callback function for the indexing queue.
+ *
+ * @param array $data
+ *   The queued data item.
+ */
+function sharedcontent_server_indexing_queue_callback(array $data) {
+  Index::indexQueuedEntity($data);
+}
