@@ -10,7 +10,7 @@ namespace Drupal\sharedcontent;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
 
-interface AssignmentInterface extends ContentEntityInterface, EntityChangedInterface {
+interface AssignmentInterface extends ContentEntityInterface, EntityChangedInterface, EntityExposedFieldsInterface {
 
   /**
    * The assignment record was created locally.

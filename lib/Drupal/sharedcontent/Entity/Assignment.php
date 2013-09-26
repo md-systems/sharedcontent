@@ -128,6 +128,21 @@ class Assignment extends EntityNG implements AssignmentInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function getExposedFields() {
+    return array(
+      'uuid',
+      'source',
+      'target',
+      'status',
+      'url',
+      'created',
+      'changed',
+    );
+  }
+
+  /**
    * Getter for the source index.
    *
    * Gets the entity object of the source index record.

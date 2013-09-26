@@ -479,30 +479,6 @@ class Index extends EntityNG implements IndexInterface {
   }
 
   /**
-   * Exposed attributes
-   *
-   * A list of attributes that are meant to be exposed other systems.
-   *
-   * @var array
-   */
-  protected static $exposed_attributes = array(
-    'uuid',
-    'entity_uuid',
-    'entity_type',
-    'entity_bundle',
-    'title',
-    'keywords',
-    'tags',
-    'langcode',
-    'translationset_id',
-    'status',
-    'url',
-    'parent_uuid',
-    'entity_created',
-    'entity_changed',
-  );
-
-  /**
    * Merges data to this object.
    *
    * @param array $data
@@ -514,7 +490,7 @@ class Index extends EntityNG implements IndexInterface {
   public function merge(array $data) {
     $updated = FALSE;
     foreach ($data as $key => $value) {
-      if (in_array($key, Index::$exposed_attributes)
+      if (in_array($key, $this->getExposedFields())
         && $this->get($key)->value != $value
       ) {
         $this->set($key, $value);
@@ -525,20 +501,25 @@ class Index extends EntityNG implements IndexInterface {
   }
 
   /**
-   * Exposed attributes.
-   *
-   * Get an object containing just the attributes that are meant to be
-   * exposed to other systems.
-   *
-   * @return stdClass
-   *   Standard object containing the exposed attributes.
+   * {@inheritdoc}
    */
-  public function getExposedAttributes() {
-    $exposed = new stdClass();
-    foreach (Index::$exposed_attributes as $attribute) {
-      $exposed->$attribute = $this->get($attribute)->value;
-    }
-    return $exposed;
+  public function getExposedFields() {
+    return array(
+      'uuid',
+      'entity_uuid',
+      'entity_type',
+      'entity_bundle',
+      'title',
+      'keywords',
+      'tags',
+      'langcode',
+      'translationset_id',
+      'status',
+      'url',
+      'parent_uuid',
+      'entity_created',
+      'entity_changed',
+    );
   }
 
   /**

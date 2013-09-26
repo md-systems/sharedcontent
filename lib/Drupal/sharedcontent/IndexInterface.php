@@ -9,9 +9,8 @@ namespace Drupal\sharedcontent;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
-use Drupal\Core\Entity\EntityInterface;
 
-interface IndexInterface extends ContentEntityInterface, EntityChangedInterface {
+interface IndexInterface extends ContentEntityInterface, EntityChangedInterface, EntityExposedFieldsInterface {
 
   /**
    * Status value for the sharedcontent_index entity.
