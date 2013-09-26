@@ -95,7 +95,7 @@ class SharedContentResource extends EntityResource {
     }
     $exposed_fields = $entity->getExposedFields();
     foreach ($entity as $field_name => $field) {
-      if (!$field->access('create') || !in_array($field_name, $exposed_fields)) {
+      if (!$field->access('create') || (!empty($field->value) && !in_array($field_name, $exposed_fields))) {
         throw new AccessDeniedHttpException(t('Access denied on creating field @field.', array('@field' => $field_name)));
       }
     }
@@ -157,15 +157,17 @@ class SharedContentResource extends EntityResource {
     }
 
     // Overwrite the received properties.
+    $exposed_fields = $entity->getExposedFields();
     foreach ($entity as $field_name => $field) {
       if (isset($entity->{$field_name})) {
         if ($field->isEmpty() && !$original_entity->get($field_name)->access('delete')) {
           throw new AccessDeniedHttpException(t('Access denied on deleting field @field.', array('@field' => $field_name)));
         }
-        $original_entity->set($field_name, $field->getValue());
-        if (!$original_entity->get($field_name)->access('update') || !in_array($field_name, $original_entity->getExposedFields())) {
+        if (!$original_entity->get($field_name)->access('update') || (!empty($field->value) && !in_array($field_name, $exposed_fields))) {
+          debug($field->value);
           throw new AccessDeniedHttpException(t('Access denied on updating field @field.', array('@field' => $field_name)));
         }
+        $original_entity->set($field_name, $field->getValue());
       }
     }
 
