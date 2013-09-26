@@ -11,6 +11,7 @@ use Drupal\rest\ResourceResponse;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -180,5 +181,20 @@ class SharedContentResource extends EntityResource {
     catch (EntityStorageException $e) {
       throw new HttpException(500, t('Internal Server Error'), $e);
     }
+  }
+
+  /**
+   * Responds to entity DELETE requests.
+   *
+   * @param mixed $id
+   *   The entity ID.
+   *
+   * @return void
+   *   No response object ever returned here.
+   *
+   * @throws \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException
+   */
+  public function delete($id) {
+    throw new MethodNotAllowedHttpException(array('GET', 'POST', 'PATCH'));
   }
 }
