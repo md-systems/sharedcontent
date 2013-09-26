@@ -8,4 +8,5 @@ configure: admin/config/services/sharedcontent/server
 
 dependencies:
   - sharedcontent
-  - services
+  - rest
+  - hal
