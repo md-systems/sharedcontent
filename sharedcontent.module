@@ -679,28 +679,6 @@ function sharedcontent_condition_index_record_exists(Index $entity, $type, $lang
 }
 
 /**
- * Load an sharedcontent_index by entity.
- *
- * For we only need this locally, this function will only return a
- * index record of type \Drupal\sharedcontent\IndexInterface::BUNDLE_LOCAL.
- *
- * @param \Drupal\Core\Entity\EntityInterface $entity
- *   The entity to search index record for.
- *
- * @return \Drupal\sharedcontent\IndexInterface|null
- *   The index object, or NULL if there is no index for the given entity.
- */
-function sharedcontent_index_load_by_entity(EntityInterface $entity) {
-  $results = entity_load_multiple_by_properties('sharedcontent_index', array(
-    'entity_uuid' => $entity->uuid(),
-    'entity_type' => $entity->entityType(),
-    'origin' => IndexInterface::BUNDLE_LOCAL,
-    'langcode' => $entity->language()->id,
-  ));
-  return array_shift($results);
-}
-
-/**
  * Implements hook_theme().
  */
 function sharedcontent_theme($existing, $type, $theme, $path) {
@@ -1164,27 +1142,6 @@ function sharedcontent_form_node_type_form_submit($form, &$form_state) {
   $indexed_entities[$type][$bundle] = $form_state['values']['sharedcontent_is_indexed'];
   $indexed_entities[$type] = array_filter($indexed_entities[$type]);
   variable_set('sharedcontent_indexed_entities', $indexed_entities);
-}
-
-/**
- * Check for existing index record.
- *
- * @param \Drupal\Core\Entity\EntityInterface $entity
- *   The entity the index is checked for.
- *
- * @return bool
- *   TRUE if there is an existing index record, FALSE otherwise.
- */
-function sharedcontent_index_exists(EntityInterface $entity) {
-  $query = \Drupal::entityQuery('sharedcontent_index');
-  $query->andConditionGroup()
-    ->condition('entity_uuid', $entity->uuid())
-    ->condition('entity_type', $entity->entityType())
-    ->condition('origin', IndexInterface::BUNDLE_LOCAL);
-
-  $result = $query->execute();
-  $exists = !empty($result);
-  return $exists;
 }
 
 /**

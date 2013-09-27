@@ -1615,7 +1615,7 @@ function sharedcontent_client_get_remote_entity_bundle_labels($types) {
  *
  * @see _sharedcontent_entity_is_linkable()
  * @see sharedcontent_client_get_all_shared_content_field_names()
- * @see sharedcontent_index_exists()
+ * @see \Drupal\sharedcontent\Indexing::indexExists()
  * @see \Drupal\sharedcontent\IndexInterface::indexEntity()
  */
 function _sharedcontent_client_update_assignments($entity, $type) {
@@ -1641,18 +1641,19 @@ function _sharedcontent_client_update_assignments($entity, $type) {
 
   // Prevent index creation if there is nothing linked.
   // Also drop assignment if the index record is missing.
-  if (empty($targets) && !sharedcontent_index_exists($entity, $type)) {
+  $indexing = \Drupal::service('sharedcontent.indexing');
+  if (empty($targets) && !$indexing->indexExists($entity, $type)) {
     return;
   }
 
   // Take care there is a valid index record for the source entity.
   // @todo log
-  $source_index = Index::indexEntity($entity);
+  $source_index = $indexing->indexEntity($entity);
 
   // Get existing assignments for this source entity
-  $assignments = entity_load('sharedcontent_assignment', FALSE, array(
+  $assignments = entity_load_multiple_by_properties('sharedcontent_assignment', array(
     'source_id' => $source_index->id,
-    'origin' => SHAREDCONTENT_INDEX_BUNDLE_LOCAL,
+    'origin' => AssignmentInterface::BUNDLE_LOCAL,
   ));
 
   // Assignments that have changed keyed by the connection name of the

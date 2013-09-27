@@ -7,7 +7,12 @@
 
 namespace Drupal\sharedcontent;
 
+use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityManager;
+use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Entity\Query\QueryFactory;
+use Drupal\Core\Queue\QueueFactory;
 use Drupal\file\FileInterface;
 use Drupal\sharedcontent\Exception\IndexingException;
 
@@ -19,6 +24,63 @@ use Drupal\sharedcontent\Exception\IndexingException;
  * @package Drupal\sharedcontent
  */
 class Indexing {
+
+  /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactory
+   */
+  protected $configFactory;
+
+  /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
+   * The query factory.
+   *
+   * @var \Drupal\Core\Entity\Query\QueryFactory
+   */
+  protected $queryFactory;
+
+  /**
+   * The entity manager.
+   *
+   * @var \Drupal\Core\Entity\EntityManager
+   */
+  protected $entityManager;
+
+  /**
+   * The queue factory.
+   *
+   * @var \Drupal\Core\Queue\QueueInterface
+   */
+  protected $queue;
+
+  /**
+   * Constructs an Indexing instance.
+   *
+   * @param ConfigFactory $config_factory
+   *   The config factory.
+   * @param ModuleHandlerInterface $module_handler
+   *   The module handler.
+   * @param \Drupal\Core\Entity\Query\QueryFactory $query_factory
+   *   The query factory.
+   * @param \Drupal\Core\Entity\EntityManager $entity_manager
+   *   The entity manager.
+   * @param \Drupal\Core\Queue\QueueFactory $queue_factory
+   *   The queue factory.
+   */
+  public function __construct(ConfigFactory $config_factory, ModuleHandlerInterface $module_handler, QueryFactory $query_factory, EntityManager $entity_manager, QueueFactory $queue_factory) {
+    $this->configFactory = $config_factory;
+    $this->moduleHandler = $module_handler;
+    $this->queryFactory = $query_factory;
+    $this->entityManager = $entity_manager;
+    $this->queue = $queue_factory->get('sharedcontent_indexing', TRUE);
+  }
 
   /**
    * Checks if an entity is indexable.
@@ -33,8 +95,8 @@ class Indexing {
    *   TRUE if the entity is indexable, FALSE otherwise.
    */
   public function isIndexable(EntityInterface $entity) {
-    $key = $this->settingsKey($entity->entityType(), $entity->bundle());
-    $indexable = \Drupal::config('sharedcontent.indexables')->get($key);
+    $key = $this->configKey($entity->entityType(), $entity->bundle());
+    $indexable = $this->configFactory->get('sharedcontent.indexables')->get($key);
     return $indexable ? TRUE : FALSE;
   }
 
@@ -51,8 +113,8 @@ class Indexing {
    *   Whether or not the entity bundle should be indexable.
    */
   public function setIndexable($entity_type, $bundle, $value) {
-    $key = $this->settingsKey($entity_type, $bundle);
-    \Drupal::config('sharedcontent.indexables')->set($key, $value)->save();
+    $key = $this->configKey($entity_type, $bundle);
+    $this->configFactory->get('sharedcontent.indexables')->set($key, $value)->save();
   }
 
   /**
@@ -80,7 +142,7 @@ class Indexing {
    * @return string
    *   The resulting settings key.
    */
-  protected function settingsKey($entity_type, $bundle) {
+  protected function configKey($entity_type, $bundle) {
     $entity_type = preg_replace('/[^0-9a-zA-Z_]/', "_", $entity_type);
     $bundle = preg_replace('/[^0-9a-zA-Z_]/', "_", $bundle);
     return $entity_type . '.' . $bundle . '.indexed';
@@ -98,15 +160,13 @@ class Indexing {
    *   The created or updated index record.
    *
    * @throws \Drupal\sharedcontent\Exception\IndexingException
-   *
-   * @todo Trigger rules invocation once rules got ported.
    */
   public function indexEntity(EntityInterface $entity) {
-    $index = sharedcontent_index_load_by_entity($entity);
+    $index = $this->indexLoadByEntity($entity);
     $op = 'update';
     if (!$index) {
       // Create new record.
-      $index = entity_create('sharedcontent_index', array(
+      $index = $this->entityManager->getStorageController('sharedcontent_index')->create(array(
         'entity_uuid' => $entity->uuid(),
         'entity_type' => $entity->entityType(),
         'entity_bundle' => $entity->bundle(),
@@ -119,18 +179,28 @@ class Indexing {
 
     // Trigger alter hook and rules event allowing other parties to alter
     // the index to their likings.
-    \Drupal::moduleHandler()->alter('sharedcontent_index', $index, $op);
-//    if (function_exists('rules_invoke_event')) {
-//      $event = 'sharedcontent_index_is_being_' . $op . 'd';
-//      rules_invoke_event($event, $index, $wrapped_entity);
-//    }
+    $this->moduleHandler->alter('sharedcontent_index', $index, $op);
+    // @todo Port rules invocation once rules got ported.
+    if (function_exists('rules_invoke_event')) {
+      $event = 'sharedcontent_index_is_being_' . $op . 'd';
+      rules_invoke_event($event, $index);
+    }
 
     $index->save();
     return $index;
   }
 
+  /**
+   * Index queued entities.
+   *
+   * @param array $data
+   *   Array containing the queued data.
+   *     - type: the entity type.
+   *     - entity_id: the entity id.
+   */
   public function indexQueuedEntity(array $data) {
-    $entity = entity_load($data['type'], $data['entity_id']);
+    $controller = $this->entityManager->getStorageController($data['type']);
+    $entity = $controller->load($data['entity_id']);
     if ($entity) {
       try {
         $this->indexEntity($entity);
@@ -144,7 +214,7 @@ class Indexing {
           // time expecting the parent index record to be generated later
           // during this cron run.
           $data['count'] = 1;
-          DrupalQueue::get('sharedcontent_indexing')->createItem($data);
+          $this->queue->createItem($data);
         }
         else {
           sharedcontent_event_save('sharedcontent', __FUNCTION__, $e->getMessage(), $e->data, array('severity' => WATCHDOG_ERROR));
@@ -159,20 +229,66 @@ class Indexing {
   /**
    * Index a deleted entity.
    *
-   * Index records are never deleted. When an idnexed entity gets deleted the
+   * Index records are never deleted. When an indexed entity gets deleted the
    * index status is set to 'not reachable'.
    *
    * @param EntityInterface $entity
    *   The deleted entity.
    */
   public function indexDeletedEntity(EntityInterface $entity) {
-    if (sharedcontent_index_exists($entity)) {
-      $index = sharedcontent_index_load_by_entity($entity);
+    if ($this->indexExists($entity)) {
+      $index = $this->indexLoadByEntity($entity);
       // Make sure we got the latest data.
       $this->updateIndexData($index, $entity);
       $index->setStatus(IndexInterface::STATUS_NOT_REACHABLE);
       $index->save();
     }
+  }
+
+  /**
+   * Check for existing index record.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity the index is checked for.
+   *
+   * @return bool
+   *   TRUE if there is an existing index record, FALSE otherwise.
+   */
+  public function indexExists(EntityInterface $entity) {
+    $query = $this->queryFactory->get('sharedcontent_index');
+    $query->andConditionGroup()
+      ->condition('entity_uuid', $entity->uuid())
+      ->condition('entity_type', $entity->entityType())
+      ->condition('origin', IndexInterface::BUNDLE_LOCAL);
+
+    $result = $query->execute();
+    $exists = !empty($result);
+    return $exists;
+  }
+
+  /**
+   * Load an sharedcontent_index by entity.
+   *
+   * For we only need this locally, this method will only return an index record
+   * of type \Drupal\sharedcontent\IndexInterface::BUNDLE_LOCAL.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity to search index record for.
+   *
+   * @return \Drupal\sharedcontent\IndexInterface|null
+   *   The index object, or NULL if there is no index for the given entity.
+   */
+  public function indexLoadByEntity(EntityInterface $entity) {
+    $results = $this->entityManager
+      ->getStorageController('sharedcontent_index')
+      ->loadByProperties(array(
+        'entity_uuid' => $entity->uuid(),
+        'entity_type' => $entity->entityType(),
+        'origin' => IndexInterface::BUNDLE_LOCAL,
+        'langcode' => $entity->language()->id,
+      )
+    );
+    return array_shift($results);
   }
 
   /**

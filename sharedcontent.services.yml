@@ -1,3 +1,4 @@
 services:
   sharedcontent.indexing:
     class: Drupal\sharedcontent\Indexing
+    arguments: ['@config.factory', '@module_handler', '@entity.query', '@entity.manager', '@queue']

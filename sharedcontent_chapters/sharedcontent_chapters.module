@@ -242,7 +242,7 @@ function sharedcontent_chapters_sharedcontent_index_presave($index) {
   }
 
   // Link with parent record.
-  $parent_index = sharedcontent_index_load_by_entity($parent);
+  $parent_index = \Drupal::service('sharedcontent.indexing')->indexLoadByEntity($parent);
 
 
   // The parent index might not yet exist due to delayed indexing.
