@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the sharedcontent server module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function sharedcontent_server_install() {
+  $settings = array(
+    'GET' => array(),
+    'POST' => array(),
+    'PATCH' => array(),
+  );
+  $config = \Drupal::config('rest.settings');
+  $config->set('resources.sharedcontent:index', $settings);
+  $config->set('resources.sharedcontent:assignment', $settings);
+  $config->save();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function sharedcontent_server_uninstall() {
+  $config = \Drupal::config('rest.settings');
+  $config->clear('resources.sharedcontent:index');
+  $config->clear('resources.sharedcontent:assignment');
+  $config->save();
+}
