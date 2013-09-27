@@ -31,8 +31,6 @@ class SecurityTest extends EntityUnitTestBase {
       'sharedcontent_index',
       'sharedcontent_assignment',
     ));
-
-    $this->installSchema('user', array('users_data', 'users_roles'));
   }
 
   /**

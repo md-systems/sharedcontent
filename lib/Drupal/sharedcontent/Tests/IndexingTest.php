@@ -22,6 +22,7 @@ class IndexingTest extends DrupalUnitTestBase {
   public static $modules = array(
     'user',
     'system',
+    'entity',
     'field',
     'sharedcontent',
     'sharedcontent_server',
@@ -66,6 +67,7 @@ class IndexingTest extends DrupalUnitTestBase {
       'node_field_data',
       'node_field_revision',
     ));
+    $this->installSchema('user', array('users'));
 
     // Given bundle 'indexed' of entity 'node' is 'not enabled' for indexing.
     $this->indexing->setIndexable('node', 'indexable', FALSE);
@@ -148,9 +150,7 @@ class IndexingTest extends DrupalUnitTestBase {
     // When I create a new entity of type 'node' with bundle 'indexed'.
     $entity = entity_create('user', array(
       'name' => 'Indexed user',
-      'mail' => 'test@example.com',
       'status' => 1,
-      'language' => 'en',
     ));
     $entity->save();
 
