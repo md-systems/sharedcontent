@@ -620,20 +620,9 @@ function sharedcontent_server_entity_insert(EntityInterface $entity) {
  * Check if the given entity should be index and trigger an index update.
  */
 function sharedcontent_server_entity_update(EntityInterface $entity) {
-  if (\Drupal::service('sharedcontent.indexing')->isIndexable($entity)) {
-    // Add nodes to be indexed to a queue if setting is active.
-    if (\Drupal::config('sharedcontent.settings')->get('queued')) {
-      $item = array(
-        'entity_id' => $entity->id(),
-        'type' => $entity->entityType(),
-      );
-      $queue = \Drupal::queue('sharedcontent_indexing');
-      $queue->createItem($item);
-    }
-    else {
-      \Drupal::service('sharedcontent.indexing')->indexEntity($entity);
-    }
-  }
+  \Drupal::service('sharedcontent.indexing')
+    ->get($entity)
+    ->index($entity);
 }
 
 /**
@@ -644,7 +633,9 @@ function sharedcontent_server_entity_update(EntityInterface $entity) {
  * exists.
  */
 function sharedcontent_server_entity_delete($entity, $type) {
-  \Drupal::service('sharedcontent.indexing')->indexDeletedEntity($entity);
+  \Drupal::service('sharedcontent.indexing')
+    ->get($entity)
+    ->delete($entity);
 }
 
 /**
@@ -653,7 +644,7 @@ function sharedcontent_server_entity_delete($entity, $type) {
 function sharedcontent_server_queue_info() {
   $queues['sharedcontent_indexing'] = array(
     'title' => t('SharedContent Indexing'),
-    'worker callback' => 'sharedcontent_server_indexing_queue_callback',
+    'worker callback' => 'sharedcontent_server_indexing_dequeue',
     'cron' => array(
       'time' => 30,
     ),
@@ -667,6 +658,6 @@ function sharedcontent_server_queue_info() {
  * @param array $data
  *   The queued data item.
  */
-function sharedcontent_server_indexing_queue_callback(array $data) {
-  \Drupal::service('sharedcontent.indexing')->indexQueuedEntity($data);
+function sharedcontent_server_indexing_dequeue(array $data) {
+  \Drupal::service('sharedcontent.indexing.queued')->dequeue($data);
 }

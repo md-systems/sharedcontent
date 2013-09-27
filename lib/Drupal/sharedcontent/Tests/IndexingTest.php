@@ -8,8 +8,8 @@
 namespace Drupal\sharedcontent\Tests;
 
 use Drupal\Core\Language\Language;
-use Drupal\sharedcontent\Entity\Index;
 use Drupal\sharedcontent\IndexInterface;
+use Drupal\sharedcontent\Services\NullIndexing;
 use Drupal\simpletest\DrupalUnitTestBase;
 
 class IndexingTest extends DrupalUnitTestBase {
@@ -31,7 +31,7 @@ class IndexingTest extends DrupalUnitTestBase {
   /**
    * The indexing service.
    *
-   * @var \Drupal\sharedcontent\Indexing.
+   * @var \Drupal\sharedcontent\Services\IndexingServiceBase.
    */
   protected $indexing;
 
@@ -54,7 +54,7 @@ class IndexingTest extends DrupalUnitTestBase {
       'sharedcontent_assignment',
     ));
 
-    $this->indexing = \Drupal::service('sharedcontent.indexing');
+    $this->indexing = \Drupal::service('sharedcontent.indexing.default');
   }
 
   /**
@@ -62,41 +62,18 @@ class IndexingTest extends DrupalUnitTestBase {
    */
   public function testIndexingNode() {
     $this->enableModules(array('node'));
-    $this->installSchema('node', array(
-      'node',
-      'node_field_data',
-      'node_field_revision',
-    ));
-    $this->installSchema('user', array('users'));
 
-    // Given bundle 'indexed' of entity 'node' is 'not enabled' for indexing.
-    $this->indexing->setIndexable('node', 'indexable', FALSE);
-
-    // When I create a new entity of type 'node' with bundle 'indexed'.
-    $entity = entity_create('node', array(
-      'title' => 'Not indexed node',
-      'type' => 'indexed',
-    ));
-    $entity->save();
-
-    // Then no index record was created.
-    $this->assertFalse($this->indexing->indexExists($entity), 'No index record was created.');
-
-    // Given bundle 'indexed' of entity 'node' is 'enabled' for indexing.
-    $this->indexing->setIndexableByEntity($entity, TRUE);
-
-    // When I create a new entity of type 'node' with bundle 'indexed'.
     $entity = entity_create('node', array(
       'title' => 'Indexed node',
       'type' => 'indexed',
+      'created' => REQUEST_TIME,
+      'changed' => REQUEST_TIME,
     ));
-    $entity->save();
 
-    // Then a new index record was created.
-    $this->assertTrue($this->indexing->indexExists($entity), 'Found index record for created node.');
+    $this->indexing->index($entity);
 
-    // And the created index matches the values from the indexed 'node'.
-    $index = $this->indexing->indexLoadByEntity($entity);
+    $this->assertTrue($this->indexing->exists($entity), 'Found index record for created node.');
+    $index = $this->indexing->load($entity);
     $this->assertEqual($index->getConnectionName(), NULL, 'The connection name is empty.');
     $this->assertEqual($index->getChangedTime(), REQUEST_TIME, 'The index record was last changed within this request.');
     $this->assertEqual($index->getCreatedTime(), REQUEST_TIME, 'The index record was created within this request.');
@@ -114,11 +91,9 @@ class IndexingTest extends DrupalUnitTestBase {
     $node_uri = $entity->uri();
     $this->assertTrue(preg_match("|{$node_uri['path']}$|", $index->getUrl()), 'The translation set id is empty.');
 
-    // When I delete the node.
-    $entity->delete();
+    $this->indexing->delete($entity);
 
-    // Then the status of the index is set to "not reachable;..
-    $index = $this->indexing->indexLoadByEntity($entity);
+    $index = $this->indexing->load($entity);
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_NOT_REACHABLE, 'Index has status not reachable.');
   }
 
@@ -126,40 +101,16 @@ class IndexingTest extends DrupalUnitTestBase {
    * Test indexing for users.
    */
   public function testIndexingUser() {
-    $this->installSchema('system', array('sequences'));
-    $this->installSchema('user', array('users', 'users_data', 'users_roles'));
-
-    // Given bundle 'user' of entity 'user' is 'not enabled' for indexing.
-    $this->indexing->setIndexable('user', 'user', FALSE);
-
-    // When I create a new entity of type 'user' with bundle 'user'.
-    $entity = entity_create('user', array(
-      'name' => 'Non indexed user',
-      'mail' => 'test@example.com',
-      'status' => 1,
-      'language' => 'en',
-    ));
-    $entity->save();
-
-    // Then no index record was created.
-    $this->assertFalse($this->indexing->indexExists($entity), 'No index record was created.');
-
-    // Given bundle 'user' of entity 'user' is 'enabled' for indexing.
-    $this->indexing->setIndexableByEntity($entity, TRUE);
-
     // When I create a new entity of type 'node' with bundle 'indexed'.
     $entity = entity_create('user', array(
       'name' => 'Indexed user',
       'status' => 1,
     ));
-    $entity->save();
 
-    // Then a new index record was created.
-    $this->assertTrue($this->indexing->indexExists($entity), 'Found index record for created node.');
+    $this->indexing->index($entity);
 
-    // And the created index matches the values from the indexed 'node'.
-    $index = $this->indexing->indexLoadByEntity($entity);
-
+    $this->assertTrue($this->indexing->exists($entity), 'Found index record for created node.');
+    $index = $this->indexing->load($entity);
     $this->assertEqual($index->getConnectionName(), NULL, 'The connection name is empty.');
     $this->assertEqual($index->getChangedTime(), REQUEST_TIME, 'The index record was last changed within this request.');
     $this->assertEqual($index->getCreatedTime(), REQUEST_TIME, 'The index record was created within this request.');
@@ -177,11 +128,9 @@ class IndexingTest extends DrupalUnitTestBase {
     $node_uri = $entity->uri();
     $this->assertTrue(preg_match("|{$node_uri['path']}$|", $index->getUrl()), 'The translation set id is empty.');
 
-    // When I delete the node.
-    $entity->delete();
+    $this->indexing->delete($entity);
 
-    // Then the status of the index is set to "not reachable;..
-    $index = $this->indexing->indexLoadByEntity($entity);
+    $index = $this->indexing->load($entity);
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_NOT_REACHABLE, 'Index hat status not reachable.');
   }
 
@@ -190,37 +139,17 @@ class IndexingTest extends DrupalUnitTestBase {
    */
   public function testIndexingFile() {
     $this->enableModules(array('file'));
-    $this->installSchema('file', array('file_managed', 'file_usage'));
 
-    // Given bundle 'field' of entity 'file' is 'not enabled' for indexing.
-    $this->indexing->setIndexable('file', 'file', FALSE);
-
-    // When I create a new entity of type 'user' with bundle 'user'.
-    file_put_contents('public://non_indexed.txt', $this->randomName());
-    $entity = entity_create('file', array(
-      'uri' => 'public://non_indexed.txt',
-    ));
-    $entity->save();
-
-    // Then no index record was created.
-    $this->assertFalse($this->indexing->indexExists($entity), 'No index record was created.');
-
-    // Given bundle 'user' of entity 'user' is 'enabled' for indexing.
-    $this->indexing->setIndexableByEntity($entity, TRUE);
-
-    // When I create a new entity of type 'node' with bundle 'indexed'.
     file_put_contents('public://indexed.txt', $this->randomName());
     $entity = entity_create('file', array(
       'uri' => 'public://indexed.txt',
+      'timestamp' => REQUEST_TIME,
     ));
-    $entity->save();
 
-    // Then a new index record was created.
-    $this->assertTrue($this->indexing->indexExists($entity), 'Found index record for created node.');
+    $this->indexing->index($entity);
 
-    // And the created index matches the values from the indexed 'node'.
-    $index = $this->indexing->indexLoadByEntity($entity);
-
+    $this->assertTrue($this->indexing->exists($entity), 'Found index record for created node.');
+    $index = $this->indexing->load($entity);
     $this->assertEqual($index->getConnectionName(), NULL, 'The connection name is empty.');
     $this->assertEqual($index->getChangedTime(), REQUEST_TIME, 'The index record was last changed within this request.');
     $this->assertEqual($index->getCreatedTime(), REQUEST_TIME, 'The index record was created within this request.');
@@ -237,11 +166,9 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getTitle(), 'indexed.txt', 'The title matches.');
     $this->assertTrue(preg_match('|indexed.txt$|', $index->getUrl()), 'The uri matches.');
 
-    // When I delete the node.
-    $entity->delete();
+    $this->indexing->delete($entity);
 
-    // Then the status of the index is set to "not reachable;..
-    $index = $this->indexing->indexLoadByEntity($entity);
+    $index = $this->indexing->load($entity);
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_NOT_REACHABLE, 'Index hat status not reachable.');
   }
 
@@ -250,47 +177,17 @@ class IndexingTest extends DrupalUnitTestBase {
    */
   public function testIndexingTerm() {
     $this->enableModules(array('taxonomy'));
-    $this->installSchema('taxonomy', array(
-      'taxonomy_term_data',
-      'taxonomy_term_hierarchy',
-      'taxonomy_index',
-    ));
 
-    $vocabulary = entity_create('taxonomy_vocabulary', array(
-      'vid' => 'test_vocab',
-      'name' => 'Test vocabulary',
-    ));
-    $vocabulary->save();
-
-    // Given bundle 'user' of entity 'user' is 'not enabled' for indexing.
-    $this->indexing->setIndexable('taxonomy_term', 'test_vocab', FALSE);
-
-    // When I create a new entity of type 'user' with bundle 'user'.
-    $entity = entity_create('taxonomy_term', array(
-      'name' => 'Non indexed term',
-      'vid' => $vocabulary->id(),
-    ));
-    $entity->save();
-
-    // Then no index record was created.
-    $this->assertFalse($this->indexing->indexExists($entity), 'No index record was created.');
-
-    // Given bundle 'user' of entity 'user' is 'enabled' for indexing.
-    $this->indexing->setIndexableByEntity($entity, TRUE);
-
-    // When I create a new entity of type 'node' with bundle 'indexed'.
     $entity = entity_create('taxonomy_term', array(
       'name' => 'Indexed term',
-      'vid' => $vocabulary->id(),
+      'vid' => 'test_vocab',
+      'changed' => REQUEST_TIME,
     ));
-    $entity->save();
 
-    // Then a new index record was created.
-    $this->assertTrue($this->indexing->indexExists($entity), 'Found index record for created node.');
+    $this->indexing->index($entity);
 
-    // And the created index matches the values from the indexed 'node'.
-    $index = $this->indexing->indexLoadByEntity($entity);
-
+    $this->assertTrue($this->indexing->exists($entity), 'Found index record for created node.');
+    $index = $this->indexing->load($entity);
     $this->assertEqual($index->getConnectionName(), NULL, 'The connection name is empty.');
     $this->assertEqual($index->getChangedTime(), REQUEST_TIME, 'The index record was last changed within this request.');
     $this->assertEqual($index->getCreatedTime(), REQUEST_TIME, 'The index record was created within this request.');
@@ -308,11 +205,9 @@ class IndexingTest extends DrupalUnitTestBase {
     $node_uri = $entity->uri();
     $this->assertTrue(preg_match("|{$node_uri['path']}$|", $index->getUrl()), 'The translation set id is empty.');
 
-    // When I delete the node.
-    $entity->delete();
+    $this->indexing->delete($entity);
 
-    // Then the status of the index is set to "not reachable;..
-    $index = $this->indexing->indexLoadByEntity($entity);
+    $index = $this->indexing->load($entity);
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_NOT_REACHABLE, 'Index hat status not reachable.');
   }
 
@@ -329,31 +224,61 @@ class IndexingTest extends DrupalUnitTestBase {
       'node_field_revision',
     ));
 
-    // Given queued indexing is enabled.
-    \Drupal::config('sharedcontent.settings')->set('queued', TRUE);
+    $service = \Drupal::service('sharedcontent.indexing.queued');
 
-    // When I create a content that gets indexed.
-    $this->indexing->setIndexable('node', 'indexed', TRUE);
-    $account = entity_create('user', array(
-      'name' => $this->randomName(),
-      'status' => 1,
-    ));
+    $account = entity_create('user', array('name' => $this->randomName(), 'status' => 1));
     $account->enforceIsNew();
     $account->save();
     $entity = entity_create('node', array(
-      'title' => 'Indexed node',
+      'title' => $this->randomName(),
       'type' => 'indexed',
       'uid' => $account,
     ));
     $entity->save();
 
-    // Then no index record was created.
-    $this->assertFalse($this->indexing->indexExists($entity), 'No index record was created.');
+    $service->index($entity);
+    $this->assertFalse($service->exists($entity), 'No index record was created.');
 
-    // When cron gets executed.
-    $this->assertTrue(drupal_cron_run(), 'Cron run was successful.');
+    $service->dequeue(array(
+      'entity_type' => $entity->entityType(),
+      'entity_id' => $entity->id(),
+      'op' => 'index',
+    ));
+    $this->assertTrue($service->exists($entity), 'Index record was created.');
 
-    // Then an index record exists for the created content.
-    $this->assertTrue($this->indexing->indexExists($entity), 'Index record was created.');
+    $service->delete($entity);
+    $index = $this->indexing->load($entity);
+    $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'Index hat status has not changed.');
+
+    $service->dequeue(array(
+      'entity_type' => $entity->entityType(),
+      'entity_id' => $entity->id(),
+      'op' => 'delete',
+    ));
+    $index = $service->load($entity);
+    $this->assertEqual($index->getStatus(), IndexInterface::STATUS_NOT_REACHABLE, 'Index hat status changed to not reachable.');
+  }
+
+  /**
+   * Test queued indexing.
+   */
+  public function testIndexingServiceFactory() {
+    $this->enableModules(array('node'));
+    \Drupal::config('sharedcontent.indexables')->set('node.default', 'default');
+    \Drupal::config('sharedcontent.indexables')->set('node.queued', 'queue');
+
+    $entity_null = entity_create('node', array('title' => $this->randomName(), 'type' => 'null'));
+    $entity_default = entity_create('node', array('title' => $this->randomName(), 'type' => 'default'));
+    $entity_queued = entity_create('node', array('title' => $this->randomName(), 'type' => 'queued'));
+
+    $factory = \Drupal::service('sharedcontent.indexing');
+
+    $service_null = $factory->get($entity_null);
+    $service_default = $factory->get($entity_default);
+    $service_factory = $factory->get($entity_queued);
+
+    $this->assertTrue($service_null instanceof NullIndexing, 'Got null service for unconfigured bundle.');
+    $this->assertTrue($service_default instanceof NullIndexing, 'Got default service for default bundle.');
+    $this->assertTrue($service_factory instanceof NullIndexing, 'Got null service for queued bundle.');
   }
 }

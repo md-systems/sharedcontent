@@ -1,4 +1,19 @@
 services:
   sharedcontent.indexing:
-    class: Drupal\sharedcontent\Indexing
-    arguments: ['@config.factory', '@module_handler', '@entity.query', '@entity.manager', '@queue']
+    class: Drupal\sharedcontent\Services\IndexingServiceFactory
+    arguments: ['@config.factory']
+    calls:
+      - [setContainer, ['@service_container']]
+  sharedcontent.indexing.queued:
+    class: Drupal\sharedcontent\Services\QueuedIndexing
+    arguments: ['@entity.query', '@entity.manager']
+    calls:
+      - [setQueue, ['@queue', 'sharedcontent_indexing']]
+      - [setModuleHandler, ['@module_handler']]
+  sharedcontent.indexing.null:
+    class: Drupal\sharedcontent\Services\NullIndexing
+  sharedcontent.indexing.default:
+    class: Drupal\sharedcontent\Services\DefaultIndexing
+    arguments: ['@entity.query', '@entity.manager']
+    calls:
+      - [setModuleHandler, ['@module_handler']]
