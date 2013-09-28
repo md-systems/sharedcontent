@@ -576,20 +576,6 @@ function sharedcontent_server_field_access($op, $field, $entity_type, $entity, $
 }
 
 /**
- * Implements hook_views_pre_view().
- */
-function sharedcontent_server_views_pre_view($view, $display_id, $args) {
-  if ($view->name == 'sharedcontent_service') {
-    // @todo: The editing flag is set to prevent translation of the labels. Find
-    // a better way.
-    $view->editing = TRUE;
-
-    // This somehow does not work.
-    // $view->localization_plugin = views_get_plugin('localization', 'none');
-  }
-}
-
-/**
  * Implements hook_entity_insert().
  *
  * @see sharedcontent_server_entity_update()
