@@ -20,7 +20,7 @@ function sharedcontent_server_menu() {
   $items['admin/config/services/sharedcontent/indexing'] = array(
     'title' => 'Indexing Settings',
     'type' => MENU_LOCAL_TASK,
-    'description' => 'Set the entities indexed by SharedContent.',
+    'description' => 'Set the entities indexed by Shared Content.',
     'route_name' => 'sharedcontent.indexing_settings',
   );
 

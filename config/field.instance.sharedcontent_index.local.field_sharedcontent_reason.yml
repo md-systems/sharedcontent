@@ -4,7 +4,7 @@ langcode: und
 field_uuid: 12016451-ab7e-4c0e-8541-651e404049ea
 entity_type: sharedcontent_index
 bundle: local
-label: 'SharedContent Reason'
+label: 'Shared Content Reason'
 description: 'If <em>sharedcontent.settings.check_reason</em> is set to <em>true</em>, users have only access to index records having at least one common term.'
 required: false
 default_value: {  }

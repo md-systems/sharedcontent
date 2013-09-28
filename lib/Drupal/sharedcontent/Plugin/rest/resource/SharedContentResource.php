@@ -15,11 +15,11 @@ use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * Resources for SharedContent
+ * Resources for Shared Content
  *
  * @Plugin(
  *   id = "sharedcontent",
- *   label = @Translation("SharedContent"),
+ *   label = @Translation("Shared Content"),
  *   serialization_class = "Drupal\Core\Entity\Entity",
  *   derivative = "Drupal\sharedcontent\Plugin\Derivative\SharedContentDerivative"
  * )
