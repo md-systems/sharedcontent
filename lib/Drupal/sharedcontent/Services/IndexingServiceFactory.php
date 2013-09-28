@@ -77,7 +77,7 @@ class IndexingServiceFactory extends ContainerAware {
    */
   public function getServiceName($entity_type, $bundle) {
     $key = $this->configKey($entity_type, $bundle);
-    $service_name = $this->configFactory->get('sharedcontent.indexables')->get($key);
+    $service_name = $this->configFactory->get('sharedcontent.indexing')->get($key);
     return $service_name ? $service_name : 'null';
   }
 
@@ -88,13 +88,15 @@ class IndexingServiceFactory extends ContainerAware {
    *   An entity type.
    * @param string $bundle
    *   An entity bundle
+   * @param string $setting
+   *   The setting being part of this config key.
    *
    * @return string
    *   The resulting settings key.
    */
-  public function configKey($entity_type, $bundle) {
+  public function configKey($entity_type, $bundle, $setting = 'service') {
     $entity_type = preg_replace('/[^0-9a-zA-Z_]/', "_", $entity_type);
     $bundle = preg_replace('/[^0-9a-zA-Z_]/', "_", $bundle);
-    return $entity_type . '.' . $bundle . '.service';
+    return $entity_type . '.' . $bundle . '.' . $setting;
   }
 }

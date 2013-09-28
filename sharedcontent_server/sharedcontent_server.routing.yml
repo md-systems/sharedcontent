@@ -1,6 +1,6 @@
-sharedcontent.indexed_settings:
-  path: 'admin/config/services/sharedcontent/settings/indexed'
+sharedcontent.indexing_settings:
+  path: 'admin/config/services/sharedcontent/indexing'
   defaults:
-    _form: 'Drupal\sharedcontent\Form\IndexedEntitiesForm'
+    _form: 'Drupal\sharedcontent\Form\IndexingSettingsForm'
   requirements:
     _permission: 'administer sharedcontent'

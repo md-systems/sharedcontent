@@ -264,8 +264,8 @@ class IndexingTest extends DrupalUnitTestBase {
    */
   public function testIndexingServiceFactory() {
     $this->enableModules(array('node'));
-    \Drupal::config('sharedcontent.indexables')->set('node.default', 'default');
-    \Drupal::config('sharedcontent.indexables')->set('node.queued', 'queue');
+    \Drupal::config('sharedcontent.indexing')->set('node.default', 'default');
+    \Drupal::config('sharedcontent.indexing')->set('node.queued', 'queue');
 
     $entity_null = entity_create('node', array('title' => $this->randomName(), 'type' => 'null'));
     $entity_default = entity_create('node', array('title' => $this->randomName(), 'type' => 'default'));

@@ -17,21 +17,11 @@ use Drupal\sharedcontent\Entity\Index;
 function sharedcontent_server_menu() {
   $items = array();
 
-  $items['admin/config/services/sharedcontent/settings/indexed'] = array(
-    'title' => 'Indexed entities',
+  $items['admin/config/services/sharedcontent/indexing'] = array(
+    'title' => 'Indexing Settings',
     'type' => MENU_LOCAL_TASK,
     'description' => 'Set the entities indexed by SharedContent.',
-    'route_name' => 'sharedcontent.indexed_settings',
-  );
-
-  $items['admin/config/services/sharedcontent/settings/keywords'] = array(
-    'title' => 'Keyword vocabularies',
-    'type' => MENU_LOCAL_TASK,
-    'description' => 'Configure the taxonomy vocabularies to be taken into account when building the keywords while indexing a local content.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('sharedcontent_server_configure_keyword_vocabularies'),
-    'access arguments' => array('administer sharedcontent'),
-    'file' => 'includes/sharedcontent_server.admin.inc',
+    'route_name' => 'sharedcontent.indexing_settings',
   );
 
   $items['admin/config/services/sharedcontent/settings/server'] = array(
