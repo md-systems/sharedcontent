@@ -1,0 +1,65 @@
+base_field: id
+base_table: sharedcontent_index
+core: 8.x
+description: ''
+status: '1'
+display:
+  rest:
+    display_plugin: rest_export
+    id: rest
+    display_title: 'REST export'
+    position: '1'
+    display_options:
+      path: sharedcontent/index
+      defaults:
+        pager: '1'
+        pager_options: '1'
+  default:
+    display_plugin: default
+    id: default
+    display_title: Master
+    position: '1'
+    display_options:
+      access:
+        type: perm
+        options:
+          perm: 'access endpoint restricted'
+      pager:
+        type: mini
+        options:
+          items_per_page: '10'
+          expose:
+            items_per_page: '1'
+      style:
+        type: serializer
+        options:
+          uses_fields: '0'
+          formats: {  }
+      row:
+        type: data_entity
+      filters:
+        origin:
+          id: origin
+          table: sharedcontent_index
+          field: origin
+          group_type: group
+          operator: '='
+          value: local
+          group: '1'
+          exposed: '0'
+      sorts:
+        entity_changed:
+          id: entity_changed
+          table: sharedcontent_index
+          field: entity_changed
+          group_type: group
+          order: DESC
+          granularity: second
+          plugin_id: date
+          provider: views
+label: 'Shared Content Index List Ressource'
+module: views
+id: sharedcontent_ressource_index
+tag: 'Shared Content'
+uuid: 6417244a-c77a-48eb-9b00-ed190020e099
+langcode: en
