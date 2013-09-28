@@ -1,0 +1,6 @@
+sharedcontent.settings:
+  path: 'admin/config/services/sharedcontent/settings'
+  defaults:
+    _form: 'Drupal\sharedcontent\Form\SettingsForm'
+  requirements:
+    _permission: 'administer sharedcontent'

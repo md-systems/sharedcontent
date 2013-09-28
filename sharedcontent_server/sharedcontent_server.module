@@ -10,9 +10,6 @@ use Drupal\sharedcontent\Entity\Index;
 
 /**
  * Implements hook_menu().
- *
- * @see sharedcontent_server_configure_keyword_vocabularies()
- * @see sharedcontent_server_configure_variables()
  */
 function sharedcontent_server_menu() {
   $items = array();
@@ -22,16 +19,6 @@ function sharedcontent_server_menu() {
     'type' => MENU_LOCAL_TASK,
     'description' => 'Set the entities indexed by Shared Content.',
     'route_name' => 'sharedcontent.indexing_settings',
-  );
-
-  $items['admin/config/services/sharedcontent/settings/server'] = array(
-    'title' => 'Server',
-    'type' => MENU_LOCAL_TASK,
-    'description' => 'Various server settings.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('sharedcontent_server_configure_variables'),
-    'access arguments' => array('administer sharedcontent'),
-    'file' => 'includes/sharedcontent_server.admin.inc',
   );
 
   return $items;

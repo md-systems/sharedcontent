@@ -44,6 +44,13 @@ function sharedcontent_menu() {
     'file' => 'includes/sharedcontent.admin.inc',
   );
 
+  $items['admin/config/services/sharedcontent/settings'] = array(
+    'title' => 'Settings',
+    'type' => MENU_LOCAL_TASK,
+    'description' => 'Settings for Shared Content.',
+    'route_name' => 'sharedcontent.settings',
+  );
+
   $items['admin/config/services/sharedcontent/status'] = array(
     'title' => 'Overview',
     'type' => MENU_DEFAULT_LOCAL_TASK,
