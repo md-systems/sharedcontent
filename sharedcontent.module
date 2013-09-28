@@ -30,6 +30,9 @@ function sharedcontent_permission() {
   );
 }
 
+/**
+ * Implements hook_menu().
+ */
 function sharedcontent_menu() {
   $items = array();
 
@@ -37,16 +40,6 @@ function sharedcontent_menu() {
     'title' => 'Shared Content',
     'description' => 'Configuration and status overview for Shared Content',
     'page callback' => 'sharedcontent_status_view',
-    'access arguments' => array('administer sharedcontent'),
-    'file' => 'includes/sharedcontent.admin.inc',
-  );
-
-  $items['admin/config/services/sharedcontent/settings/indexed'] = array(
-    'title' => 'Indexed entities',
-    'type' => MENU_LOCAL_TASK,
-    'description' => 'Select the entities which are indexed for Shared Content.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('sharedcontent_configure_indexed'),
     'access arguments' => array('administer sharedcontent'),
     'file' => 'includes/sharedcontent.admin.inc',
   );

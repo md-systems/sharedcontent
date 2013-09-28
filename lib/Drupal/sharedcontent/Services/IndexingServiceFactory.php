@@ -59,12 +59,26 @@ class IndexingServiceFactory extends ContainerAware {
    * @return string
    *   The id of the indexing service to be used.
    */
-  protected function getServiceId(EntityInterface $entity) {
-    $key = $this->configKey($entity->entityType(), $entity->bundle());
+  public function getServiceId(EntityInterface $entity) {
+    $service_name = $this->getServiceName($entity->entityType(), $entity->bundle());
+    return 'sharedcontent.indexing.' . $service_name;
+  }
+
+  /**
+   * Helper for getting the indexing service name for an entity bundle.
+   *
+   * @param string $entity_type
+   *   An entity type.
+   * @param string $bundle
+   *   An entity bundle
+   *
+   * @return string
+   *   The name of the indexing service.
+   */
+  public function getServiceName($entity_type, $bundle) {
+    $key = $this->configKey($entity_type, $bundle);
     $service_name = $this->configFactory->get('sharedcontent.indexables')->get($key);
-    $service_id = 'sharedcontent.indexing.';
-    $service_id .= $service_name ? $service_name : 'null';
-    return $service_id;
+    return $service_name ? $service_name : 'null';
   }
 
   /**
@@ -78,7 +92,7 @@ class IndexingServiceFactory extends ContainerAware {
    * @return string
    *   The resulting settings key.
    */
-  protected function configKey($entity_type, $bundle) {
+  public function configKey($entity_type, $bundle) {
     $entity_type = preg_replace('/[^0-9a-zA-Z_]/', "_", $entity_type);
     $bundle = preg_replace('/[^0-9a-zA-Z_]/', "_", $bundle);
     return $entity_type . '.' . $bundle . '.service';

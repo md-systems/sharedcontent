@@ -1,0 +1,8 @@
+.form-item.form-type-radio {
+    float: left;
+    margin-right: 1.4em;
+}
+
+.form-item.form-type-radios {
+    clear: both;
+}
