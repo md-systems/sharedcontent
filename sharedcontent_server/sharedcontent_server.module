@@ -9,22 +9,6 @@ use Drupal\sharedcontent\AssignmentInterface;
 use Drupal\sharedcontent\Entity\Index;
 
 /**
- * Implements hook_menu().
- */
-function sharedcontent_server_menu() {
-  $items = array();
-
-  $items['admin/config/services/sharedcontent/indexing'] = array(
-    'title' => 'Indexing Settings',
-    'type' => MENU_LOCAL_TASK,
-    'description' => 'Set the entities indexed by Shared Content.',
-    'route_name' => 'sharedcontent.indexing_settings',
-  );
-
-  return $items;
-}
-
-/**
  * Implements hook_custom_theme().
  *
  * @see sharedcontent_is_overlay_request()
@@ -573,61 +557,4 @@ function sharedcontent_server_field_access($op, $field, $entity_type, $entity, $
     return user_access('administer sharedcontent', $account);
   }
   return TRUE;
-}
-
-/**
- * Implements hook_entity_insert().
- *
- * @see sharedcontent_server_entity_update()
- */
-function sharedcontent_server_entity_insert(EntityInterface $entity) {
-  sharedcontent_server_entity_update($entity);
-}
-
-/**
- * Implements hook_entity_update().
- *
- * Check if the given entity should be index and trigger an index update.
- */
-function sharedcontent_server_entity_update(EntityInterface $entity) {
-  \Drupal::service('sharedcontent.indexing')
-    ->get($entity)
-    ->index($entity);
-}
-
-/**
- * Implements hook_entity_delete().
- *
- * Set sharedcontent_index to
- * \Drupal\sharedcontent\IndexInterface::STATUS_NOT_REACHABLE if a record
- * exists.
- */
-function sharedcontent_server_entity_delete($entity, $type) {
-  \Drupal::service('sharedcontent.indexing')
-    ->get($entity)
-    ->delete($entity);
-}
-
-/**
- * Implements hook_queue_info().
- */
-function sharedcontent_server_queue_info() {
-  $queues['sharedcontent_indexing'] = array(
-    'title' => t('SharedContent Indexing'),
-    'worker callback' => 'sharedcontent_server_indexing_dequeue',
-    'cron' => array(
-      'time' => 30,
-    ),
-  );
-  return $queues;
-}
-
-/**
- * Callback function for the indexing queue.
- *
- * @param array $data
- *   The queued data item.
- */
-function sharedcontent_server_indexing_dequeue(array $data) {
-  \Drupal::service('sharedcontent.indexing.queued')->dequeue($data);
 }

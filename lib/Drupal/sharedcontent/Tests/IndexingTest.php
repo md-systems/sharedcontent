@@ -25,7 +25,6 @@ class IndexingTest extends DrupalUnitTestBase {
     'entity',
     'field',
     'sharedcontent',
-    'sharedcontent_server',
   );
 
   /**
