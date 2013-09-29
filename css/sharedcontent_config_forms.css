@@ -1,9 +1,6 @@
-.form-item.form-type-radio {
-    float: left;
-    margin-right: 1.4em;
-}
-
-.form-item.form-type-checkbox,
-.form-item.form-type-radios {
-    clear: both;
+details.form-wrapper {
+    width: 27em;
+    vertical-align: top;
+    display: inline-block;
+    margin-right: 1.7em;
 }

@@ -12,6 +12,7 @@ use Drupal\Core\Config\Context\ContextInterface;
 use Drupal\Core\Entity\EntityManager;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\ConfigFormBase;
+use Drupal\field\FieldInfo;
 use Drupal\sharedcontent\Services\IndexingServiceFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -40,6 +41,12 @@ class IndexingSettingsForm extends ConfigFormBase {
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
   protected $moduleHandler;
+  /**
+   * The field info service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $fieldInfo;
 
   /**
    * Constructs a SiteInformationForm object.
@@ -54,13 +61,16 @@ class IndexingSettingsForm extends ConfigFormBase {
    *   The indexing service factory.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.
+   * @param \Drupal\field\FieldInfo $field_info
+   *   The field info service.
    */
-  public function __construct(ConfigFactory $config_factory, ContextInterface $context, EntityManager $entity_manager, IndexingServiceFactory $indexing_service_factory, ModuleHandlerInterface $module_handler) {
+  public function __construct(ConfigFactory $config_factory, ContextInterface $context, EntityManager $entity_manager, IndexingServiceFactory $indexing_service_factory, ModuleHandlerInterface $module_handler, FieldInfo $field_info) {
     parent::__construct($config_factory, $context);
 
     $this->entityManager = $entity_manager;
     $this->indexingServiceFactory = $indexing_service_factory;
     $this->moduleHandler = $module_handler;
+    $this->fieldInfo = $field_info;
   }
 
   /**
@@ -72,7 +82,8 @@ class IndexingSettingsForm extends ConfigFormBase {
       $container->get('config.context.free'),
       $container->get('entity.manager'),
       $container->get('sharedcontent.indexing'),
-      $container->get('module_handler')
+      $container->get('module_handler'),
+      $container->get('field.info')
     );
   }
 
@@ -95,38 +106,53 @@ class IndexingSettingsForm extends ConfigFormBase {
     );
 
     foreach ($this->entityManager->getDefinitions() as $entity_type => $entity_info) {
-      if ($entity_type == 'sharedcontent_index') {
+      // Exclude entities that do no make sense to be shared.
+      if (empty($entity_info['controllers']['render'])
+        || !in_array('Drupal\\Core\\Entity\\ContentEntityInterface', class_implements($entity_info['class']))) {
         continue;
       }
 
-      $form[$entity_type] = array(
-        '#type' => 'fieldset',
-        '#title' => $entity_info['label'],
-      );
-
       foreach ($this->entityManager->getBundleInfo($entity_type) as $bundle => $bundle_info) {
+        $grouping = $entity_type . '-' . $bundle;
+        $label = $bundle_info['label'];
+        if ($entity_info['label'] != $bundle_info['label']) {
+          $label = format_string('@entity: @bundle', array(
+            '@entity' => $entity_info['label'],
+            '@bundle' => $bundle_info['label'],
+          ));
+        }
+        $form[$grouping] = array(
+          '#type' => 'details',
+          '#title' => $label,
+        );
+
         $service_name = $this->indexingServiceFactory->getServiceName($entity_type, $bundle);
         $service_config_key = $this->indexingServiceFactory->configKey($entity_type, $bundle);
-        $form[$entity_type][$this->sanitizeKey($service_config_key)] = array(
+        $form[$grouping][$this->sanitizeKey($service_config_key)] = array(
           '#type' => 'radios',
-          '#title' => $bundle_info['label'],
+          '#title' => $this->t('Indexing service'),
+          '#description' => $this->t('Service to be used for indexing this bundle.'),
           '#default_value' => $service_name,
           '#options' => $indexers,
         );
 
         if ($this->moduleHandler->moduleExists('taxonomy')) {
           $keyword_fields = array();
-          foreach ($this->entityManager->getFieldDefinitions($entity_type, $bundle) as $field_name => $field_info) {
+          $fields = $this->entityManager->getFieldDefinitions($entity_type, $bundle);
+          foreach ($fields as $field_name => $field_info) {
             if ($field_info['type'] == 'field_item:taxonomy_term_reference') {
-              $keyword_fields[$field_name] = $field_info['label'];
+              $instance = $this->fieldInfo->getInstance($entity_type, $bundle, $field_name);
+              $keyword_fields[$field_name] = $instance->label();
             }
           }
 
           if (!empty($keyword_fields)) {
             $keyword_fields_config_key = $this->indexingServiceFactory->configKey($entity_type, $bundle, 'keywords');
             $keyword_fields_config_value = $this->config('sharedcontent.indexing')->get($keyword_fields_config_key);
-            $form[$entity_type][$this->sanitizeKey($keyword_fields_config_key)] = array(
+            $form[$grouping][$this->sanitizeKey($keyword_fields_config_key)] = array(
               '#type' => 'checkboxes',
+              '#title' => $this->t('Keyword fields'),
+              '#description' => $this->t('Taxonomy fields used to build keywords from on indexing.'),
               '#options' => $keyword_fields,
               '#default_value' => $keyword_fields_config_value ? $keyword_fields_config_value : array(),
             );
