@@ -11,6 +11,7 @@ use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityStorageControllerInterface;
 use Drupal\Core\Entity\Annotation\EntityType;
 use Drupal\Core\Annotation\Translation;
+use Drupal\Core\Field\FieldDefinition;
 use Drupal\sharedcontent\AssignmentInterface;
 use Drupal\sharedcontent\IndexInterface;
 
@@ -51,58 +52,52 @@ class Assignment extends ContentEntityBase implements AssignmentInterface {
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions($entity_type) {
-    $properties['id'] = array(
-      'label' => t('Assignment ID'),
-      'description' => t('The assignments ID.'),
-      'type' => 'integer_field',
-      'read-only' => TRUE,
-    );
-    $properties['uuid'] = array(
-      'label' => t('UUID'),
-      'description' => t('The assignments UUID.'),
-      'type' => 'uuid_field',
-      'read-only' => TRUE,
-    );
-    $properties['source'] = array(
-      'label' => t('Source'),
-      'description' => t('The uuid of the source index record.'),
-      'type' => 'string_field',
-    );
-    $properties['target'] = array(
-      'label' => t('target'),
-      'description' => t('The uuid of the target index record.'),
-      'type' => 'string_field',
-    );
-    $properties['origin'] = array(
-      'label' => t('Bundle'),
-      'description' => t('The origin of the assignment.'),
-      'type' => 'string_field',
-    );
-    $properties['status'] = array(
-      'label' => t('Status'),
-      'description' => t('The status linkage status.'),
-      'type' => 'integer_field',
-    );
-    $properties['url'] = array(
-      'label' => t('Source System'),
-      'description' => t('The base url of the system reporting this assignment.'),
-      'type' => 'uri_field',
-    );
-    $properties['created'] = array(
-      'label' => t('Created'),
-      'description' => t('Creation date of the index record.'),
-      'type' => 'integer_field',
-      'read-only' => TRUE,
-    );
-    $properties['changed'] = array(
-      'label' => t('Changed'),
-      'description' => t('Changed date of the index record.'),
-      'type' => 'integer_field',
-      'property_constraints' => array(
-        'value' => array('EntityChanged' => array()),
-      ),
-    );
-    return $properties;
+    $fields['id'] = FieldDefinition::create('integer')
+      ->setLabel(t('Index ID'))
+      ->setDescription(t('The index ID.'))
+      ->setReadOnly(TRUE);
+
+    $fields['id'] = FieldDefinition::create('integer')
+      ->setLabel(t('Assignment ID'))
+      ->setDescription(t('The assignments ID.'))
+      ->setReadOnly(TRUE);
+
+    $fields['uuid'] = FieldDefinition::create('uuid')
+      ->setLabel(t('UUID'))
+      ->setDescription(t('The assignments UUID.'))
+      ->setReadOnly(TRUE);
+
+    $fields['source'] = FieldDefinition::create('string')
+      ->setLabel(t('Source'))
+      ->setDescription(t('The uuid of the source index record.'));
+
+    $fields['target'] = FieldDefinition::create('string')
+      ->setLabel(t('target'))
+      ->setDescription(t('The uuid of the target index record.'));
+
+    $fields['origin'] = FieldDefinition::create('string')
+      ->setLabel(t('Bundle'))
+      ->setDescription(t('The origin of the assignment.'));
+
+    $fields['status'] = FieldDefinition::create('integer')
+      ->setLabel(t('Status'))
+      ->setDescription(t('The status linkage status.'));
+
+    $fields['url'] = FieldDefinition::create('uri')
+      ->setLabel(t('Source System'))
+      ->setDescription(t('The base url of the system reporting this assignment.'));
+
+    $fields['created'] = FieldDefinition::create('integer')
+      ->setLabel(t('Created'))
+      ->setDescription(t('Creation date of the index record.'))
+      ->setReadOnly(TRUE);
+
+    $fields['changed'] = FieldDefinition::create('integer')
+      ->setLabel(t('Changed'))
+      ->setDescription(t('Changed date of the index record.'))
+      ->setPropertyConstraints('value', array('EntityChanged' => array()));
+
+    return $fields;
   }
 
   /**
