@@ -78,7 +78,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getCreatedTime(), REQUEST_TIME, 'The index record was created within this request.');
     $this->assertEqual($index->getEntityChangedTime(), $entity->getChangedTime(), 'The changed time matches.');
     $this->assertEqual($index->getEntityCreatedTime(), $entity->getCreatedTime(), 'The created time matches.');
-    $this->assertEqual($index->getEntityType(), 'node', 'The entity type matches.');
+    $this->assertEqual($index->getIndexedEntityTypeId(), 'node', 'The entity type matches.');
     $this->assertEqual($index->getEntityBundle(), 'indexed', 'The entity bundle matches.');
     $this->assertEqual($index->getEntityUuid(), $entity->uuid(), 'The indexed id matches.');
     $this->assertEqual($index->getKeywords(), NULL, 'The keywords are empty.');
@@ -115,7 +115,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getCreatedTime(), REQUEST_TIME, 'The index record was created within this request.');
     $this->assertEqual($index->getEntityChangedTime(), REQUEST_TIME, 'The changed time matches.');
     $this->assertEqual($index->getEntityCreatedTime(), $entity->getCreatedTime(), 'The created time matches.');
-    $this->assertEqual($index->getEntityType(), 'user', 'The entity type matches.');
+    $this->assertEqual($index->getIndexedEntityTypeId(), 'user', 'The entity type matches.');
     $this->assertEqual($index->getEntityBundle(), 'user', 'The entity bundle matches.');
     $this->assertEqual($index->getEntityUuid(), $entity->uuid(), 'The indexed id matches.');
     $this->assertEqual($index->getKeywords(), NULL, 'The keywords are empty.');
@@ -154,7 +154,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getCreatedTime(), REQUEST_TIME, 'The index record was created within this request.');
     $this->assertEqual($index->getEntityChangedTime(), REQUEST_TIME, 'The changed time matches.');
     $this->assertEqual($index->getEntityCreatedTime(), REQUEST_TIME, 'The created time matches.');
-    $this->assertEqual($index->getEntityType(), 'file', 'The entity type matches.');
+    $this->assertEqual($index->getIndexedEntityTypeId(), 'file', 'The entity type matches.');
     $this->assertEqual($index->getEntityBundle(), 'file', 'The entity bundle matches.');
     $this->assertEqual($index->getEntityUuid(), $entity->uuid(), 'The indexed id matches.');
     $this->assertEqual($index->getKeywords(), NULL, 'The keywords are empty.');
@@ -192,7 +192,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getCreatedTime(), REQUEST_TIME, 'The index record was created within this request.');
     $this->assertEqual($index->getEntityChangedTime(), $entity->getChangedTime(), 'The changed time matches.');
     $this->assertEqual($index->getEntityCreatedTime(), REQUEST_TIME, 'The created time matches.');
-    $this->assertEqual($index->getEntityType(), 'taxonomy_term', 'The entity type matches.');
+    $this->assertEqual($index->getIndexedEntityTypeId(), 'taxonomy_term', 'The entity type matches.');
     $this->assertEqual($index->getEntityBundle(), 'test_vocab', 'The entity bundle matches.');
     $this->assertEqual($index->getEntityUuid(), $entity->uuid(), 'The indexed id matches.');
     $this->assertEqual($index->getKeywords(), NULL, 'The keywords are empty.');
@@ -239,7 +239,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertFalse($service->exists($entity), 'No index record was created.');
 
     $service->dequeue(array(
-      'entity_type' => $entity->entityType(),
+      'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
       'op' => 'index',
     ));
@@ -250,7 +250,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'Index hat status has not changed.');
 
     $service->dequeue(array(
-      'entity_type' => $entity->entityType(),
+      'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
       'op' => 'delete',
     ));

@@ -62,7 +62,7 @@ abstract class IndexingServiceBase implements IndexingServiceInterface {
     $query = $this->queryFactory->get('sharedcontent_index');
     $query->andConditionGroup()
       ->condition('entity_uuid', $entity->uuid())
-      ->condition('entity_type', $entity->entityType())
+      ->condition('entity_type', $entity->getEntityTypeId())
       ->condition('origin', IndexInterface::BUNDLE_LOCAL);
 
     $result = $query->execute();
@@ -87,7 +87,7 @@ abstract class IndexingServiceBase implements IndexingServiceInterface {
       ->getStorageController('sharedcontent_index')
       ->loadByProperties(array(
         'entity_uuid' => $entity->uuid(),
-        'entity_type' => $entity->entityType(),
+        'entity_type' => $entity->getEntityTypeId(),
         'origin' => IndexInterface::BUNDLE_LOCAL,
         'langcode' => $entity->language()->id,
       )

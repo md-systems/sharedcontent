@@ -159,7 +159,7 @@ class SecurityTest extends EntityUnitTestBase {
 
     $options = array(
       '%permission' => empty($permissions) ? 'none' : implode(', ', $permissions),
-      '%entity' => $entity->entityType(),
+      '%entity' => $entity->getEntityTypeId(),
       '%bundle' => $entity->bundle(),
     );
 

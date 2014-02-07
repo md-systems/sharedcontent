@@ -45,7 +45,7 @@ class DefaultIndexing extends IndexingServiceBase implements IndexingServiceInte
     if (!$index) {
       $index = $this->entityManager->getStorageController('sharedcontent_index')->create(array(
         'entity_uuid' => $entity->uuid(),
-        'entity_type' => $entity->entityType(),
+        'entity_type' => $entity->getEntityTypeId(),
         'entity_bundle' => $entity->bundle(),
         'origin' => IndexInterface::BUNDLE_LOCAL,
       ));

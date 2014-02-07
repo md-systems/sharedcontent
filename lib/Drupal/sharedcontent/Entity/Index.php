@@ -116,14 +116,14 @@ class Index extends ContentEntityBase implements IndexInterface {
   /**
    * {@inheritdoc}
    */
-  public function getEntityType() {
+  public function getIndexedEntityTypeId() {
     return $this->get('entity_type')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setEntityType($type) {
+  public function setIndexedEntityTypeId($type) {
     $this->set('entity_type', $type);
     return $this;
   }
