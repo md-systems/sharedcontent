@@ -11,7 +11,7 @@ use Drupal\Core\Annotation\Translation;
 use Drupal\Core\Entity\Annotation\EntityType;
 use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityNG;
+use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityStorageControllerInterface;
 use Drupal\file\FileInterface;
 use Drupal\sharedcontent\IndexInterface;
@@ -32,7 +32,7 @@ use Drupal\sharedcontent\IndexInterface;
  *   bundle_label = @Translation("Origin"),
  *   module = "sharedcontent",
  *   controllers = {
- *     "storage" = "Drupal\sharedcontent\Controller\IndexStorageController",
+ *     "storage" = "Drupal\Core\Entity\FieldableDatabaseStorageController",
  *     "access" = "Drupal\sharedcontent\Controller\IndexAccessController"
  *   },
  *   base_table = "sharedcontent_index",
@@ -49,7 +49,7 @@ use Drupal\sharedcontent\IndexInterface;
  *   }
  * )
  */
-class Index extends EntityNG implements IndexInterface {
+class Index extends ContentEntityBase implements IndexInterface {
 
   /**
    * {@inheritdoc}

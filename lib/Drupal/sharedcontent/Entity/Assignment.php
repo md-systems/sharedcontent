@@ -7,7 +7,7 @@
 
 namespace Drupal\sharedcontent\Entity;
 
-use Drupal\Core\Entity\EntityNG;
+use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityStorageControllerInterface;
 use Drupal\Core\Entity\Annotation\EntityType;
 use Drupal\Core\Annotation\Translation;
@@ -29,7 +29,7 @@ use Drupal\sharedcontent\IndexInterface;
  *   bundle_label = @Translation("Origin"),
  *   module = "sharedcontent",
  *   controllers = {
- *     "storage" = "Drupal\sharedcontent\Controller\AssignmentStorageController",
+ *     "storage" = "Drupal\Core\Entity\FieldableDatabaseStorageController",
  *     "access" = "Drupal\sharedcontent\Controller\AssignmentAccessController"
  *   },
  *   base_table = "sharedcontent_assignment",
@@ -45,7 +45,7 @@ use Drupal\sharedcontent\IndexInterface;
  *   }
  * )
  */
-class Assignment extends EntityNG implements AssignmentInterface {
+class Assignment extends ContentEntityBase implements AssignmentInterface {
 
   /**
    * {@inheritdoc}
