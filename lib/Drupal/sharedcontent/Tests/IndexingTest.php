@@ -87,7 +87,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getEntityBundle(), 'indexed', 'The entity bundle matches.');
     $this->assertEqual($index->getEntityUuid(), $entity->uuid(), 'The indexed id matches.');
     $this->assertEqual($index->getKeywords(), NULL, 'The keywords are empty.');
-    $this->assertEqual($index->getLangcode(), Language::LANGCODE_DEFAULT, 'The language is undefined.');
+    $this->assertEqual($index->getLangcode(), Language::LANGCODE_NOT_SPECIFIED, 'The language is undefined.');
     $this->assertEqual($index->getParentUuid(), NULL, 'The index has no parent.');
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'The index record has status visible.');
     $this->assertEqual($index->getTags(), NULL, 'The tags are empty.');
@@ -130,7 +130,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getEntityBundle(), 'user', 'The entity bundle matches.');
     $this->assertEqual($index->getEntityUuid(), $entity->uuid(), 'The indexed id matches.');
     $this->assertEqual($index->getKeywords(), NULL, 'The keywords are empty.');
-    $this->assertEqual($index->getLangcode(), Language::LANGCODE_DEFAULT, 'The language is undefined.');
+    $this->assertEqual($index->getLangcode(), Language::LANGCODE_NOT_SPECIFIED, 'The language is undefined.');
     $this->assertEqual($index->getParentUuid(), NULL, 'The index has no parent.');
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'The index record has status visible.');
     $this->assertEqual($index->getTags(), NULL, 'The tags are empty.');
@@ -175,7 +175,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getEntityBundle(), 'file', 'The entity bundle matches.');
     $this->assertEqual($index->getEntityUuid(), $entity->uuid(), 'The indexed id matches.');
     $this->assertEqual($index->getKeywords(), NULL, 'The keywords are empty.');
-    $this->assertEqual($index->getLangcode(), Language::LANGCODE_DEFAULT, 'The language is undefined.');
+    $this->assertEqual($index->getLangcode(), Language::LANGCODE_NOT_SPECIFIED, 'The language is undefined.');
     $this->assertEqual($index->getParentUuid(), NULL, 'The index has no parent.');
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'The index record has status visible.');
     $this->assertEqual($index->getTags(), NULL, 'The tags are empty.');
@@ -219,7 +219,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getEntityBundle(), 'test_vocab', 'The entity bundle matches.');
     $this->assertEqual($index->getEntityUuid(), $entity->uuid(), 'The indexed id matches.');
     $this->assertEqual($index->getKeywords(), NULL, 'The keywords are empty.');
-    $this->assertEqual($index->getLangcode(), Language::LANGCODE_DEFAULT, 'The language is undefined.');
+    $this->assertEqual($index->getLangcode(), Language::LANGCODE_NOT_SPECIFIED, 'The language is undefined.');
     $this->assertEqual($index->getParentUuid(), NULL, 'The index has no parent.');
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'The index record has status visible.');
     $this->assertEqual($index->getTags(), NULL, 'The tags are empty.');
