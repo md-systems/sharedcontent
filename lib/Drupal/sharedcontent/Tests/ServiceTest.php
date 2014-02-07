@@ -44,9 +44,6 @@ class ServiceTest extends EntityUnitTestBase {
       'sharedcontent_index',
       'sharedcontent_assignment',
     ));
-
-
-    $GLOBALS['user'] = $this->createUser();
   }
 
   /**
@@ -76,6 +73,7 @@ class ServiceTest extends EntityUnitTestBase {
      ));
     $index->save();
 
+    $GLOBALS['user'] = $this->createUser();
     $response = $resource->get($index->uuid());
 
     $field_expectations = array(
