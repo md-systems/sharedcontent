@@ -122,9 +122,7 @@ abstract class IndexingServiceBase implements IndexingServiceInterface {
    */
   protected function updateUrl(IndexInterface $index, EntityInterface $entity) {
     // Get the entities absolute url.
-    $uri = $entity->uri();
-    $uri['options']['absolute'] = TRUE;
-    $url = isset($uri['path']) ? url($uri['path'], $uri['options']) : '';
+    $url = $entity->url('canonical', array('absolute' => TRUE));
     if ($entity instanceof FileInterface) {
       $url = file_create_url($entity->getFileUri());
     }
@@ -211,7 +209,8 @@ abstract class IndexingServiceBase implements IndexingServiceInterface {
    * @see \Drupal\sharedcontent\Entity\$this->updateUrl()
    */
   protected function updateStatus(IndexInterface $index, EntityInterface $entity) {
-    if (empty($index->get('url')->value)) {
+    $url = $index->getUrl();
+    if (empty($url)) {
       $index->setStatus(IndexInterface::STATUS_NOT_REACHABLE);
     }
     else {

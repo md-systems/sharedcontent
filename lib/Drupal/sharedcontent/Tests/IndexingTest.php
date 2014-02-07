@@ -87,8 +87,11 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'The index record has status visible.');
     $this->assertEqual($index->getTags(), NULL, 'The tags are empty.');
     $this->assertEqual($index->getTitle(), 'Indexed node', 'The title matches.');
-    $node_uri = $entity->uri();
-    $this->assertTrue(preg_match("|{$node_uri['path']}$|", $index->getUrl()), 'The translation set id is empty.');
+    $node_url = $entity->url();
+    $indexed_url = $index->getUrl();
+    $this->assertFalse(empty($indexed_url), 'The url is not empty.');
+    $this->assertTrue(preg_match("|^https?://|", $indexed_url), 'The url is absolute.');
+    $this->assertTrue(preg_match("|{$node_url}$|", $indexed_url), 'The url matches.');
 
     $this->indexing->delete($entity);
 
@@ -124,8 +127,11 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'The index record has status visible.');
     $this->assertEqual($index->getTags(), NULL, 'The tags are empty.');
     $this->assertEqual($index->getTitle(), 'Indexed user', 'The title matches.');
-    $node_uri = $entity->uri();
-    $this->assertTrue(preg_match("|{$node_uri['path']}$|", $index->getUrl()), 'The translation set id is empty.');
+    $node_url = $entity->url();
+    $indexed_url = $index->getUrl();
+    $this->assertFalse(empty($indexed_url), 'The url is not empty.');
+    $this->assertTrue(preg_match("|^https?://|", $indexed_url), 'The url is absolute.');
+    $this->assertTrue(preg_match("|{$node_url}$|", $indexed_url), 'The url matches.');
 
     $this->indexing->delete($entity);
 
@@ -163,7 +169,10 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'The index record has status visible.');
     $this->assertEqual($index->getTags(), NULL, 'The tags are empty.');
     $this->assertEqual($index->getTitle(), 'indexed.txt', 'The title matches.');
-    $this->assertTrue(preg_match('|indexed.txt$|', $index->getUrl()), 'The uri matches.');
+    $indexed_url = $index->getUrl();
+    $this->assertFalse(empty($indexed_url), 'The url is not empty.');
+    $this->assertTrue(preg_match("|^https?://|", $indexed_url), 'The url is absolute.');
+    $this->assertTrue(preg_match('|indexed.txt$|', $indexed_url), 'The url matches.');
 
     $this->indexing->delete($entity);
 
@@ -201,8 +210,11 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'The index record has status visible.');
     $this->assertEqual($index->getTags(), NULL, 'The tags are empty.');
     $this->assertEqual($index->getTitle(), 'Indexed term', 'The title matches.');
-    $node_uri = $entity->uri();
-    $this->assertTrue(preg_match("|{$node_uri['path']}$|", $index->getUrl()), 'The translation set id is empty.');
+    $node_url = $entity->url();
+    $indexed_url = $index->getUrl();
+    $this->assertFalse(empty($indexed_url), 'The url is not empty.');
+    $this->assertTrue(preg_match("|^https?://|", $indexed_url), 'The url is absolute.');
+    $this->assertTrue(preg_match("|{$node_url}$|", $indexed_url), 'The url matches.');
 
     $this->indexing->delete($entity);
 
