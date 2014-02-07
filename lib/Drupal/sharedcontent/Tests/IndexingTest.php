@@ -48,6 +48,8 @@ class IndexingTest extends DrupalUnitTestBase {
   protected function setUp() {
     parent::setUp();
 
+    $this->installSchema('system', array('router'));
+
     $this->installSchema('sharedcontent', array(
       'sharedcontent_index',
       'sharedcontent_assignment',
@@ -62,7 +64,10 @@ class IndexingTest extends DrupalUnitTestBase {
   public function testIndexingNode() {
     $this->enableModules(array('node'));
 
+    \Drupal::service('router.builder')->rebuild();
+
     $entity = entity_create('node', array(
+      'nid' => 1,
       'title' => 'Indexed node',
       'type' => 'indexed',
       'created' => REQUEST_TIME,
@@ -105,9 +110,12 @@ class IndexingTest extends DrupalUnitTestBase {
   public function testIndexingUser() {
     // When I create a new entity of type 'node' with bundle 'indexed'.
     $entity = entity_create('user', array(
+      'uid' => 42,
       'name' => 'Indexed user',
       'status' => 1,
     ));
+
+    \Drupal::service('router.builder')->rebuild();
 
     $this->indexing->index($entity);
 
@@ -147,9 +155,12 @@ class IndexingTest extends DrupalUnitTestBase {
 
     file_put_contents('public://indexed.txt', $this->randomName());
     $entity = entity_create('file', array(
+      'fid' => 1,
       'uri' => 'public://indexed.txt',
       'timestamp' => REQUEST_TIME,
     ));
+
+    \Drupal::service('router.builder')->rebuild();
 
     $this->indexing->index($entity);
 
@@ -187,10 +198,13 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->enableModules(array('taxonomy'));
 
     $entity = entity_create('taxonomy_term', array(
+      'tid' => 1,
       'name' => 'Indexed term',
       'vid' => 'test_vocab',
       'changed' => REQUEST_TIME,
     ));
+
+    \Drupal::service('router.builder')->rebuild();
 
     $this->indexing->index($entity);
 
@@ -234,6 +248,8 @@ class IndexingTest extends DrupalUnitTestBase {
       'node_field_data',
       'node_field_revision',
     ));
+
+    \Drupal::service('router.builder')->rebuild();
 
     $service = \Drupal::service('sharedcontent.indexing.queued');
 
