@@ -71,7 +71,7 @@ class QueuedIndexing extends DefaultIndexing implements IndexingServiceInterface
   protected function getItem(EntityInterface $entity, $op) {
     return array(
       'entity_id' => $entity->id(),
-      'entity_type' => $entity->entityType(),
+      'entity_type' => $entity->getEntityTypeId(),
       'op' => $op,
       'count' => 0,
     );

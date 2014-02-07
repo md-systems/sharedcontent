@@ -160,7 +160,7 @@ interface IndexInterface extends ContentEntityInterface, EntityChangedInterface,
    * @return string
    *   The type of the indexed entity.
    */
-  public function getEntityType();
+  public function getIndexedEntityTypeId();
 
   /**
    * Sets the entity type.
@@ -171,7 +171,7 @@ interface IndexInterface extends ContentEntityInterface, EntityChangedInterface,
    * @return \Drupal\sharedcontent\IndexInterface
    *   The called index entity.
    */
-  public function setEntityType($type);
+  public function setIndexedEntityTypeId($type);
 
   /**
    * Returns the entity bundle.

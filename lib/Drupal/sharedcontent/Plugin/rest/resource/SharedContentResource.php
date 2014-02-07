@@ -85,7 +85,7 @@ class SharedContentResource extends EntityResource {
     $definition = $this->getPluginDefinition();
     // Verify that the deserialized entity is of the type that we expect to
     // prevent security issues.
-    if ($entity->entityType() != $definition['entity_type']) {
+    if ($entity->getEntityTypeId() != $definition['entity_type']) {
       throw new BadRequestHttpException(t('Invalid entity type'));
     }
     // POSTed entities must not have an ID set, because we always want to create
@@ -104,7 +104,7 @@ class SharedContentResource extends EntityResource {
     $this->validate($entity);
     try {
       $entity->save();
-      watchdog('rest', 'Created entity %type with UUID %uuid.', array('%type' => $entity->entityType(), '%uuid' => $entity->uuid()));
+      watchdog('rest', 'Created entity %type with UUID %uuid.', array('%type' => $entity->getEntityTypeId(), '%uuid' => $entity->uuid()));
 
       $url = url(strtr($this->pluginId, ':', '/') . '/' . $entity->uuid(), array('absolute' => TRUE));
       // 201 Created responses have an empty body.
@@ -141,7 +141,7 @@ class SharedContentResource extends EntityResource {
     }
 
     $definition = $this->getPluginDefinition();
-    if ($entity->entityType() != $definition['entity_type']) {
+    if ($entity->getEntityTypeId() != $definition['entity_type']) {
       throw new BadRequestHttpException(t('Invalid entity type'));
     }
 
@@ -175,7 +175,7 @@ class SharedContentResource extends EntityResource {
     $this->validate($original_entity);
     try {
       $original_entity->save();
-      watchdog('rest', 'Updated entity %type with UUID %uuid.', array('%type' => $entity->entityType(), '%uuid' => $entity->uuid()));
+      watchdog('rest', 'Updated entity %type with UUID %uuid.', array('%type' => $entity->getEntityTypeId(), '%uuid' => $entity->uuid()));
 
       // Update responses have an empty body.
       return new ResourceResponse(NULL, 204);

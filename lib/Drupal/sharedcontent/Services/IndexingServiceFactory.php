@@ -60,7 +60,7 @@ class IndexingServiceFactory extends ContainerAware {
    *   The id of the indexing service to be used.
    */
   public function getServiceId(EntityInterface $entity) {
-    $service_name = $this->getServiceName($entity->entityType(), $entity->bundle());
+    $service_name = $this->getServiceName($entity->getEntityTypeId(), $entity->bundle());
     return 'sharedcontent.indexing.' . $service_name;
   }
 

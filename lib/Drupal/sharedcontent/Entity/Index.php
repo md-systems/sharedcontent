@@ -11,8 +11,9 @@ use Drupal\Core\Annotation\Translation;
 use Drupal\Core\Entity\Annotation\EntityType;
 use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityNG;
+use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityStorageControllerInterface;
+use Drupal\Core\Field\FieldDefinition;
 use Drupal\file\FileInterface;
 use Drupal\sharedcontent\IndexInterface;
 
@@ -32,7 +33,7 @@ use Drupal\sharedcontent\IndexInterface;
  *   bundle_label = @Translation("Origin"),
  *   module = "sharedcontent",
  *   controllers = {
- *     "storage" = "Drupal\sharedcontent\Controller\IndexStorageController",
+ *     "storage" = "Drupal\Core\Entity\FieldableDatabaseStorageController",
  *     "access" = "Drupal\sharedcontent\Controller\IndexAccessController"
  *   },
  *   base_table = "sharedcontent_index",
@@ -49,7 +50,7 @@ use Drupal\sharedcontent\IndexInterface;
  *   }
  * )
  */
-class Index extends EntityNG implements IndexInterface {
+class Index extends ContentEntityBase implements IndexInterface {
 
   /**
    * {@inheritdoc}
@@ -115,14 +116,14 @@ class Index extends EntityNG implements IndexInterface {
   /**
    * {@inheritdoc}
    */
-  public function getEntityType() {
+  public function getIndexedEntityTypeId() {
     return $this->get('entity_type')->value;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setEntityType($type) {
+  public function setIndexedEntityTypeId($type) {
     $this->set('entity_type', $type);
     return $this;
   }
@@ -342,118 +343,95 @@ class Index extends EntityNG implements IndexInterface {
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions($entity_type) {
-    $properties['id'] = array(
-      'label' => t('Index ID'),
-      'description' => t('The index ID.'),
-      'type' => 'integer_field',
-      'read-only' => TRUE,
-    );
-    $properties['uuid'] = array(
-      'label' => t('UUID'),
-      'description' => t('The index UUID.'),
-      'type' => 'uuid_field',
-      'read-only' => TRUE,
-    );
-    $properties['parent_uuid'] = array(
-      'label' => t('Parent UUID'),
-      'description' => t('The UUID of the parent index.'),
-      'type' => 'string_field',
-    );
-    $properties['origin'] = array(
-      'label' => t('Bundle'),
-      'description' => t('The origin of the index.'),
-      'type' => 'string_field',
-    );
-    $properties['connection_name'] = array(
-      'label' => t('Site'),
-      'description' => t('The originating site of the indexed entity.'),
-      'type' => 'string_field',
-    );
-    $properties['entity_uuid'] = array(
-      'label' => t('Entity UUID'),
-      'description' => t('UUID of the indexed entity.'),
-      'type' => 'string_field',
-    );
-    $properties['entity_type'] = array(
-      'label' => t('Entity type'),
-      'description' => t('Type of the indexed entity.'),
-      'type' => 'string_field',
-    );
-    $properties['entity_bundle'] = array(
-      'label' => t('Entity bundle'),
-      'description' => t('Bundle of the indexed entity.'),
-      'type' => 'string_field',
-    );
-    $properties['title'] = array(
-      'label' => t('Title'),
-      'description' => t('Title of the indexed entity.'),
-      'type' => 'string_field',
-    );
-    $properties['langcode'] = array(
-      'label' => t('Language'),
-      'description' => t('Language of the indexed entity.'),
-      'type' => 'language_field',
-    );
-    $properties['translationset_id'] = array(
-      'label' => t('Translation set ID'),
-      'description' => t('ID of the translation set the indexed entity belongs to.'),
-      'type' => 'integer_field',
-    );
-    $properties['keywords'] = array(
-      'label' => t('Keywords'),
-      'description' => t('Keywords for the indexed entity.'),
-      'type' => 'string_field',
-    );
-    $properties['tags'] = array(
-      'label' => t('Generated Keywords'),
-      'description' => t('Auto generated Keywords for the indexed entity.'),
-      'type' => 'string_field',
-    );
-    $properties['url'] = array(
-      'label' => t('URL'),
-      'description' => t('The url of the indexed entity.'),
-      'type' => 'uri_field',
-    );
-    $properties['status'] = array(
-      'label' => t('Status'),
-      'description' => t('Status.'),
-      'type' => 'integer_field',
-    );
-    $properties['accessibility'] = array(
-      'label' => t('Accessibility'),
-      'description' => t('Indicates the degree the indexed entity is accessible.'),
-      'type' => 'integer_field',
-    );
-    $properties['entity_created'] = array(
-      'label' => t('Entity created'),
-      'description' => t('Creation date of the indexed entity.'),
-      'type' => 'integer_field',
-    );
-    $properties['entity_changed'] = array(
-      'label' => t('Entity changed'),
-      'description' => t('Changed date of the indexed entity.'),
-      'type' => 'integer_field',
-    );
-    $properties['created'] = array(
-      'label' => t('Created'),
-      'description' => t('Creation date of the index record.'),
-      'type' => 'integer_field',
-      'read-only' => TRUE,
-    );
-    $properties['changed'] = array(
-      'label' => t('Changed'),
-      'description' => t('Changed date of the index record.'),
-      'type' => 'integer_field',
-      'property_constraints' => array(
-        'value' => array('EntityChanged' => array()),
-      ),
-    );
-    $properties['is_linkable'] = array(
-      'label' => t('Is Linkable'),
-      'description' => t('Indicates if the index record can be linked.'),
-      'type' => 'boolean_field',
-      'read-only' => TRUE,
-    );
+    $fields['id'] = FieldDefinition::create('integer')
+      ->setLabel(t('Index ID'))
+      ->setDescription(t('The index ID.'))
+      ->setReadOnly(TRUE);
+
+    $fields['uuid'] = FieldDefinition::create('uuid')
+      ->setLabel(t('UUID'))
+      ->setDescription(t('The index UUID.'))
+      ->setReadOnly(TRUE);
+
+    $fields['parent_uuid'] = FieldDefinition::create('string')
+      ->setLabel(t('Parent UUID'))
+      ->setDescription(t('The UUID of the parent index.'));
+
+    $fields['origin'] = FieldDefinition::create('string')
+      ->setLabel(t('Bundle'))
+      ->setDescription(t('The origin of the index.'));
+
+    $fields['connection_name'] = FieldDefinition::create('string')
+      ->setLabel(t('Site'))
+      ->setDescription(t('The originating site of the indexed entity.'));
+
+    $fields['entity_uuid'] = FieldDefinition::create('string')
+      ->setLabel(t('Entity UUID'))
+      ->setDescription(t('UUID of the indexed entity.'));
+
+    $fields['entity_type'] = FieldDefinition::create('string')
+      ->setLabel(t('Entity type'))
+      ->setDescription(t('Type of the indexed entity.'));
+
+    $fields['entity_bundle'] = FieldDefinition::create('string')
+      ->setLabel(t('Entity bundle'))
+      ->setDescription(t('Bundle of the indexed entity.'));
+
+    $fields['title'] = FieldDefinition::create('string')
+      ->setLabel(t('Title'))
+      ->setDescription(t('Title of the indexed entity.'));
+
+    $fields['langcode'] = FieldDefinition::create('language')
+      ->setLabel(t('Language'))
+      ->setDescription(t('Language of the indexed entity.'));
+
+    $fields['translationset_id'] = FieldDefinition::create('integer')
+      ->setLabel(t('Translation set ID'))
+      ->setDescription(t('ID of the translation set the indexed entity belongs to.'));
+
+    $fields['keywords'] = FieldDefinition::create('string')
+      ->setLabel(t('Keywords'))
+      ->setDescription(t('Keywords for the indexed entity.'));
+
+    $fields['tags'] = FieldDefinition::create('string')
+      ->setLabel(t('Generated Keywords'))
+      ->setDescription(t('Auto generated Keywords for the indexed entity.'));
+
+    $fields['url'] = FieldDefinition::create('uri')
+      ->setLabel(t('URL'))
+      ->setDescription(t('The url of the indexed entity.'));
+
+    $fields['status'] = FieldDefinition::create('integer')
+      ->setLabel(t('Status'))
+      ->setDescription(t('Status.'));
+
+    $fields['accessibility'] = FieldDefinition::create('integer')
+      ->setLabel(t('Accessibility'))
+      ->setDescription(t('Indicates the degree the indexed entity is accessible.'));
+
+    $fields['entity_created'] = FieldDefinition::create('integer')
+      ->setLabel(t('Entity created'))
+      ->setDescription(t('Creation date of the indexed entity.'));
+
+    $fields['entity_changed'] = FieldDefinition::create('integer')
+      ->setLabel(t('Entity changed'))
+      ->setDescription(t('Changed date of the indexed entity.'));
+
+    $fields['created'] = FieldDefinition::create('integer')
+      ->setLabel(t('Created'))
+      ->setDescription(t('Creation date of the index record.'))
+      ->setReadOnly(TRUE);
+
+    $fields['changed'] = FieldDefinition::create('integer')
+      ->setLabel(t('Changed'))
+      ->setDescription(t('Changed date of the index record.'))
+      ->setPropertyConstraints('value', array('EntityChanged' => array()));
+
+    $fields['is_linkable'] = FieldDefinition::create('boolean')
+      ->setLabel(t('Is Linkable'))
+      ->setDescription(t('Indicates if the index record can be linked.'))
+      ->setReadOnly(TRUE);
+
     // @todo Where do those lines have to go?
 //    $properties['connection_name']['options list'] = 'sharedcontent_get_connection_labels';
 //    $properties['entity_bundle']['options list'] = 'sharedcontent_get_all_entity_bundle_labels';
@@ -475,7 +453,7 @@ class Index extends EntityNG implements IndexInterface {
 //        $properties[$key] = $flag_info;
 //      }
 //    }
-    return $properties;
+    return $fields;
   }
 
   /**
@@ -549,6 +527,8 @@ class Index extends EntityNG implements IndexInterface {
       'status' => IndexInterface::STATUS_VISIBLE,
       'accessibility' => IndexInterface::ACCESSIBILITY_PUBLIC,
       'origin' => IndexInterface::BUNDLE_LOCAL,
+      'keywords' => '',
+      'tags' => '',
       'created' => REQUEST_TIME,
     );
     parent::preCreate($storage_controller, $values);

@@ -25,6 +25,7 @@ class IndexingTest extends DrupalUnitTestBase {
     'entity',
     'field',
     'sharedcontent',
+    'text',
   );
 
   /**
@@ -48,6 +49,8 @@ class IndexingTest extends DrupalUnitTestBase {
   protected function setUp() {
     parent::setUp();
 
+    $this->installSchema('system', array('router'));
+
     $this->installSchema('sharedcontent', array(
       'sharedcontent_index',
       'sharedcontent_assignment',
@@ -62,7 +65,10 @@ class IndexingTest extends DrupalUnitTestBase {
   public function testIndexingNode() {
     $this->enableModules(array('node'));
 
+    \Drupal::service('router.builder')->rebuild();
+
     $entity = entity_create('node', array(
+      'nid' => 1,
       'title' => 'Indexed node',
       'type' => 'indexed',
       'created' => REQUEST_TIME,
@@ -78,17 +84,20 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getCreatedTime(), REQUEST_TIME, 'The index record was created within this request.');
     $this->assertEqual($index->getEntityChangedTime(), $entity->getChangedTime(), 'The changed time matches.');
     $this->assertEqual($index->getEntityCreatedTime(), $entity->getCreatedTime(), 'The created time matches.');
-    $this->assertEqual($index->getEntityType(), 'node', 'The entity type matches.');
+    $this->assertEqual($index->getIndexedEntityTypeId(), 'node', 'The entity type matches.');
     $this->assertEqual($index->getEntityBundle(), 'indexed', 'The entity bundle matches.');
     $this->assertEqual($index->getEntityUuid(), $entity->uuid(), 'The indexed id matches.');
     $this->assertEqual($index->getKeywords(), NULL, 'The keywords are empty.');
-    $this->assertEqual($index->getLangcode(), Language::LANGCODE_DEFAULT, 'The language is undefined.');
+    $this->assertEqual($index->getLangcode(), Language::LANGCODE_NOT_SPECIFIED, 'The language is undefined.');
     $this->assertEqual($index->getParentUuid(), NULL, 'The index has no parent.');
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'The index record has status visible.');
     $this->assertEqual($index->getTags(), NULL, 'The tags are empty.');
     $this->assertEqual($index->getTitle(), 'Indexed node', 'The title matches.');
-    $node_uri = $entity->uri();
-    $this->assertTrue(preg_match("|{$node_uri['path']}$|", $index->getUrl()), 'The translation set id is empty.');
+    $node_url = $entity->url();
+    $indexed_url = $index->getUrl();
+    $this->assertFalse(empty($indexed_url), 'The url is not empty.');
+    $this->assertTrue(preg_match("|^https?://|", $indexed_url), 'The url is absolute.');
+    $this->assertTrue(preg_match("|{$node_url}$|", $indexed_url), 'The url matches.');
 
     $this->indexing->delete($entity);
 
@@ -102,9 +111,12 @@ class IndexingTest extends DrupalUnitTestBase {
   public function testIndexingUser() {
     // When I create a new entity of type 'node' with bundle 'indexed'.
     $entity = entity_create('user', array(
+      'uid' => 42,
       'name' => 'Indexed user',
       'status' => 1,
     ));
+
+    \Drupal::service('router.builder')->rebuild();
 
     $this->indexing->index($entity);
 
@@ -115,17 +127,20 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getCreatedTime(), REQUEST_TIME, 'The index record was created within this request.');
     $this->assertEqual($index->getEntityChangedTime(), REQUEST_TIME, 'The changed time matches.');
     $this->assertEqual($index->getEntityCreatedTime(), $entity->getCreatedTime(), 'The created time matches.');
-    $this->assertEqual($index->getEntityType(), 'user', 'The entity type matches.');
+    $this->assertEqual($index->getIndexedEntityTypeId(), 'user', 'The entity type matches.');
     $this->assertEqual($index->getEntityBundle(), 'user', 'The entity bundle matches.');
     $this->assertEqual($index->getEntityUuid(), $entity->uuid(), 'The indexed id matches.');
     $this->assertEqual($index->getKeywords(), NULL, 'The keywords are empty.');
-    $this->assertEqual($index->getLangcode(), Language::LANGCODE_DEFAULT, 'The language is undefined.');
+    $this->assertEqual($index->getLangcode(), Language::LANGCODE_NOT_SPECIFIED, 'The language is undefined.');
     $this->assertEqual($index->getParentUuid(), NULL, 'The index has no parent.');
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'The index record has status visible.');
     $this->assertEqual($index->getTags(), NULL, 'The tags are empty.');
     $this->assertEqual($index->getTitle(), 'Indexed user', 'The title matches.');
-    $node_uri = $entity->uri();
-    $this->assertTrue(preg_match("|{$node_uri['path']}$|", $index->getUrl()), 'The translation set id is empty.');
+    $node_url = $entity->url();
+    $indexed_url = $index->getUrl();
+    $this->assertFalse(empty($indexed_url), 'The url is not empty.');
+    $this->assertTrue(preg_match("|^https?://|", $indexed_url), 'The url is absolute.');
+    $this->assertTrue(preg_match("|{$node_url}$|", $indexed_url), 'The url matches.');
 
     $this->indexing->delete($entity);
 
@@ -141,9 +156,13 @@ class IndexingTest extends DrupalUnitTestBase {
 
     file_put_contents('public://indexed.txt', $this->randomName());
     $entity = entity_create('file', array(
+      'fid' => 1,
       'uri' => 'public://indexed.txt',
-      'timestamp' => REQUEST_TIME,
+      'created' => REQUEST_TIME,
+      'changed' => REQUEST_TIME,
     ));
+
+    \Drupal::service('router.builder')->rebuild();
 
     $this->indexing->index($entity);
 
@@ -154,16 +173,19 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getCreatedTime(), REQUEST_TIME, 'The index record was created within this request.');
     $this->assertEqual($index->getEntityChangedTime(), REQUEST_TIME, 'The changed time matches.');
     $this->assertEqual($index->getEntityCreatedTime(), REQUEST_TIME, 'The created time matches.');
-    $this->assertEqual($index->getEntityType(), 'file', 'The entity type matches.');
+    $this->assertEqual($index->getIndexedEntityTypeId(), 'file', 'The entity type matches.');
     $this->assertEqual($index->getEntityBundle(), 'file', 'The entity bundle matches.');
     $this->assertEqual($index->getEntityUuid(), $entity->uuid(), 'The indexed id matches.');
     $this->assertEqual($index->getKeywords(), NULL, 'The keywords are empty.');
-    $this->assertEqual($index->getLangcode(), Language::LANGCODE_DEFAULT, 'The language is undefined.');
+    $this->assertEqual($index->getLangcode(), Language::LANGCODE_NOT_SPECIFIED, 'The language is undefined.');
     $this->assertEqual($index->getParentUuid(), NULL, 'The index has no parent.');
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'The index record has status visible.');
     $this->assertEqual($index->getTags(), NULL, 'The tags are empty.');
     $this->assertEqual($index->getTitle(), 'indexed.txt', 'The title matches.');
-    $this->assertTrue(preg_match('|indexed.txt$|', $index->getUrl()), 'The uri matches.');
+    $indexed_url = $index->getUrl();
+    $this->assertFalse(empty($indexed_url), 'The url is not empty.');
+    $this->assertTrue(preg_match("|^https?://|", $indexed_url), 'The url is absolute.');
+    $this->assertTrue(preg_match('|indexed.txt$|', $indexed_url), 'The url matches.');
 
     $this->indexing->delete($entity);
 
@@ -178,10 +200,13 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->enableModules(array('taxonomy'));
 
     $entity = entity_create('taxonomy_term', array(
+      'tid' => 1,
       'name' => 'Indexed term',
       'vid' => 'test_vocab',
       'changed' => REQUEST_TIME,
     ));
+
+    \Drupal::service('router.builder')->rebuild();
 
     $this->indexing->index($entity);
 
@@ -192,17 +217,20 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getCreatedTime(), REQUEST_TIME, 'The index record was created within this request.');
     $this->assertEqual($index->getEntityChangedTime(), $entity->getChangedTime(), 'The changed time matches.');
     $this->assertEqual($index->getEntityCreatedTime(), REQUEST_TIME, 'The created time matches.');
-    $this->assertEqual($index->getEntityType(), 'taxonomy_term', 'The entity type matches.');
+    $this->assertEqual($index->getIndexedEntityTypeId(), 'taxonomy_term', 'The entity type matches.');
     $this->assertEqual($index->getEntityBundle(), 'test_vocab', 'The entity bundle matches.');
     $this->assertEqual($index->getEntityUuid(), $entity->uuid(), 'The indexed id matches.');
     $this->assertEqual($index->getKeywords(), NULL, 'The keywords are empty.');
-    $this->assertEqual($index->getLangcode(), Language::LANGCODE_DEFAULT, 'The language is undefined.');
+    $this->assertEqual($index->getLangcode(), Language::LANGCODE_NOT_SPECIFIED, 'The language is undefined.');
     $this->assertEqual($index->getParentUuid(), NULL, 'The index has no parent.');
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'The index record has status visible.');
     $this->assertEqual($index->getTags(), NULL, 'The tags are empty.');
     $this->assertEqual($index->getTitle(), 'Indexed term', 'The title matches.');
-    $node_uri = $entity->uri();
-    $this->assertTrue(preg_match("|{$node_uri['path']}$|", $index->getUrl()), 'The translation set id is empty.');
+    $node_url = $entity->url();
+    $indexed_url = $index->getUrl();
+    $this->assertFalse(empty($indexed_url), 'The url is not empty.');
+    $this->assertTrue(preg_match("|^https?://|", $indexed_url), 'The url is absolute.');
+    $this->assertTrue(preg_match("|{$node_url}$|", $indexed_url), 'The url matches.');
 
     $this->indexing->delete($entity);
 
@@ -214,14 +242,17 @@ class IndexingTest extends DrupalUnitTestBase {
    * Test queued indexing.
    */
   public function testQueuedIndexing() {
-    $this->enableModules(array('node', 'shared'));
-    $this->installSchema('system', array('sequences', 'queue'));
+    $this->enableModules(array('filter', 'node', 'shared'));
+    $this->installSchema('system', array('queue', 'sequences'));
     $this->installSchema('user', array('users'));
     $this->installSchema('node', array(
       'node',
+      'node_revision',
       'node_field_data',
       'node_field_revision',
     ));
+
+    \Drupal::service('router.builder')->rebuild();
 
     $service = \Drupal::service('sharedcontent.indexing.queued');
 
@@ -239,7 +270,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertFalse($service->exists($entity), 'No index record was created.');
 
     $service->dequeue(array(
-      'entity_type' => $entity->entityType(),
+      'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
       'op' => 'index',
     ));
@@ -250,7 +281,7 @@ class IndexingTest extends DrupalUnitTestBase {
     $this->assertEqual($index->getStatus(), IndexInterface::STATUS_VISIBLE, 'Index hat status has not changed.');
 
     $service->dequeue(array(
-      'entity_type' => $entity->entityType(),
+      'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
       'op' => 'delete',
     ));
