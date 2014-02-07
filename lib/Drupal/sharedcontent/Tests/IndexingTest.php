@@ -25,6 +25,7 @@ class IndexingTest extends DrupalUnitTestBase {
     'entity',
     'field',
     'sharedcontent',
+    'text',
   );
 
   /**
@@ -241,11 +242,12 @@ class IndexingTest extends DrupalUnitTestBase {
    * Test queued indexing.
    */
   public function testQueuedIndexing() {
-    $this->enableModules(array('node', 'shared'));
-    $this->installSchema('system', array('sequences', 'queue'));
+    $this->enableModules(array('filter', 'node', 'shared'));
+    $this->installSchema('system', array('queue', 'sequences'));
     $this->installSchema('user', array('users'));
     $this->installSchema('node', array(
       'node',
+      'node_revision',
       'node_field_data',
       'node_field_revision',
     ));
