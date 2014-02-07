@@ -58,8 +58,15 @@ class SecurityTest extends EntityUnitTestBase {
     ));
     $term_b->save();
 
-    $reason_a = array('field_sharedcontent_reason' => $term_a);
-    $reason_b = array('field_sharedcontent_reason' => $term_b);
+    $reason_default = array(
+      'entity_uuid' => \Drupal::service('uuid')->generate(),
+      'entity_type' => 'test',
+      'entity_bundle' => 'test',
+      'title' => 'test',
+      'url' => 'http://example.com/test/1',
+    );
+    $reason_a = $reason_default + array('field_sharedcontent_reason' => $term_a);
+    $reason_b = $reason_default + array('field_sharedcontent_reason' => $term_b);
     $operations_all = array('view', 'create', 'update', 'delete');
     $operations_create = array('create');
     $operations_other = array('view', 'update', 'delete');
@@ -103,7 +110,11 @@ class SecurityTest extends EntityUnitTestBase {
    * Test assignment access.
    */
   public function testAssignmentAccess() {
-    $assignment = entity_create('sharedcontent_assignment', array());
+    $uuid_service = \Drupal::service('uuid');
+    $assignment = entity_create('sharedcontent_assignment', array(
+      'source' => $uuid_service->generate(),
+      'target' => $uuid_service->generate(),
+    ));
     $assignment->save();
 
     $operations_all = array('view', 'create', 'update', 'delete');

@@ -527,6 +527,8 @@ class Index extends ContentEntityBase implements IndexInterface {
       'status' => IndexInterface::STATUS_VISIBLE,
       'accessibility' => IndexInterface::ACCESSIBILITY_PUBLIC,
       'origin' => IndexInterface::BUNDLE_LOCAL,
+      'keywords' => '',
+      'tags' => '',
       'created' => REQUEST_TIME,
     );
     parent::preCreate($storage_controller, $values);

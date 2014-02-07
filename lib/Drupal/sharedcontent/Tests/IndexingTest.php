@@ -157,7 +157,8 @@ class IndexingTest extends DrupalUnitTestBase {
     $entity = entity_create('file', array(
       'fid' => 1,
       'uri' => 'public://indexed.txt',
-      'timestamp' => REQUEST_TIME,
+      'created' => REQUEST_TIME,
+      'changed' => REQUEST_TIME,
     ));
 
     \Drupal::service('router.builder')->rebuild();
